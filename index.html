@@ -2057,7 +2057,6 @@ function renderDashboard(){
   // Deltas
   const avgKcal = get7DayAverage('kcal');
   const avgP = get7DayAverage('p');
- <!-- ... existing code ... -->
   const avgVol = get7DayAverage('volume');
   const todayVol = App.data.workouts.filter(w=>w.date===todayStr()).reduce((a,w) => a + w.exercises.reduce((s,e) => s + e.sets.reduce((ss,st) => ss+(st.reps*st.weight||0),0),0),0);
 
@@ -4423,8 +4422,7 @@ function renderMissedPage() {
                 </div>
             </div>
             
-            <!-- ... existing code ... -->
-            <div class="card">
+                       <div class="card">
                 <h3>Log Diet</h3>
                 <p class="help">Foods logged: ${dFoods.length} items (${dFoods.reduce((a,f)=>a+f.kcal,0)} kcal)</p>
                 <button class="btn block mt" id="addMissedFoodBtn">+ Add Food</button>
