@@ -514,12 +514,30 @@ label{font-size:12px;color:var(--text-dim);font-weight:600;display:block;margin-
   animation:slideupModal .35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   box-shadow: 0 -10px 40px rgba(0,0,0,0.4);
 }
+/* Fixed-height picker modal so the search box never drifts as results filter */
+.modal.pick-modal{
+  height:82vh;max-height:82vh;
+  display:flex;flex-direction:column;
+  overflow-y:hidden;
+}
+.modal.pick-modal .modal-head{flex:0 0 auto;}
+.modal.pick-modal .search-row{flex:0 0 auto;position:sticky;top:0;z-index:2;background:var(--bg-elev);padding-bottom:8px;}
+.modal.pick-modal .pick-scroll{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+@media(min-width:640px){.modal.pick-modal{height:74vh;max-height:74vh;}}
 @media(min-width:640px){.modal{border-radius:16px;margin:20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);}}
 @keyframes slideupModal{from{transform:translateY(50px) scale(0.98);opacity:0;}to{transform:translateY(0) scale(1);opacity:1;}}
 .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .modal-head h2{font-size:18px;}
 .modal-close{background:none;border:none;font-size:20px;color:var(--text-faint);padding:4px 8px; transition: transform 0.2s;}
 .modal-close:hover { transform: rotate(90deg) scale(1.2); color: var(--danger); }
+
+.recipe-row{display:flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:8px 10px;}
+.recipe-row .ii-main{flex:1;min-width:0;}
+.recipe-row input[type="number"]{width:64px;padding:6px 8px;font-size:13px;background:var(--bg-elev);border:1px solid var(--line);border-radius:8px;}
+.blend-card{background:var(--card2);border:1px dashed var(--line);border-radius:var(--radius-sm);padding:12px;margin-bottom:10px;}
+.toggle-pill{display:inline-flex;background:var(--card2);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px;}
+.toggle-pill button{border:none;background:none;padding:6px 14px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--text-dim);}
+.toggle-pill button.on{background:var(--accent);color:#fff;}
 
 .toast-wrap{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:300;display:flex;flex-direction:column;gap:8px;align-items:center;}
 .toast{
@@ -788,6 +806,7 @@ label{font-size:12px;color:var(--text-dim);font-weight:600;display:block;margin-
 
   <div id="modalRoot"></div>
   <div id="modalRoot2"></div>
+  <div id="modalRoot3"></div>
   <div class="toast-wrap" id="toastWrap"></div>
   <div id="restTimerRoot"></div>
   <div id="muscleTooltip"></div>
@@ -930,7 +949,66 @@ const FOOD_DB = [
   {id:'salmon', name:'Salmon', type:'meat', unit:'100g', gPerUnit: 100, kcal:208, p:20, c:0, f:13, fiber:0, sugar:0},
   {id:'apple', name:'Apple', type:'general', unit:'1 medium', gPerUnit: 182, kcal:95, p:0.5, c:25, f:0.3, fiber:4.4, sugar:19},
   {id:'olive-oil', name:'Olive Oil', type:'general', unit:'1 tbsp (14g)', gPerUnit: 14, kcal:119, p:0, c:0, f:13.5, fiber:0, sugar:0},
+
+  // Mark existing raw-material items as prep-toggle eligible
+  // (flag added dynamically below via markPrep)
+
+  // ===== Seeds =====
+  {id:'basil-seeds', name:'Basil Seeds (Sabja)', type:'dry_seed', prep:true, unit:'100g', gPerUnit:100, kcal:379, p:14, c:42, f:25, fiber:24, sugar:0},
+  {id:'pumpkin-seeds', name:'Pumpkin Seeds', type:'dry_seed', prep:true, unit:'100g', gPerUnit:100, kcal:559, p:30, c:11, f:49, fiber:6, sugar:1.4},
+  {id:'flax-seeds', name:'Flax Seeds', type:'dry_seed', prep:true, unit:'100g', gPerUnit:100, kcal:534, p:18, c:29, f:42, fiber:27, sugar:1.6},
+  {id:'chia-seeds', name:'Chia Seeds', type:'dry_seed', prep:true, unit:'100g', gPerUnit:100, kcal:486, p:17, c:42, f:31, fiber:34, sugar:0},
+  {id:'sunflower-seeds', name:'Sunflower Seeds', type:'dry_seed', prep:true, unit:'100g', gPerUnit:100, kcal:584, p:21, c:20, f:51, fiber:9, sugar:2.6},
+  {id:'sesame-seeds', name:'Sesame Seeds', type:'dry_seed', prep:true, unit:'100g', gPerUnit:100, kcal:573, p:18, c:23, f:50, fiber:12, sugar:0.3},
+  {id:'watermelon-seeds', name:'Watermelon Seeds', type:'dry_seed', prep:true, unit:'100g', gPerUnit:100, kcal:557, p:28, c:15, f:47, fiber:4, sugar:0},
+
+  // ===== Legumes / Grains / Pulses =====
+  {id:'bengal-gram', name:'Bengal Gram (Pottu Kadalai)', type:'dry_seed', prep:true, unit:'100g', gPerUnit:100, kcal:387, p:20, c:58, f:6, fiber:11, sugar:8},
+  {id:'urad-dal', name:'Urad Dal (Ulundu)', type:'dry_seed', prep:true, unit:'100g', gPerUnit:100, kcal:341, p:25, c:59, f:1.6, fiber:18, sugar:2},
+  {id:'soya-chunks', name:'Soya Chunks', type:'dry_seed', prep:true, unit:'100g', gPerUnit:100, kcal:345, p:52, c:33, f:0.5, fiber:13, sugar:8},
+  {id:'peanuts', name:'Peanuts', type:'dry_seed', prep:true, unit:'100g', gPerUnit:100, kcal:567, p:26, c:16, f:49, fiber:8, sugar:4},
+  {id:'rajma', name:'Rajma (Kidney Beans)', type:'dry_seed', prep:true, unit:'100g', gPerUnit:100, kcal:333, p:24, c:60, f:0.8, fiber:15, sugar:2},
+  {id:'ragi', name:'Ragi (Finger Millet)', type:'dry_seed', prep:true, unit:'100g', gPerUnit:100, kcal:336, p:7.3, c:72, f:1.3, fiber:11, sugar:0},
+  {id:'green-gram-soaked', name:'Green Gram (Soaked/Sprouted)', type:'dry_seed', prep:true, unit:'100g', gPerUnit:100, kcal:105, p:7, c:19, f:0.5, fiber:5, sugar:2},
+  {id:'besan', name:'Besan (Gram Flour)', type:'dry_seed', prep:true, unit:'100g', gPerUnit:100, kcal:387, p:22, c:58, f:6, fiber:11, sugar:6},
+
+  // ===== Protein / Dairy =====
+  {id:'greek-yogurt', name:'Greek Yogurt', type:'general', unit:'100g', gPerUnit:100, kcal:59, p:10, c:3.6, f:0.4, fiber:0, sugar:3.6},
+  {id:'chicken-curry-cut', name:'Chicken (Curry Cut)', type:'meat', prep:true, unit:'100g', gPerUnit:100, kcal:215, p:18, c:0, f:15, fiber:0, sugar:0},
+  {id:'beef', name:'Beef', type:'meat', prep:true, unit:'100g', gPerUnit:100, kcal:250, p:26, c:0, f:15, fiber:0, sugar:0},
+
+  // ===== Vegetables =====
+  {id:'beetroot', name:'Beetroot', type:'veg', prep:true, unit:'100g', gPerUnit:100, kcal:43, p:1.6, c:10, f:0.2, fiber:2.8, sugar:7},
+  {id:'cauliflower', name:'Cauliflower', type:'veg', prep:true, unit:'100g', gPerUnit:100, kcal:25, p:2, c:5, f:0.3, fiber:2, sugar:2},
+  {id:'carrot', name:'Carrot', type:'veg', prep:true, unit:'100g', gPerUnit:100, kcal:41, p:0.9, c:10, f:0.2, fiber:2.8, sugar:4.7},
+
+  // ===== Cooked / composite dishes (no raw/cook toggle) =====
+  {id:'rasam', name:'Rasam', type:'general', unit:'100ml', gPerUnit:100, kcal:30, p:1, c:4.5, f:1, fiber:1, sugar:1.5},
+  {id:'brinji', name:'Brinji Rice', type:'general', unit:'100g', gPerUnit:100, kcal:180, p:4, c:28, f:6, fiber:1.5, sugar:1},
+  {id:'chicken-biriyani', name:'Chicken Biriyani', type:'general', unit:'100g', gPerUnit:100, kcal:200, p:9, c:24, f:7, fiber:1, sugar:1},
+  {id:'chicken-65', name:'Chicken 65', type:'general', unit:'100g', gPerUnit:100, kcal:250, p:20, c:10, f:15, fiber:0.5, sugar:2},
+  {id:'beef-65', name:'Beef 65', type:'general', unit:'100g', gPerUnit:100, kcal:260, p:22, c:9, f:16, fiber:0.5, sugar:2},
+  {id:'chilli-chicken', name:'Chilli Chicken', type:'general', unit:'100g', gPerUnit:100, kcal:220, p:18, c:12, f:12, fiber:1, sugar:3},
+  {id:'chilli-beef', name:'Chilli Beef', type:'general', unit:'100g', gPerUnit:100, kcal:230, p:20, c:11, f:13, fiber:1, sugar:3},
+  {id:'chicken-rice', name:'Chicken Rice', type:'general', unit:'100g', gPerUnit:100, kcal:190, p:8, c:26, f:5, fiber:0.8, sugar:0.5},
+  {id:'parotta', name:'Parotta', type:'general', unit:'1 piece', gPerUnit:80, kcal:280, p:5, c:40, f:11, fiber:1.5, sugar:1},
+  {id:'adai', name:'Adai', type:'general', unit:'1 piece', gPerUnit:80, kcal:150, p:6, c:22, f:4, fiber:2.5, sugar:0.5},
+  {id:'kool', name:'Kool (Millet Porridge)', type:'general', unit:'250ml', gPerUnit:250, kcal:120, p:4, c:22, f:2, fiber:2.5, sugar:2},
+  {id:'fish-curry', name:'Fish Curry', type:'general', unit:'100g', gPerUnit:100, kcal:150, p:14, c:4, f:9, fiber:0.5, sugar:1},
+
+  // ===== Beverages =====
+  {id:'tea', name:'Tea (Milk & Sugar)', type:'general', unit:'150ml', gPerUnit:150, kcal:60, p:1.5, c:9, f:2, fiber:0, sugar:8},
+  {id:'black-tea', name:'Black Tea (No Milk/Sugar)', type:'general', unit:'150ml', gPerUnit:150, kcal:2, p:0, c:0.5, f:0, fiber:0, sugar:0},
+  {id:'coffee', name:'Coffee (Milk & Sugar)', type:'general', unit:'150ml', gPerUnit:150, kcal:65, p:1.5, c:9, f:2.5, fiber:0, sugar:8},
+  {id:'black-coffee', name:'Black Coffee (No Milk/Sugar)', type:'general', unit:'150ml', gPerUnit:150, kcal:2, p:0, c:0.5, f:0, fiber:0, sugar:0},
+  {id:'lemon-tea', name:'Lemon Tea', type:'general', unit:'150ml', gPerUnit:150, kcal:30, p:0, c:7, f:0, fiber:0, sugar:6},
 ];
+
+// Mark specific pre-existing entries as raw/cook toggle eligible
+['chicken-breast','dal','green-gram','black-chana','white-chana'].forEach(id=>{
+  const f = FOOD_DB.find(x=>x.id===id);
+  if(f) f.prep = true;
+});
 
 const ACHIEVEMENT_DEFS = [
   {id:'first-log', name:'First Rep', desc:'Log your first workout', ic:'🏁', check:(d)=>d.workouts.length>=1},
@@ -1019,7 +1097,7 @@ function blankProfileData(){
   return {
     workouts:[], foodLogs:[], personalFoods:[], weightLogs:[], waterLogs:[], measurementLogs:[], meals:[],
     goals:[], routines: getDefaultRoutines(), prs:{}, achievements:[], photos:[],
-    schedTemplates: [], scheduledEvents: [],
+    schedTemplates: [], scheduledEvents: [], proteinBlend: null,
     settings:{waterTargetMl:5000, reminders:{water:false, meals:false, workout:false}, lastDigestWeek:null}
   };
 }
@@ -2810,12 +2888,14 @@ function renderDietPage(){
       <button data-t="today" class="${dietTab==='today'?'active':''}">Food Log</button>
       <button data-t="meals" class="${dietTab==='meals'?'active':''}">My Meals (Routines)</button>
       <button data-t="foods" class="${dietTab==='foods'?'active':''}">My Foods</button>
+      <button data-t="blend" class="${dietTab==='blend'?'active':''}">🥤 Protein Blend</button>
     </div>
     <div id="dietTabBody"></div>`;
   page.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{ dietTab=b.dataset.t; renderDietPage(); });
   const body = document.getElementById('dietTabBody');
   if(dietTab==='today') renderDietToday(body);
   else if(dietTab==='meals') renderDietMeals(body);
+  else if(dietTab==='blend') renderProteinBlend(body);
   else renderPersonalFoods(body);
 }
 
@@ -2901,12 +2981,19 @@ function renderDietToday(body){
 
 function openFoodPicker(targetDate, returnPage){
   const root = document.getElementById('modalRoot2');
+  const blend = App.data.proteinBlend;
   root.innerHTML = `
     <div class="modal-backdrop" id="mb2">
-      <div class="modal">
+      <div class="modal pick-modal">
         <div class="modal-head"><h2>Add Food</h2><button class="modal-close" id="mc2">&times;</button></div>
-        <div class="search-row"><input type="text" id="foodSearch" placeholder="Search foods..."></div>
-        <div class="list" id="foodPickList"></div>
+        <div class="search-row"><input type="text" id="foodSearch" placeholder="Search foods..." autocomplete="off"></div>
+        <div class="pick-scroll">
+          <div class="chiprow" style="margin-bottom:10px;">
+            <button class="btn sm primary" id="recipeComboBtn">🍳 Build a Recipe / Combo</button>
+            ${blend ? `<button class="btn sm" id="logBlendBtn">🥤 Log ${escapeHtml(blend.name||'Protein Blend')}</button>` : ''}
+          </div>
+          <div class="list" id="foodPickList"></div>
+        </div>
       </div>
     </div>`;
   
@@ -2914,10 +3001,10 @@ function openFoodPicker(targetDate, returnPage){
   
   function refresh(){
     const q = document.getElementById('foodSearch').value.toLowerCase();
-    const list = allFoodsList.filter(f=>f.name.toLowerCase().includes(q));
+    const list = q ? allFoodsList.filter(f=>f.name.toLowerCase().includes(q)) : allFoodsList;
     document.getElementById('foodPickList').innerHTML = list.map(f=>`
       <div class="item-row" style="cursor:pointer;" data-id="${f.id}">
-        <div class="ii-main"><div class="ii-title">${escapeHtml(f.name)}</div><div class="ii-sub">${f.unit} · ${f.kcal} kcal</div></div>
+        <div class="ii-main"><div class="ii-title">${escapeHtml(f.name)}</div><div class="ii-sub">${f.unit} · ${f.kcal} kcal${f.prep?' · raw/cook toggle':''}</div></div>
         <span class="chip">+</span>
       </div>`).join('') || `
         <div class="empty-state">
@@ -2944,6 +3031,9 @@ function openFoodPicker(targetDate, returnPage){
   document.getElementById('foodSearch').oninput = refresh;
   document.getElementById('mc2').onclick = ()=>document.getElementById('modalRoot2').innerHTML='';
   document.getElementById('mb2').onclick = (e)=>{ if(e.target.id==='mb2') document.getElementById('modalRoot2').innerHTML=''; };
+  document.getElementById('recipeComboBtn').onclick = ()=>openRecipeBuilder(targetDate, returnPage);
+  const blendBtn = document.getElementById('logBlendBtn');
+  if(blendBtn) blendBtn.onclick = ()=>openBlendLogPrompt(targetDate, returnPage);
   refresh();
 }
 
@@ -2959,12 +3049,14 @@ function openEditFoodLog(logId, returnPage){
 function getPrepMultiplier(foodType, prepState) {
     if (prepState === 'Raw') return 1.0;
     if (foodType === 'dry_seed') return 0.333; 
-    if (foodType === 'meat') return 1.333;     
+    if (foodType === 'meat') return 1.333;
+    if (foodType === 'veg') return 1.1;
     return 1.0;
 }
 
 function openQtyPrompt(food, targetDate, returnPage, existingLog = null){
   const hasGrams = !!food.gPerUnit;
+  const showPrep = !!food.prep;
   
   let currentState = 'Raw';
   if(existingLog) {
@@ -2981,15 +3073,16 @@ function openQtyPrompt(food, targetDate, returnPage, existingLog = null){
     <div class="modal-backdrop" id="mb2">
       <div class="modal" style="max-width:380px;">
         <div class="modal-head"><h2>${existingLog ? 'Edit' : 'Add'} ${escapeHtml(food.name)}</h2><button class="modal-close" id="mc2">&times;</button></div>
+        ${showPrep ? `
         <div class="field">
           <label>Preparation State</label>
-          <select id="prepSelect">
-            <option value="Raw" ${currentState==='Raw'?'selected':''}>Raw</option>
-            <option value="Boiled" ${currentState==='Boiled'?'selected':''}>Boiled</option>
-            <option value="Cooked" ${currentState==='Cooked'?'selected':''}>Cooked / Roasted</option>
-          </select>
-        </div>
-        <p class="help" id="macroHelpTxt">Per ${food.unit} (${currentState}): ${Math.round(food.kcal*currentMult)} kcal · P${round1(food.p*currentMult)}g C${round1(food.c*currentMult)}g F${round1(food.f*currentMult)}g</p>
+          <div class="toggle-pill" id="prepPill">
+            <button type="button" data-prep="Raw" class="${currentState==='Raw'?'on':''}">Raw</button>
+            <button type="button" data-prep="Boiled" class="${currentState==='Boiled'?'on':''}">Boiled</button>
+            <button type="button" data-prep="Cooked" class="${currentState==='Cooked'?'on':''}">Cooked/Roasted</button>
+          </div>
+        </div>` : ''}
+        <p class="help" id="macroHelpTxt">Per ${food.unit}${showPrep?` (${currentState})`:''}: ${Math.round(food.kcal*currentMult)} kcal · P${round1(food.p*currentMult)}g C${round1(food.c*currentMult)}g F${round1(food.f*currentMult)}g</p>
         <div class="field">
             <label>Quantity (${food.unit})</label>
             <input type="number" id="qtyInput" value="${initQty}" step="0.25" min="0">
@@ -3008,14 +3101,19 @@ function openQtyPrompt(food, targetDate, returnPage, existingLog = null){
     const perP = round1(food.p * currentMult);
     const perC = round1(food.c * currentMult);
     const perF = round1(food.f * currentMult);
-    document.getElementById('macroHelpTxt').textContent = `Per ${food.unit} (${currentState}): ${perK} kcal · P${perP}g C${perC}g F${perF}g`;
+    document.getElementById('macroHelpTxt').textContent = `Per ${food.unit}${showPrep?` (${currentState})`:''}: ${perK} kcal · P${perP}g C${perC}g F${perF}g`;
   }
 
-  document.getElementById('prepSelect').onchange = (e) => {
-      currentState = e.target.value;
-      currentMult = getPrepMultiplier(food.type || 'general', currentState);
-      updateMacroText();
-  };
+  if(showPrep){
+    document.getElementById('prepPill').querySelectorAll('[data-prep]').forEach(b=>{
+      b.onclick = () => {
+        currentState = b.dataset.prep;
+        currentMult = getPrepMultiplier(food.type || 'general', currentState);
+        document.getElementById('prepPill').querySelectorAll('[data-prep]').forEach(x=>x.classList.toggle('on', x===b));
+        updateMacroText();
+      };
+    });
+  }
 
   if (hasGrams) {
       document.getElementById('qtyInput').oninput = (e) => { 
@@ -3076,6 +3174,312 @@ function openQtyPrompt(food, targetDate, returnPage, existingLog = null){
     });
     persist(); document.getElementById('modalRoot2').innerHTML=''; toast('Added to log');
     
+    if(returnPage === 'diet') renderDietPage();
+    else if(returnPage === 'missed') renderMissedPage();
+  };
+}
+
+// ===================== Ad-hoc Recipe / Combo Builder =====================
+// Lets a user combine several base foods (each with its own quantity) into
+// a single logged entry, since a dish like "Soya chunks curry" is really
+// soya chunks + onion + tomato + oil + spices, and the amounts of each
+// differ every time it's cooked.
+function openRecipeBuilder(targetDate, returnPage){
+  const allFoodsList = [...FOOD_DB, ...(App.data.personalFoods||[])];
+  window._tempRecipeItems = [];
+
+  const root = document.getElementById('modalRoot2');
+  root.innerHTML = `
+    <div class="modal-backdrop" id="mbR">
+      <div class="modal" style="max-width:460px;">
+        <div class="modal-head"><h2>Build a Recipe / Combo</h2><button class="modal-close" id="mcR">&times;</button></div>
+        <p class="help">Combine multiple ingredients into one log entry — quantities can differ every time you cook it.</p>
+        <div class="field"><label>Recipe / Dish Name</label><input type="text" id="recipeName" placeholder="e.g. Soya Chunks Curry"></div>
+        <div class="list" id="recipeItemList" style="margin:10px 0;"></div>
+        <button class="btn sm" id="addIngredientBtn">+ Add Ingredient</button>
+        <div class="blend-card" style="margin-top:14px;">
+          <div id="recipeTotals" class="help">0 kcal · P0g C0g F0g</div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:10px;">
+          <input type="checkbox" id="saveAsPersonal"> Also save as a reusable food in "My Foods"
+        </label>
+        <button class="btn primary block" id="confirmRecipe">Add to Log</button>
+      </div>
+    </div>`;
+
+  function computeTotals(){
+    return window._tempRecipeItems.reduce((a,it)=>({
+      kcal:a.kcal+it.kcal, p:a.p+it.p, c:a.c+it.c, f:a.f+it.f,
+      fiber:a.fiber+(it.fiber||0), sugar:a.sugar+(it.sugar||0)
+    }), {kcal:0,p:0,c:0,f:0,fiber:0,sugar:0});
+  }
+
+  function renderItems(){
+    document.getElementById('recipeItemList').innerHTML = window._tempRecipeItems.map((it, idx)=>`
+      <div class="recipe-row">
+        <div class="ii-main"><div class="ii-title">${escapeHtml(it.name)}</div><div class="ii-sub">${it.grams}g · ${it.kcal} kcal</div></div>
+        <button class="iconbtn danger" data-rmrec="${idx}">🗑</button>
+      </div>`).join('') || `<span class="muted" style="font-size:12px;">No ingredients added yet.</span>`;
+    document.getElementById('recipeItemList').querySelectorAll('[data-rmrec]').forEach(b=>{
+      b.onclick = ()=>{ window._tempRecipeItems.splice(+b.dataset.rmrec,1); renderItems(); };
+    });
+    const t = computeTotals();
+    document.getElementById('recipeTotals').textContent = `Total: ${Math.round(t.kcal)} kcal · P${round1(t.p)}g C${round1(t.c)}g F${round1(t.f)}g · Fiber ${round1(t.fiber)}g · Sugar ${round1(t.sugar)}g`;
+  }
+
+  document.getElementById('addIngredientBtn').onclick = ()=>{
+    openIngredientPicker(allFoodsList, (item)=>{
+      window._tempRecipeItems.push(item);
+      renderItems();
+    });
+  };
+
+  document.getElementById('mcR').onclick = ()=>document.getElementById('modalRoot2').innerHTML='';
+  document.getElementById('mbR').onclick = (e)=>{ if(e.target.id==='mbR') document.getElementById('modalRoot2').innerHTML=''; };
+
+  document.getElementById('confirmRecipe').onclick = ()=>{
+    const name = document.getElementById('recipeName').value.trim();
+    if(!name){ toast('Name your recipe'); return; }
+    if(window._tempRecipeItems.length===0){ toast('Add at least one ingredient'); return; }
+    const t = computeTotals();
+    const totalGrams = window._tempRecipeItems.reduce((a,it)=>a+it.grams,0);
+
+    if(document.getElementById('saveAsPersonal').checked){
+      App.data.personalFoods = App.data.personalFoods||[];
+      App.data.personalFoods.push({
+        id:uid(), name, type:'general', unit:`${Math.round(totalGrams)}g (whole recipe)`, gPerUnit: totalGrams || 100,
+        kcal:Math.round(t.kcal), p:round1(t.p), c:round1(t.c), f:round1(t.f), fiber:round1(t.fiber), sugar:round1(t.sugar)
+      });
+      persist();
+    }
+
+    const entry = {
+      id:uid(), date:targetDate, foodId:null, name, qty:1,
+      kcal:Math.round(t.kcal), p:round1(t.p), c:round1(t.c), f:round1(t.f), fiber:round1(t.fiber), sugar:round1(t.sugar)
+    };
+
+    if (returnPage === 'mealBuilder') {
+      window._tempMealFoods = window._tempMealFoods || [];
+      window._tempMealFoods.push(entry);
+      document.getElementById('modalRoot2').innerHTML='';
+      if (window._renderMealChips) window._renderMealChips();
+      return;
+    }
+
+    App.data.foodLogs.push(entry);
+    persist(); document.getElementById('modalRoot2').innerHTML=''; toast('Recipe added to log');
+    if(returnPage === 'diet') renderDietPage();
+    else if(returnPage === 'missed') renderMissedPage();
+  };
+
+  renderItems();
+}
+
+// Small helper picker used inside the recipe builder & protein blend editor —
+// pick a base food, then specify grams for this particular use.
+function openIngredientPicker(allFoodsList, onPick){
+  const root = document.getElementById('modalRoot3') || (()=>{
+    const d = document.createElement('div'); d.id='modalRoot3'; document.body.appendChild(d); return d;
+  })();
+  root.innerHTML = `
+    <div class="modal-backdrop" id="mbI" style="z-index:170;">
+      <div class="modal pick-modal" style="max-width:420px;">
+        <div class="modal-head"><h2>Add Ingredient</h2><button class="modal-close" id="mcI">&times;</button></div>
+        <div class="search-row"><input type="text" id="ingSearch" placeholder="Search ingredients..." autocomplete="off"></div>
+        <div class="pick-scroll"><div class="list" id="ingPickList"></div></div>
+      </div>
+    </div>`;
+  function refresh(){
+    const q = document.getElementById('ingSearch').value.toLowerCase();
+    const list = q ? allFoodsList.filter(f=>f.name.toLowerCase().includes(q)) : allFoodsList;
+    document.getElementById('ingPickList').innerHTML = list.map(f=>`
+      <div class="item-row" style="cursor:pointer;" data-id="${f.id}">
+        <div class="ii-main"><div class="ii-title">${escapeHtml(f.name)}</div><div class="ii-sub">${f.unit} · ${f.kcal} kcal</div></div>
+        <span class="chip">+</span>
+      </div>`).join('') || `<div class="empty-state"><p>No matches found.</p></div>`;
+    document.getElementById('ingPickList').querySelectorAll('[data-id]').forEach(el=>{
+      el.onclick = ()=>{
+        const food = allFoodsList.find(f=>f.id===el.dataset.id);
+        openIngredientGrams(food, onPick);
+      };
+    });
+  }
+  document.getElementById('ingSearch').oninput = refresh;
+  document.getElementById('mcI').onclick = ()=>root.innerHTML='';
+  document.getElementById('mbI').onclick = (e)=>{ if(e.target.id==='mbI') root.innerHTML=''; };
+  refresh();
+}
+
+function openIngredientGrams(food, onPick){
+  const root = document.getElementById('modalRoot3');
+  const defGrams = food.gPerUnit || 100;
+  root.innerHTML = `
+    <div class="modal-backdrop" id="mbG" style="z-index:175;">
+      <div class="modal" style="max-width:360px;">
+        <div class="modal-head"><h2>${escapeHtml(food.name)}</h2><button class="modal-close" id="mcG">&times;</button></div>
+        <div class="field"><label>Amount used (grams)</label><input type="number" id="gramsIn" value="${defGrams}" min="0"></div>
+        <button class="btn primary block" id="confirmGrams" style="margin-top:10px;">Add Ingredient</button>
+      </div>
+    </div>`;
+  document.getElementById('mcG').onclick = ()=>root.innerHTML='';
+  document.getElementById('mbG').onclick = (e)=>{ if(e.target.id==='mbG') root.innerHTML=''; };
+  document.getElementById('confirmGrams').onclick = ()=>{
+    const grams = +document.getElementById('gramsIn').value || 0;
+    const ratio = grams / (food.gPerUnit || 100);
+    root.innerHTML = '';
+    onPick({
+      foodId: food.id, name: food.name, grams: round1(grams),
+      kcal: Math.round(food.kcal*ratio), p: round1(food.p*ratio), c: round1(food.c*ratio), f: round1(food.f*ratio),
+      fiber: round1((food.fiber||0)*ratio), sugar: round1((food.sugar||0)*ratio)
+    });
+  };
+}
+
+// ===================== Protein Powder Blend =====================
+// A special editable "recipe" that gets overwritten each time the user
+// re-blends a fresh batch (different ingredients/grams allowed each time).
+function renderProteinBlend(body){
+  const allFoodsList = [...FOOD_DB, ...(App.data.personalFoods||[])];
+  const blend = App.data.proteinBlend;
+  window._tempBlendItems = blend ? blend.items.map(it=>({...it})) : [
+    {foodId:'black-chana', name:'Black Chana (roasted)', grams:120, kcal:0,p:0,c:0,f:0,fiber:0,sugar:0},
+    {foodId:'green-gram', name:'Green Gram (roasted)', grams:143, kcal:0,p:0,c:0,f:0,fiber:0,sugar:0},
+    {foodId:'pumpkin-seeds', name:'Pumpkin Seeds (roasted)', grams:20, kcal:0,p:0,c:0,f:0,fiber:0,sugar:0},
+    {foodId:'flax-seeds', name:'Flax Seeds', grams:15, kcal:0,p:0,c:0,f:0,fiber:0,sugar:0},
+    {foodId:'sesame-seeds', name:'Sesame Seeds', grams:15, kcal:0,p:0,c:0,f:0,fiber:0,sugar:0},
+  ];
+  // fill in macro values for default/prefilled items using cooked multiplier where relevant
+  window._tempBlendItems.forEach(it=>{
+    const f = allFoodsList.find(x=>x.id===it.foodId);
+    if(f && !it.kcal){
+      const mult = it.name.toLowerCase().includes('roasted') ? getPrepMultiplier(f.type,'Cooked') : 1;
+      const ratio = (it.grams/(f.gPerUnit||100)) * mult;
+      it.kcal = Math.round(f.kcal*ratio); it.p = round1(f.p*ratio); it.c = round1(f.c*ratio); it.f = round1(f.f*ratio);
+      it.fiber = round1((f.fiber||0)*ratio); it.sugar = round1((f.sugar||0)*ratio);
+    }
+  });
+
+  body.innerHTML = `
+    <div class="card">
+      <div class="card-title-row"><h3 style="margin:0;">🥤 My Protein Powder Blend</h3></div>
+      <p class="help">Blend ingredients below. Saving <b>overwrites</b> your previous blend — use this each time you run out and mix a fresh batch, with different grams or ingredients.</p>
+      <div class="field"><label>Blend Name</label><input type="text" id="blendName" value="${escapeHtml(blend?.name || 'My Protein Blend')}"></div>
+      <div class="list" id="blendItemList" style="margin:10px 0;"></div>
+      <button class="btn sm" id="addBlendIngredientBtn">+ Add Ingredient</button>
+      <div class="blend-card" style="margin-top:14px;">
+        <div id="blendTotals" class="help"></div>
+        <div class="field" style="margin-top:8px;">
+          <label>Serving size (grams per scoop)</label>
+          <input type="number" id="servingGrams" value="${blend?.servingGrams || 30}" min="1">
+        </div>
+        <div id="blendPerServing" class="help"></div>
+      </div>
+      <button class="btn primary block" id="saveBlendBtn" style="margin-top:12px;">💾 Save Blend (overwrites previous)</button>
+      ${blend ? `<button class="btn block" id="logBlendServingBtn" style="margin-top:8px;">+ Log a Serving to Today</button>` : ''}
+    </div>`;
+
+  function computeTotals(){
+    return window._tempBlendItems.reduce((a,it)=>({
+      grams:a.grams+it.grams, kcal:a.kcal+it.kcal, p:a.p+it.p, c:a.c+it.c, f:a.f+it.f,
+      fiber:a.fiber+(it.fiber||0), sugar:a.sugar+(it.sugar||0)
+    }), {grams:0,kcal:0,p:0,c:0,f:0,fiber:0,sugar:0});
+  }
+
+  function renderItems(){
+    document.getElementById('blendItemList').innerHTML = window._tempBlendItems.map((it, idx)=>`
+      <div class="recipe-row">
+        <div class="ii-main"><div class="ii-title">${escapeHtml(it.name)}</div><div class="ii-sub">${it.kcal} kcal</div></div>
+        <input type="number" data-gramsedit="${idx}" value="${it.grams}" min="0">
+        <span class="muted" style="font-size:12px;">g</span>
+        <button class="iconbtn danger" data-rmblend="${idx}">🗑</button>
+      </div>`).join('') || `<span class="muted" style="font-size:12px;">No ingredients yet.</span>`;
+
+    document.getElementById('blendItemList').querySelectorAll('[data-rmblend]').forEach(b=>{
+      b.onclick = ()=>{ window._tempBlendItems.splice(+b.dataset.rmblend,1); renderItems(); };
+    });
+    document.getElementById('blendItemList').querySelectorAll('[data-gramsedit]').forEach(inp=>{
+      inp.onchange = ()=>{
+        const idx = +inp.dataset.gramsedit;
+        const it = window._tempBlendItems[idx];
+        const f = allFoodsList.find(x=>x.id===it.foodId);
+        const newGrams = +inp.value || 0;
+        if(f){
+          const ratio = newGrams/(f.gPerUnit||100);
+          it.grams=newGrams; it.kcal=Math.round(f.kcal*ratio); it.p=round1(f.p*ratio); it.c=round1(f.c*ratio); it.f=round1(f.f*ratio);
+          it.fiber=round1((f.fiber||0)*ratio); it.sugar=round1((f.sugar||0)*ratio);
+        } else { it.grams = newGrams; }
+        renderItems();
+      };
+    });
+
+    const t = computeTotals();
+    document.getElementById('blendTotals').textContent = `Whole batch (${round1(t.grams)}g): ${Math.round(t.kcal)} kcal · P${round1(t.p)}g C${round1(t.c)}g F${round1(t.f)}g · Fiber ${round1(t.fiber)}g`;
+    const servingGrams = +document.getElementById('servingGrams').value || 30;
+    const sr = t.grams ? servingGrams/t.grams : 0;
+    document.getElementById('blendPerServing').textContent = `Per ${servingGrams}g serving: ${Math.round(t.kcal*sr)} kcal · P${round1(t.p*sr)}g C${round1(t.c*sr)}g F${round1(t.f*sr)}g`;
+  }
+
+  document.getElementById('servingGrams').oninput = renderItems;
+
+  document.getElementById('addBlendIngredientBtn').onclick = ()=>{
+    openIngredientPicker(allFoodsList, (item)=>{
+      window._tempBlendItems.push(item);
+      renderItems();
+    });
+  };
+
+  document.getElementById('saveBlendBtn').onclick = ()=>{
+    if(window._tempBlendItems.length===0){ toast('Add at least one ingredient'); return; }
+    const t = computeTotals();
+    App.data.proteinBlend = {
+      name: document.getElementById('blendName').value.trim() || 'My Protein Blend',
+      items: window._tempBlendItems.map(it=>({...it})),
+      totalGrams: round1(t.grams),
+      servingGrams: +document.getElementById('servingGrams').value || 30,
+      updated: todayStr()
+    };
+    persist(); toast('Blend saved — previous blend overwritten'); renderProteinBlend(body);
+  };
+
+  const logBtn = document.getElementById('logBlendServingBtn');
+  if(logBtn) logBtn.onclick = ()=>openBlendLogPrompt(dietDate, 'diet');
+
+  renderItems();
+}
+
+function openBlendLogPrompt(targetDate, returnPage){
+  const blend = App.data.proteinBlend;
+  if(!blend){ toast('No protein blend saved yet'); return; }
+  const t = blend.items.reduce((a,it)=>({kcal:a.kcal+it.kcal,p:a.p+it.p,c:a.c+it.c,f:a.f+it.f,fiber:a.fiber+(it.fiber||0),sugar:a.sugar+(it.sugar||0)}),{kcal:0,p:0,c:0,f:0,fiber:0,sugar:0});
+  const root = document.getElementById('modalRoot2');
+  root.innerHTML = `
+    <div class="modal-backdrop" id="mbBL">
+      <div class="modal" style="max-width:360px;">
+        <div class="modal-head"><h2>Log ${escapeHtml(blend.name)}</h2><button class="modal-close" id="mcBL">&times;</button></div>
+        <p class="help">Whole batch is ${round1(blend.totalGrams)}g · ${Math.round(t.kcal)} kcal total.</p>
+        <div class="field"><label>Grams to log</label><input type="number" id="blendGramsIn" value="${blend.servingGrams||30}" min="0"></div>
+        <button class="btn primary block" id="confirmBlendLog" style="margin-top:10px;">Add to Log</button>
+      </div>
+    </div>`;
+  document.getElementById('mcBL').onclick = ()=>document.getElementById('modalRoot2').innerHTML='';
+  document.getElementById('mbBL').onclick = (e)=>{ if(e.target.id==='mbBL') document.getElementById('modalRoot2').innerHTML=''; };
+  document.getElementById('confirmBlendLog').onclick = ()=>{
+    const grams = +document.getElementById('blendGramsIn').value || 0;
+    const ratio = blend.totalGrams ? grams/blend.totalGrams : 0;
+    const entry = {
+      id:uid(), date:targetDate, foodId:null, name:`${blend.name} (${round1(grams)}g)`, qty:1,
+      kcal:Math.round(t.kcal*ratio), p:round1(t.p*ratio), c:round1(t.c*ratio), f:round1(t.f*ratio),
+      fiber:round1(t.fiber*ratio), sugar:round1(t.sugar*ratio)
+    };
+    if (returnPage === 'mealBuilder') {
+      window._tempMealFoods = window._tempMealFoods || [];
+      window._tempMealFoods.push(entry);
+      document.getElementById('modalRoot2').innerHTML='';
+      if (window._renderMealChips) window._renderMealChips();
+      return;
+    }
+    App.data.foodLogs.push(entry);
+    persist(); document.getElementById('modalRoot2').innerHTML=''; toast('Blend serving logged');
     if(returnPage === 'diet') renderDietPage();
     else if(returnPage === 'missed') renderMissedPage();
   };
