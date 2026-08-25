@@ -4127,44 +4127,53 @@ const FOOD_LIST_SORTS = {
 function renderFoodList(body){
   const allFoods = getAllFoodsWithOverrides();
 
-  function draw(){
+  // Shell (input/select) is rendered ONCE. Re-rendering the input on every
+  // keystroke (via body.innerHTML) would destroy and recreate the element,
+  // stealing focus and dismissing the mobile keyboard after each key press.
+  // Only the results list below is refreshed on input/sort changes.
+  body.innerHTML = `
+    <div class="card">
+      <div class="card-title-row"><h3 style="margin:0;">Food List <span class="tag muted" id="foodListCount">${allFoods.length}</span></h3></div>
+      <div class="search-row">
+        <input type="text" id="foodListSearch" placeholder="Search foods..." autocomplete="off" value="${escapeHtml(foodListSearch)}">
+        <select id="foodListSortSel" style="width:auto;">
+          ${Object.entries(FOOD_LIST_SORTS).map(([k,v])=>`<option value="${k}" ${foodListSort===k?'selected':''}>${v.label}</option>`).join('')}
+        </select>
+      </div>
+      <div id="foodListResults" class="mt"></div>
+    </div>`;
+
+  function drawResults(){
     const q = foodListSearch.toLowerCase();
     const filtered = q ? allFoods.filter(f=>f.name.toLowerCase().includes(q)) : allFoods.slice();
     filtered.sort(FOOD_LIST_SORTS[foodListSort].cmp);
 
-    body.innerHTML = `
-      <div class="card">
-        <div class="card-title-row"><h3 style="margin:0;">Food List <span class="tag muted">${filtered.length}</span></h3></div>
-        <div class="search-row">
-          <input type="text" id="foodListSearch" placeholder="Search foods..." autocomplete="off" value="${escapeHtml(foodListSearch)}">
-          <select id="foodListSortSel" style="width:auto;">
-            ${Object.entries(FOOD_LIST_SORTS).map(([k,v])=>`<option value="${k}" ${foodListSort===k?'selected':''}>${v.label}</option>`).join('')}
-          </select>
-        </div>
-        ${filtered.length===0 ? `<div class="empty-state"><span class="ic">🥗</span><p>No foods match your search.</p></div>` :
-        `<div class="list mt">${filtered.map(f=>`
-          <div class="item-row">
-            <div class="ii-main"><div class="ii-title">${escapeHtml(f.name)}</div>
-            <div class="ii-sub">${f.unit} · ${f.kcal} kcal · P${round1(f.p)} C${round1(f.c)} F${round1(f.f)}</div></div>
-            <div class="ii-actions">
-              <button class="iconbtn" data-editfl="${f.id}" title="Edit">✏️</button>
-              <button class="iconbtn" data-addfl="${f.id}" title="Add to today's log">➕</button>
-            </div>
-          </div>`).join('')}</div>`}
-      </div>`;
+    document.getElementById('foodListCount').textContent = filtered.length;
+    document.getElementById('foodListResults').innerHTML =
+      filtered.length===0 ? `<div class="empty-state"><span class="ic">🥗</span><p>No foods match your search.</p></div>` :
+      `<div class="list">${filtered.map(f=>`
+        <div class="item-row">
+          <div class="ii-main"><div class="ii-title">${escapeHtml(f.name)}</div>
+          <div class="ii-sub">${f.unit} · ${f.kcal} kcal · P${round1(f.p)} C${round1(f.c)} F${round1(f.f)}</div></div>
+          <div class="ii-actions">
+            <button class="iconbtn" data-editfl="${f.id}" title="Edit">✏️</button>
+            <button class="iconbtn" data-addfl="${f.id}" title="Add to today's log">➕</button>
+          </div>
+        </div>`).join('')}</div>`;
 
-    document.getElementById('foodListSearch').oninput = (e)=>{ foodListSearch = e.target.value; draw(); };
-    document.getElementById('foodListSortSel').onchange = (e)=>{ foodListSort = e.target.value; draw(); };
-    body.querySelectorAll('[data-editfl]').forEach(b=>b.onclick=()=>{
+    document.getElementById('foodListResults').querySelectorAll('[data-editfl]').forEach(b=>b.onclick=()=>{
       const food = allFoods.find(f=>f.id===b.dataset.editfl);
       openEditFoodModal(food, ()=>{ renderFoodList(body); });
     });
-    body.querySelectorAll('[data-addfl]').forEach(b=>b.onclick=()=>{
+    document.getElementById('foodListResults').querySelectorAll('[data-addfl]').forEach(b=>b.onclick=()=>{
       const food = allFoods.find(f=>f.id===b.dataset.addfl);
       openQtyPrompt(food, dietDate, 'diet');
     });
   }
-  draw();
+
+  document.getElementById('foodListSearch').oninput = (e)=>{ foodListSearch = e.target.value; drawResults(); };
+  document.getElementById('foodListSortSel').onchange = (e)=>{ foodListSort = e.target.value; drawResults(); };
+  drawResults();
 }
 
 function renderDietToday(body){
