@@ -3787,6 +3787,10 @@ function renderWorkoutPage(){
 
 function renderWorkoutLog(body){
   const d = App.workoutDraft;
+  const loggedForDate = App.data.workouts
+    .filter(w=>w.date===d.date && w.id !== d.id)
+    .sort((a,b)=> (b.createdAt||'').localeCompare(a.createdAt||''));
+
   body.innerHTML = `
     <div class="card">
       <div class="card-title-row">
@@ -3798,12 +3802,34 @@ function renderWorkoutLog(body){
       `<div class="list" id="draftExerciseList"></div>`}
       <button class="btn primary block mt" id="addExerciseBtn">+ Add Exercise</button>
       ${d.exercises.length>0 ? `<button class="btn accent2 block mt" id="saveWorkoutBtn">✔ Finish & Save Workout</button>` : ''}
-    </div>`;
-  document.getElementById('workoutDate').onchange = (e)=>{ App.workoutDraft.date = e.target.value; };
+    </div>
+    ${loggedForDate.length>0 ? `
+    <div class="section-head"><h2>Logged Exercises</h2><span class="tag muted">${loggedForDate.reduce((a,w)=>a+w.exercises.length,0)}</span></div>
+    <div class="list">${loggedForDate.map(w=>w.exercises.map((e,ei)=>{
+      const ex = EXERCISE_LIBRARY.find(x=>x.id===e.exerciseId);
+      const isCardio = ex && ex.cat === 'Cardio';
+      const setLines = e.sets.map((s,si)=>{
+        const rpeStr = s.rpe ? ` (RPE ${s.rpe})` : '';
+        return isCardio ? `Set ${si+1}: ${s.reps||0} min${s.weight?` · Lvl ${s.weight}`:''}${rpeStr}`
+                         : `Set ${si+1}: ${s.reps||0} reps × ${s.weight||0}kg${rpeStr}`;
+      }).join('<br>');
+      const supTag = e.superset ? `<span class="superset-tag">🔗 Superset ${e.superset}</span>` : '';
+      return `<div class="item-row">
+        <div class="ii-main"><div class="ii-title">${ex?ex.name:'Unknown'} ${supTag}</div>
+        <div class="ii-sub">${ex?`${ex.cat} (${ex.variation})`:''}</div>
+        <div class="micro-row" style="flex-direction:column;align-items:flex-start;gap:2px;">${setLines}</div>
+        </div>
+        <div class="ii-actions">
+           <button class="iconbtn" data-editloggedw="${w.id}">✏️</button>
+           <button class="iconbtn danger" data-delloggedex="${w.id}:${ei}">🗑</button>
+        </div>
+      </div>`;
+    }).join('')).join('')}</div>` : ''}`;
+  document.getElementById('workoutDate').onchange = (e)=>{ App.workoutDraft.date = e.target.value; renderWorkoutLog(body); };
   document.getElementById('addExerciseBtn').onclick = ()=>openExercisePicker();
   
   const loadBtn = document.getElementById('loadTemplateBtn');
-  if(loadBtn) loadBtn.onclick = ()=>{ workoutTab='routines'; renderWorkoutPage(); };
+  if(loadBtn) loadBtn.onclick = ()=>{ workoutTab = 'routines'; renderWorkoutPage(); };
   
   const cancelBtn = document.getElementById('cancelEditWkBtn');
   if(cancelBtn) cancelBtn.onclick = ()=>{ App.workoutDraft = {date: todayStr(), exercises:[]}; renderWorkoutPage(); };
@@ -3811,6 +3837,25 @@ function renderWorkoutLog(body){
   const saveBtn = document.getElementById('saveWorkoutBtn');
   if(saveBtn) saveBtn.onclick = saveDraftWorkout;
   if(d.exercises.length>0) renderDraftExerciseList();
+
+  body.querySelectorAll('[data-editloggedw]').forEach(b=>b.onclick=()=>{
+    const w = App.data.workouts.find(x=>x.id===b.dataset.editloggedw);
+    App.workoutDraft = { id: w.id, date: w.date, exercises: JSON.parse(JSON.stringify(w.exercises)) };
+    renderWorkoutLog(body);
+    toast('Workout loaded for editing');
+  });
+  body.querySelectorAll('[data-delloggedex]').forEach(b=>b.onclick=()=>{
+    const [wid, exIdx] = b.dataset.delloggedex.split(':');
+    confirmDialog('Remove this exercise from the logged workout?', ()=>{
+      const w = App.data.workouts.find(x=>x.id===wid);
+      if(!w) return;
+      w.exercises.splice(+exIdx, 1);
+      if(w.exercises.length===0){
+        App.data.workouts = App.data.workouts.filter(x=>x.id!==wid);
+      }
+      persist(); renderWorkoutLog(body); toast('Exercise removed');
+    }, {danger:true, yesLabel:'Remove'});
+  });
 }
 
 function renderDraftExerciseList(){
