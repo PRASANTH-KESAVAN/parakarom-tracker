@@ -3738,36 +3738,6 @@ function renderWorkoutPage(){
   else renderWorkoutHistory(body);
 }
 
-function fmtSetsSummary(ex, sets){
-  const isCardio = ex && ex.cat === 'Cardio';
-  return sets.map(s=>{
-    if(isCardio) return `${s.reps||0}min@${s.weight||0}`;
-    return `${s.reps||0}×${s.weight||0}${s.rpe?` @RPE${s.rpe}`:''}`;
-  }).join(', ');
-}
-
-function renderLoggedForDate(date, excludeId){
-  const workouts = (App.data.workouts||[]).filter(w=>w.date===date && w.id!==excludeId);
-  if(workouts.length===0) return '';
-  return `<div class="card" id="loggedForDateCard" style="background:var(--card2);">
-    <div class="card-title-row"><h3 style="margin:0;">📅 Already logged — ${fmtDateFull(date)}</h3></div>
-    <div class="list">${workouts.map(w=>{
-      const totalSets = w.exercises.reduce((a,e)=>a+e.sets.length,0);
-      return `<div class="list" style="gap:4px;">${w.exercises.map(e=>{
-        const ex = EXERCISE_LIBRARY.find(x=>x.id===e.exerciseId);
-        return `<div class="item-row">
-          <div class="ii-main"><div class="ii-title">${ex?ex.name:'Unknown'} ${e.superset?'🔗':''}</div><div class="ii-sub">${fmtSetsSummary(ex, e.sets)}</div></div>
-        </div>`;
-      }).join('')}
-      <div class="ii-actions" style="justify-content:flex-end;padding:4px 0 8px;">
-        <span class="chip" style="font-size:9.5px;">${w.exercises.length} exercises · ${totalSets} sets</span>
-        <button class="btn sm" data-editloggedw="${w.id}">✏️ Edit</button>
-        <button class="iconbtn danger" data-dellloggedw="${w.id}">🗑</button>
-      </div></div>`;
-    }).join('<div style="height:8px;"></div>')}</div>
-  </div>`;
-}
-
 function renderWorkoutLog(body){
   const d = App.workoutDraft;
   body.innerHTML = `
@@ -3781,9 +3751,8 @@ function renderWorkoutLog(body){
       `<div class="list" id="draftExerciseList"></div>`}
       <button class="btn primary block mt" id="addExerciseBtn">+ Add Exercise</button>
       ${d.exercises.length>0 ? `<button class="btn accent2 block mt" id="saveWorkoutBtn">✔ Finish & Save Workout</button>` : ''}
-    </div>
-    ${renderLoggedForDate(d.date, d.id)}`;
-  document.getElementById('workoutDate').onchange = (e)=>{ App.workoutDraft.date = e.target.value; renderWorkoutLog(body); };
+    </div>`;
+  document.getElementById('workoutDate').onchange = (e)=>{ App.workoutDraft.date = e.target.value; };
   document.getElementById('addExerciseBtn').onclick = ()=>openExercisePicker();
   
   const loadBtn = document.getElementById('loadTemplateBtn');
@@ -3795,20 +3764,6 @@ function renderWorkoutLog(body){
   const saveBtn = document.getElementById('saveWorkoutBtn');
   if(saveBtn) saveBtn.onclick = saveDraftWorkout;
   if(d.exercises.length>0) renderDraftExerciseList();
-
-  body.querySelectorAll('[data-editloggedw]').forEach(b=>b.onclick=()=>{
-    const w = App.data.workouts.find(x=>x.id===b.dataset.editloggedw);
-    if(!w) return;
-    App.workoutDraft = { id: w.id, date: w.date, exercises: JSON.parse(JSON.stringify(w.exercises)) };
-    renderWorkoutLog(body);
-    toast('Workout loaded for editing');
-  });
-  body.querySelectorAll('[data-dellloggedw]').forEach(b=>b.onclick=()=>{
-    confirmDialog('Delete this workout log permanently?', ()=>{
-      App.data.workouts = App.data.workouts.filter(w=>w.id!==b.dataset.dellloggedw);
-      persist(); renderWorkoutLog(body); toast('Workout deleted');
-    }, {danger:true, yesLabel:'Delete'});
-  });
 }
 
 function renderDraftExerciseList(){
@@ -4143,6 +4098,7 @@ function renderDietPage(){
       <button data-t="today" class="${dietTab==='today'?'active':''}">Food Log</button>
       <button data-t="meals" class="${dietTab==='meals'?'active':''}">My Meals (Routines)</button>
       <button data-t="foods" class="${dietTab==='foods'?'active':''}">My Foods</button>
+      <button data-t="list" class="${dietTab==='list'?'active':''}">📋 Food List</button>
       <button data-t="blend" class="${dietTab==='blend'?'active':''}">🥤 Protein Blend</button>
     </div>
     <div id="dietTabBody"></div>`;
@@ -4151,7 +4107,64 @@ function renderDietPage(){
   if(dietTab==='today') renderDietToday(body);
   else if(dietTab==='meals') renderDietMeals(body);
   else if(dietTab==='blend') renderProteinBlend(body);
+  else if(dietTab==='list') renderFoodList(body);
   else renderPersonalFoods(body);
+}
+
+// ===================== Food List (all foods, sortable) =====================
+let foodListSort = 'name';
+let foodListSearch = '';
+const FOOD_LIST_SORTS = {
+  'name':        { label: 'Name (A–Z)',                cmp: (a,b)=> a.name.localeCompare(b.name) },
+  'protein':     { label: 'Protein (High → Low)',       cmp: (a,b)=> b.p - a.p },
+  'protein-asc': { label: 'Protein (Low → High)',       cmp: (a,b)=> a.p - b.p },
+  'kcal-asc':    { label: 'Calories (Low → High)',      cmp: (a,b)=> a.kcal - b.kcal },
+  'kcal-desc':   { label: 'Calories (High → Low)',      cmp: (a,b)=> b.kcal - a.kcal },
+  'ratio-desc':  { label: 'High Protein, Low Calorie',  cmp: (a,b)=> (b.p/(b.kcal||1)) - (a.p/(a.kcal||1)) },
+  'ratio-asc':   { label: 'Low Protein, High Calorie',  cmp: (a,b)=> (a.p/(a.kcal||1)) - (b.p/(b.kcal||1)) },
+};
+
+function renderFoodList(body){
+  const allFoods = getAllFoodsWithOverrides();
+
+  function draw(){
+    const q = foodListSearch.toLowerCase();
+    const filtered = q ? allFoods.filter(f=>f.name.toLowerCase().includes(q)) : allFoods.slice();
+    filtered.sort(FOOD_LIST_SORTS[foodListSort].cmp);
+
+    body.innerHTML = `
+      <div class="card">
+        <div class="card-title-row"><h3 style="margin:0;">Food List <span class="tag muted">${filtered.length}</span></h3></div>
+        <div class="search-row">
+          <input type="text" id="foodListSearch" placeholder="Search foods..." autocomplete="off" value="${escapeHtml(foodListSearch)}">
+          <select id="foodListSortSel" style="width:auto;">
+            ${Object.entries(FOOD_LIST_SORTS).map(([k,v])=>`<option value="${k}" ${foodListSort===k?'selected':''}>${v.label}</option>`).join('')}
+          </select>
+        </div>
+        ${filtered.length===0 ? `<div class="empty-state"><span class="ic">🥗</span><p>No foods match your search.</p></div>` :
+        `<div class="list mt">${filtered.map(f=>`
+          <div class="item-row">
+            <div class="ii-main"><div class="ii-title">${escapeHtml(f.name)}</div>
+            <div class="ii-sub">${f.unit} · ${f.kcal} kcal · P${round1(f.p)} C${round1(f.c)} F${round1(f.f)}</div></div>
+            <div class="ii-actions">
+              <button class="iconbtn" data-editfl="${f.id}" title="Edit">✏️</button>
+              <button class="iconbtn" data-addfl="${f.id}" title="Add to today's log">➕</button>
+            </div>
+          </div>`).join('')}</div>`}
+      </div>`;
+
+    document.getElementById('foodListSearch').oninput = (e)=>{ foodListSearch = e.target.value; draw(); };
+    document.getElementById('foodListSortSel').onchange = (e)=>{ foodListSort = e.target.value; draw(); };
+    body.querySelectorAll('[data-editfl]').forEach(b=>b.onclick=()=>{
+      const food = allFoods.find(f=>f.id===b.dataset.editfl);
+      openEditFoodModal(food, ()=>{ renderFoodList(body); });
+    });
+    body.querySelectorAll('[data-addfl]').forEach(b=>b.onclick=()=>{
+      const food = allFoods.find(f=>f.id===b.dataset.addfl);
+      openQtyPrompt(food, dietDate, 'diet');
+    });
+  }
+  draw();
 }
 
 function renderDietToday(body){
