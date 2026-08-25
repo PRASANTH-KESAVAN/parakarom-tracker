@@ -843,6 +843,8 @@ const EXERCISE_LIBRARY = [
   {id:'machine-chest-press', name:'Machine Chest Press', cat:'Chest', variation:'Middle', equip:'Machine', primary:'chest', secondary:['triceps']},
   {id:'flat-db-press', name:'Flat Dumbbell Press', cat:'Chest', variation:'Middle', equip:'Dumbbell', primary:'chest', secondary:['triceps','shoulders']},
   {id:'decline-press', name:'Decline Press', cat:'Chest', variation:'Lower', equip:'Barbell', primary:'chest', secondary:['triceps']},
+  {id:'incline-chest-press-machine', name:'Incline Chest Press (Machine)', cat:'Chest', variation:'Upper', equip:'Machine', primary:'chest', secondary:['triceps','shoulders']},
+  {id:'decline-chest-press-machine', name:'Decline Chest Press (Machine)', cat:'Chest', variation:'Lower', equip:'Machine', primary:'chest', secondary:['triceps']},
   {id:'push-up', name:'Push-Up', cat:'Chest', variation:'Middle/Overall', equip:'Bodyweight', primary:'chest', secondary:['triceps','abs']},
   {id:'close-grip-push-up', name:'Close-Grip Push-Ups', cat:'Chest', variation:'Triceps/Inner', equip:'Bodyweight', primary:'chest', secondary:['triceps']},
   {id:'chest-fly', name:'Cable Chest Fly', cat:'Chest', variation:'Center/Inner', equip:'Cable', primary:'chest', secondary:['shoulders']},
@@ -864,6 +866,14 @@ const EXERCISE_LIBRARY = [
   {id:'skull-crusher', name:'Skull Crusher', cat:'Tricep', variation:'Long Head', equip:'Barbell', primary:'triceps', secondary:[]},
   {id:'dips', name:'Parallel Bar Dips', cat:'Tricep', variation:'Medial/Overall', equip:'Bodyweight', primary:'triceps', secondary:['chest','shoulders']},
   {id:'cable-overhead-ext', name:'Overhead Cable Extension', cat:'Tricep', variation:'Long Head', equip:'Cable', primary:'triceps', secondary:[]},
+  {id:'cable-rope-pushdown', name:'Cable Rope Pushdown', cat:'Tricep', variation:'Lateral Head', equip:'Cable', primary:'triceps', secondary:[]},
+  {id:'cable-straightbar-pushdown', name:'Cable Straight-Bar Pushdown', cat:'Tricep', variation:'Lateral Head', equip:'Cable', primary:'triceps', secondary:[]},
+  {id:'cable-vbar-pushdown', name:'Cable V-Bar Pushdown', cat:'Tricep', variation:'Lateral Head', equip:'Cable', primary:'triceps', secondary:[]},
+  {id:'cable-single-arm-pushdown', name:'Single-Arm Cable Pushdown', cat:'Tricep', variation:'Lateral Head', equip:'Cable', primary:'triceps', secondary:[]},
+  {id:'cable-reverse-pushdown', name:'Cable Reverse-Grip Pushdown', cat:'Tricep', variation:'Medial Head', equip:'Cable', primary:'triceps', secondary:[]},
+  {id:'cable-kickback', name:'Cable Tricep Kickback', cat:'Tricep', variation:'Lateral Head', equip:'Cable', primary:'triceps', secondary:[]},
+  {id:'db-overhead-tricep-ext', name:'Tricep Overhead Extension (Dumbbell)', cat:'Tricep', variation:'Long Head', equip:'Dumbbell', primary:'triceps', secondary:[]},
+  {id:'db-tricep-kickback', name:'Tricep Kickback (Dumbbell)', cat:'Tricep', variation:'Lateral Head', equip:'Dumbbell', primary:'triceps', secondary:[]},
 
   // BACK & LAT
   {id:'pull-up', name:'Pull-Up', cat:'Lat', variation:'Width', equip:'Bodyweight', primary:'back', secondary:['biceps']},
@@ -1071,6 +1081,26 @@ const FOOD_DB = [
   {id:'coffee', name:'Coffee (Milk & Sugar)', type:'general', unit:'150ml', gPerUnit:150, kcal:70, p:1.5, c:9, f:2.8, fiber:0, sugar:8},
   {id:'black-coffee', name:'Black Coffee (No Milk/Sugar)', type:'general', unit:'150ml', gPerUnit:150, kcal:2, p:0, c:0.5, f:0, fiber:0, sugar:0},
   {id:'lemon-tea', name:'Lemon Tea', type:'general', unit:'150ml', gPerUnit:150, kcal:30, p:0, c:7, f:0, fiber:0, sugar:6},
+
+  // ===== More curries & gravies =====
+  {id:'beef-gravy', name:'Beef Gravy', type:'general', unit:'100g', gPerUnit:100, kcal:255, p:19, c:8, f:16, fiber:1, sugar:1.5},
+
+  // ===== Plant-based protein sources =====
+  {id:'soya-bean', name:'Soya Bean (Boiled)', type:'dry_seed', prep:true, unit:'100g', gPerUnit:100, kcal:173, p:16.6, c:9.9, f:9, fiber:6, sugar:3},
+  {id:'tofu', name:'Tofu (Firm)', type:'general', prep:true, unit:'100g', gPerUnit:100, kcal:144, p:15.8, c:2.8, f:8.7, fiber:0.3, sugar:0.6},
+  {id:'tempeh', name:'Tempeh', type:'general', prep:true, unit:'100g', gPerUnit:100, kcal:195, p:20.3, c:7.6, f:11.4, fiber:9, sugar:0},
+  {id:'seitan', name:'Seitan', type:'general', prep:true, unit:'100g', gPerUnit:100, kcal:120, p:21, c:4, f:1.9, fiber:0.6, sugar:0},
+  {id:'soy-milk', name:'Soy Milk (Unsweetened)', type:'general', unit:'250ml', gPerUnit:250, kcal:80, p:7, c:4, f:4, fiber:1, sugar:1},
+  {id:'edamame', name:'Edamame', type:'veg', prep:true, unit:'100g', gPerUnit:100, kcal:121, p:11, c:10, f:5, fiber:5, sugar:2.2},
+  {id:'black-beans', name:'Black Beans (Boiled)', type:'dry_seed', prep:true, unit:'100g', gPerUnit:100, kcal:132, p:8.9, c:24, f:0.5, fiber:8.7, sugar:0.3},
+  {id:'quinoa', name:'Quinoa (Cooked)', type:'dry_seed', prep:true, unit:'100g', gPerUnit:100, kcal:120, p:4.4, c:21, f:1.9, fiber:2.8, sugar:0.9},
+  {id:'hemp-seeds', name:'Hemp Seeds', type:'dry_seed', prep:true, unit:'100g', gPerUnit:100, kcal:553, p:31.6, c:8.7, f:48.8, fiber:4, sugar:1.5},
+  {id:'green-peas', name:'Green Peas', type:'veg', prep:true, unit:'100g', gPerUnit:100, kcal:81, p:5.4, c:14, f:0.4, fiber:5.7, sugar:5.7},
+  {id:'pinto-beans', name:'Pinto Beans (Boiled)', type:'dry_seed', prep:true, unit:'100g', gPerUnit:100, kcal:143, p:9, c:26, f:0.7, fiber:9, sugar:0.3},
+  {id:'lima-beans', name:'Lima Beans (Boiled)', type:'dry_seed', prep:true, unit:'100g', gPerUnit:100, kcal:115, p:7.8, c:21, f:0.4, fiber:7, sugar:2.8},
+  {id:'nutritional-yeast', name:'Nutritional Yeast', type:'general', unit:'2 tbsp (16g)', gPerUnit:16, kcal:60, p:8, c:5, f:0.5, fiber:4, sugar:0.5},
+  {id:'lupini-beans', name:'Lupini Beans', type:'dry_seed', prep:true, unit:'100g', gPerUnit:100, kcal:119, p:15.6, c:9.9, f:2.9, fiber:5.4, sugar:1.2},
+  {id:'natto', name:'Natto', type:'general', unit:'100g', gPerUnit:100, kcal:212, p:18.2, c:14.4, f:11, fiber:5.4, sugar:5.4},
 ];
 
 // Mark specific pre-existing entries as raw/cook toggle eligible
@@ -1435,7 +1465,7 @@ function getTrackingStartDate() {
     return earliest;
 }
 
-const chartFilters = { dashVol: '1M', dashWeight: '1M', progWeight: 'All', progCal: '1W', progVol: '1M', progBurn: '1W', progMacro: '1M', progCorr: '1M' };
+const chartFilters = { dashVol: '1M', dashWeight: '1M', progWeight: 'All', progWeightAfter: 'All', progCal: '1W', progVol: '1M', progBurn: '1W', progMacro: '1M', progCorr: '1M' };
 function setChartFilter(chart, val) {
     chartFilters[chart] = val;
     if (chart.startsWith('dash')) renderDashboard();
@@ -2557,7 +2587,13 @@ function baseChartOpts(opts={}){
   return {
     responsive:true, maintainAspectRatio:false,
     indexAxis: opts.indexAxis||'x',
-    plugins:{ legend:{display: !!opts.legend, labels:{color:chartText()}}, tooltip:{enabled:true} },
+    interaction: { mode:'index', intersect:false, axis: opts.indexAxis==='y' ? 'y' : 'x' },
+    hover: { mode:'index', intersect:false },
+    plugins:{
+      legend:{display: !!opts.legend, labels:{color:chartText()}},
+      tooltip:{ enabled:true, mode:'index', intersect:false, position:'nearest' }
+    },
+    elements: { point: { hoverRadius: 6, hitRadius: 12 } },
     scales:{
       x:{ grid:{color:chartGrid()}, ticks:{color:chartText(), font:{size:10.5}} },
       y:{ grid:{color:chartGrid()}, ticks:{color:chartText(), font:{size:10.5}} },
@@ -4212,7 +4248,7 @@ function renderProgressPage(){
     </div>
     <div class="card">
       <div class="card-title-row">
-        <h3 style="margin:0;">Weight Trend</h3>
+        <h3 style="margin:0;">Weight Trend (Before Meal)</h3>
         <div style="display:flex;gap:10px;align-items:center;">
           <button class="btn sm primary" id="logWeightBtn">+ Log Weight</button>
           ${chartFilterHTML('progWeight')}
@@ -4220,6 +4256,15 @@ function renderProgressPage(){
       </div>
       <div style="position:relative; height: 180px; width: 100%;">
         <canvas id="fullWeightChart"></canvas>
+      </div>
+    </div>
+    <div class="card mt">
+      <div class="card-title-row">
+        <h3 style="margin:0;">Weight Trend (After Meal)</h3>
+        ${chartFilterHTML('progWeightAfter')}
+      </div>
+      <div style="position:relative; height: 180px; width: 100%;">
+        <canvas id="afterMealWeightChart"></canvas>
       </div>
     </div>
     <div class="two-col mt">
@@ -4302,6 +4347,7 @@ function renderProgressPage(){
 
   document.getElementById('logWeightBtn').onclick = openLogWeightModal;
   renderFullWeightChart();
+  renderAfterMealWeightChart();
   renderCalTrendChart();
   renderBurnTrendChart();
   renderVolTrendChart();
@@ -4326,26 +4372,48 @@ function renderPRList(){
   }).join('')}</div>`;
 }
 
+// Merges a patch into the weight log for a given date without clobbering
+// fields (like the other-meal weight) that weren't part of this update.
+function upsertWeightLog(date, patch){
+  const existing = App.data.weightLogs.find(w=>w.date===date);
+  if(existing){ Object.assign(existing, patch); }
+  else { App.data.weightLogs.push({date, ...patch}); }
+}
+
 function openLogWeightModal(){
   const root = document.getElementById('modalRoot');
+  const date = todayStr();
+  const existing = App.data.weightLogs.find(w=>w.date===date);
   root.innerHTML = `
     <div class="modal-backdrop" id="mb">
       <div class="modal" style="max-width:380px;">
         <div class="modal-head"><h2>Log Weight</h2><button class="modal-close" id="mc">&times;</button></div>
-        <div class="field"><label>Date</label><input type="date" id="wDate" value="${todayStr()}"></div>
-        <div class="field"><label>Weight (kg)</label><input type="number" id="wKg" step="0.1" value="${App.activeProfile.weightKg}"></div>
+        <div class="field"><label>Date</label><input type="date" id="wDate" value="${date}"></div>
+        <div class="field"><label>Weight before meal (kg)</label><input type="number" id="wKg" step="0.1" value="${existing&&existing.kg!=null?existing.kg:App.activeProfile.weightKg}"></div>
+        <div class="field"><label>Weight after meal (kg) <span class="muted" style="font-weight:400;">optional</span></label><input type="number" id="wKgAfter" step="0.1" value="${existing&&existing.kgAfter!=null?existing.kgAfter:''}" placeholder="e.g. 71.2"></div>
         <button class="btn primary block" id="saveWeightBtn">Save</button>
       </div>
     </div>`;
   document.getElementById('mc').onclick = closeModal;
   document.getElementById('mb').onclick = (e)=>{ if(e.target.id==='mb') closeModal(); };
+  document.getElementById('wDate').onchange = (e)=>{
+    const ex = App.data.weightLogs.find(w=>w.date===e.target.value);
+    document.getElementById('wKg').value = ex&&ex.kg!=null ? ex.kg : App.activeProfile.weightKg;
+    document.getElementById('wKgAfter').value = ex&&ex.kgAfter!=null ? ex.kgAfter : '';
+  };
   document.getElementById('saveWeightBtn').onclick = ()=>{
     const date = document.getElementById('wDate').value;
-    const kg = +document.getElementById('wKg').value;
-    if(!kg){ toast('Enter a valid weight'); return; }
-    App.data.weightLogs = App.data.weightLogs.filter(w=>w.date!==date);
-    App.data.weightLogs.push({date, kg});
-    if (date >= todayStr()) {
+    const kgRaw = document.getElementById('wKg').value;
+    const kgAfterRaw = document.getElementById('wKgAfter').value;
+    const kg = kgRaw ? +kgRaw : null;
+    const kgAfter = kgAfterRaw ? +kgAfterRaw : null;
+    if(!kg && !kgAfter){ toast('Enter at least one weight'); return; }
+    const patch = {};
+    if(kg) patch.kg = kg;
+    if(kgAfter) patch.kgAfter = kgAfter;
+    else if(kgAfterRaw==='') { /* leave existing kgAfter untouched */ }
+    upsertWeightLog(date, patch);
+    if (kg && date >= todayStr()) {
         App.activeProfile.weightKg = kg;
         if (!App.activeProfile.useCustomCalories) {
             App.activeProfile.targets = calcTargets(App.activeProfile);
@@ -4374,6 +4442,19 @@ function renderFullWeightChart(){
     datasets.push({label:'Target', data: logs.map(()=>App.activeProfile.targetWeightKg), borderColor: getCss('--accent2'), borderDash:[6,4], pointRadius:0});
   }
   App.charts.fullWeight = new Chart(ctx, { type:'line', data:{labels: logs.map(l=>fmtDate(l.date)), datasets}, options: baseChartOpts({legend:true}) });
+}
+
+function renderAfterMealWeightChart(){
+  const ctx = document.getElementById('afterMealWeightChart');
+  if(!ctx) return;
+  const filter = chartFilters.progWeightAfter;
+  const startLimit = filter === '1W' ? addDays(todayStr(), -7) : filter === '1M' ? addDays(todayStr(), -30) : getTrackingStartDate();
+
+  const logs = [...App.data.weightLogs].filter(w=>w.date>=startLimit && w.kgAfter!=null).sort((a,b)=>a.date.localeCompare(b.date));
+  destroyChart('afterMealWeight');
+  if(logs.length===0){ ctx.parentElement.insertAdjacentHTML('beforeend','<p class="help center" style="margin-top:-20px;">No after-meal weight logs yet.</p>'); return; }
+  const datasets = [{label:'Weight (After Meal)', data: logs.map(l=>l.kgAfter), borderColor: getCss('--accent2'), backgroundColor:'transparent', tension:.3, pointRadius:3}];
+  App.charts.afterMealWeight = new Chart(ctx, { type:'line', data:{labels: logs.map(l=>fmtDate(l.date)), datasets}, options: baseChartOpts({legend:true}) });
 }
 
 function renderCalTrendChart(){
@@ -4704,8 +4785,7 @@ function renderMeasurementsPage() {
         if (date >= todayStr()) {
             if (log.weight) {
                 App.activeProfile.weightKg = log.weight;
-                App.data.weightLogs = App.data.weightLogs.filter(w => w.date !== date);
-                App.data.weightLogs.push({date: date, kg: log.weight});
+                upsertWeightLog(date, {kg: log.weight});
             }
             if (log.height) App.activeProfile.heightCm = log.height;
             if (log.waist) App.activeProfile.waistCm = log.waist;
@@ -5025,8 +5105,7 @@ function renderMissedPage() {
     document.getElementById('saveMissedWeightBtn').onclick = () => {
         const kg = +document.getElementById('missedWeightInput').value;
         if(!kg){ toast('Enter a valid weight'); return; }
-        App.data.weightLogs = App.data.weightLogs.filter(w=>w.date !== trackingDate);
-        App.data.weightLogs.push({date: trackingDate, kg});
+        upsertWeightLog(trackingDate, {kg});
         if(trackingDate >= todayStr()) {
             App.activeProfile.weightKg = kg;
             if (!App.activeProfile.useCustomCalories) {
