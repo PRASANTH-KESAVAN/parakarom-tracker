@@ -2194,10 +2194,57 @@ const FOOD_DB = [
   {id:'nutritional-yeast', name:'Nutritional Yeast', type:'general', unit:'2 tbsp (16g)', gPerUnit:16, kcal:60, p:8, c:5, f:0.5, fiber:4, sugar:0.5},
   {id:'lupini-beans', name:'Lupini Beans', type:'dry_seed', prep:true, unit:'100g', gPerUnit:100, kcal:119, p:15.6, c:9.9, f:2.9, fiber:5.4, sugar:1.2},
   {id:'natto', name:'Natto', type:'general', unit:'100g', gPerUnit:100, kcal:212, p:18.2, c:14.4, f:11, fiber:5.4, sugar:5.4},
+
+  // ===== Moringa & Tamil Nadu Keerai (Leafy Greens) =====
+  // Values are for the cooked/stir-fried dish (light oil, TN home-style) per 100g.
+  {id:'moringa-keerai', name:'Moringa Leaves (Murungai Keerai)', type:'general', unit:'100g', gPerUnit:100, kcal:75, p:6.5, c:8, f:2.5, fiber:3, sugar:1.5},
+  {id:'arai-keerai', name:'Arai Keerai (Amaranth Greens)', type:'general', unit:'100g', gPerUnit:100, kcal:55, p:3, c:5.5, f:3, fiber:2.5, sugar:1.2},
+  {id:'mulai-keerai', name:'Mulai Keerai (Sprouted Greens)', type:'general', unit:'100g', gPerUnit:100, kcal:58, p:3.2, c:6, f:3, fiber:2.8, sugar:1.3},
+  {id:'siru-keerai', name:'Siru Keerai (Amaranth, Small Leaf)', type:'general', unit:'100g', gPerUnit:100, kcal:54, p:2.9, c:5.3, f:2.9, fiber:2.4, sugar:1.1},
+  {id:'paruppu-keerai', name:'Paruppu Keerai (Greens with Lentils)', type:'general', unit:'100g', gPerUnit:100, kcal:95, p:6, c:11, f:3.2, fiber:3.5, sugar:1.5},
+  {id:'vallarai-keerai', name:'Vallarai Keerai (Gotu Kola Leaves)', type:'general', unit:'100g', gPerUnit:100, kcal:50, p:2.6, c:5, f:2.8, fiber:2.2, sugar:1},
+  {id:'ponnangani-keerai', name:'Ponnangani Keerai (Dwarf Copperleaf)', type:'general', unit:'100g', gPerUnit:100, kcal:56, p:3.1, c:5.6, f:3, fiber:2.6, sugar:1.2},
+  {id:'manathakkali-keerai', name:'Manathakkali Keerai (Black Nightshade Leaves)', type:'general', unit:'100g', gPerUnit:100, kcal:52, p:2.8, c:5.2, f:2.7, fiber:2.3, sugar:1.1},
+
+  // ===== Tamil Nadu Regional Fish, Seafood & Other Non-Veg =====
+  // Cooked/edible-flesh values per 100g (approximate, typical for the species).
+  // -- River / Lake (freshwater) fish --
+  {id:'kendai-meen', name:'Kendai Meen (Rohu / Catla)', type:'meat', unit:'100g', gPerUnit:100, kcal:97, p:16.6, c:0, f:1.4, fiber:0, sugar:0},
+  {id:'viral-meen', name:'Viral Meen (Murrel / Snakehead)', type:'meat', unit:'100g', gPerUnit:100, kcal:90, p:18.9, c:0, f:1, fiber:0, sugar:0},
+  {id:'vilangu-meen', name:'Vilangu Meen (Freshwater Eel)', type:'meat', unit:'100g', gPerUnit:100, kcal:184, p:18.4, c:0, f:11.7, fiber:0, sugar:0},
+  {id:'korameenu', name:'Korameenu / Valai Meen (Freshwater Catfish)', type:'meat', unit:'100g', gPerUnit:100, kcal:105, p:16, c:0, f:4, fiber:0, sugar:0},
+  // -- Sea fish --
+  {id:'vanjaram', name:'Vanjaram (Seer Fish / Kingfish)', type:'meat', unit:'100g', gPerUnit:100, kcal:117, p:21.4, c:0, f:3.2, fiber:0, sugar:0},
+  {id:'ayla-meen', name:'Ayla Meen (Indian Mackerel)', type:'meat', unit:'100g', gPerUnit:100, kcal:205, p:19, c:0, f:13.9, fiber:0, sugar:0},
+  {id:'mathi-meen', name:'Mathi Meen (Sardine)', type:'meat', unit:'100g', gPerUnit:100, kcal:208, p:24.6, c:0, f:11.5, fiber:0, sugar:0},
+  {id:'nethili-meen', name:'Nethili Meen (Anchovy)', type:'meat', unit:'100g', gPerUnit:100, kcal:131, p:20.4, c:0, f:4.8, fiber:0, sugar:0},
+  {id:'vaaval-meen', name:'Vaaval Meen (Pomfret)', type:'meat', unit:'100g', gPerUnit:100, kcal:106, p:18.8, c:0, f:2.8, fiber:0, sugar:0},
+  {id:'sankara-meen', name:'Sankara Meen (Red Snapper)', type:'meat', unit:'100g', gPerUnit:100, kcal:100, p:20.5, c:0, f:1.3, fiber:0, sugar:0},
+  {id:'choora-meen', name:'Choora Meen (Tuna)', type:'meat', unit:'100g', gPerUnit:100, kcal:144, p:23.3, c:0, f:4.9, fiber:0, sugar:0},
+  {id:'sura-meen', name:'Sura Meen (Shark)', type:'meat', unit:'100g', gPerUnit:100, kcal:130, p:21, c:0, f:4.5, fiber:0, sugar:0},
+  {id:'paarai-meen', name:'Paarai Meen (Trevally)', type:'meat', unit:'100g', gPerUnit:100, kcal:110, p:20, c:0, f:2.5, fiber:0, sugar:0},
+  {id:'sudumbu-meen', name:'Sudumbu Meen (Barracuda)', type:'meat', unit:'100g', gPerUnit:100, kcal:112, p:23, c:0, f:1.5, fiber:0, sugar:0},
+  {id:'keluthi-meen', name:'Keluthi Meen (Sea Catfish)', type:'meat', unit:'100g', gPerUnit:100, kcal:105, p:18, c:0, f:2.9, fiber:0, sugar:0},
+  // -- Seafood (shellfish / crustaceans / molluscs) --
+  {id:'eral', name:'Eral (Prawns / Shrimp)', type:'meat', unit:'100g', gPerUnit:100, kcal:99, p:24, c:0.2, f:0.3, fiber:0, sugar:0},
+  {id:'nandu', name:'Nandu (Crab)', type:'meat', unit:'100g', gPerUnit:100, kcal:97, p:19.4, c:0, f:1.5, fiber:0, sugar:0},
+  {id:'kanava', name:'Kanava (Squid)', type:'meat', unit:'100g', gPerUnit:100, kcal:92, p:15.6, c:3.1, f:1.4, fiber:0, sugar:0},
+  {id:'oosi-meen', name:'Oosi Meen / Kadal Sundal (Cuttlefish)', type:'meat', unit:'100g', gPerUnit:100, kcal:79, p:16.2, c:0.8, f:0.7, fiber:0, sugar:0},
+  {id:'sippi', name:'Sippi (Clams)', type:'meat', unit:'100g', gPerUnit:100, kcal:86, p:14.9, c:3.6, f:1, fiber:0, sugar:0},
+  // -- Other non-veg (animal & bird) commonly eaten in Tamil Nadu --
+  {id:'mutton', name:'Mutton (Goat Meat)', type:'meat', unit:'100g', gPerUnit:100, kcal:143, p:27, c:0, f:3, fiber:0, sugar:0},
+  {id:'naatu-kozhi', name:'Naatu Kozhi (Country Chicken)', type:'meat', unit:'100g', gPerUnit:100, kcal:172, p:20, c:0, f:9.7, fiber:0, sugar:0},
+  {id:'vaathu', name:'Vaathu (Duck Meat)', type:'meat', unit:'100g', gPerUnit:100, kcal:140, p:19.9, c:0, f:6.4, fiber:0, sugar:0},
+  {id:'kaadai', name:'Kaadai (Quail Meat)', type:'meat', unit:'100g', gPerUnit:100, kcal:134, p:21.8, c:0, f:4.5, fiber:0, sugar:0},
+  {id:'muyal', name:'Muyal (Rabbit Meat)', type:'meat', unit:'100g', gPerUnit:100, kcal:173, p:33, c:0, f:3.5, fiber:0, sugar:0},
 ];
 
 // Mark specific pre-existing entries as raw/cook toggle eligible
-['chicken-breast','dal','green-gram','black-chana','white-chana'].forEach(id=>{
+['chicken-breast','dal','green-gram','black-chana','white-chana',
+ 'kendai-meen','viral-meen','vilangu-meen','korameenu','vanjaram','ayla-meen','mathi-meen',
+ 'nethili-meen','vaaval-meen','sankara-meen','choora-meen','sura-meen','paarai-meen',
+ 'sudumbu-meen','keluthi-meen','eral','nandu','kanava','oosi-meen','sippi',
+ 'mutton','beef','naatu-kozhi','vaathu','kaadai','muyal'].forEach(id=>{
   const f = FOOD_DB.find(x=>x.id===id);
   if(f) f.prep = true;
 });
