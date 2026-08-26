@@ -2348,7 +2348,7 @@ function blankProfileData(){
   return {
     workouts:[], foodLogs:[], personalFoods:[], foodOverrides:{}, weightLogs:[], waterLogs:[], measurementLogs:[], meals:[],
     goals:[], routines: getDefaultRoutines(), prs:{}, achievements:[], photos:[],
-    schedTemplates: [], scheduledEvents: [], proteinBlend: null,
+    schedTemplates: [], scheduledEvents: [], weekTemplates: [], activeWeekTemplateId: null, proteinBlend: null,
     settings:{waterTargetMl:5000, reminders:{water:false, meals:false, workout:false}, lastDigestWeek:null}
   };
 }
@@ -2373,6 +2373,9 @@ function loadProfileData(id){
     merged.schedTemplates = merged.schedTemplates.filter(t => !t.id.startsWith('sched_tmpl_split_'));
     
     merged.scheduledEvents = d.scheduledEvents || [];
+
+    merged.weekTemplates = d.weekTemplates || [];
+    merged.activeWeekTemplateId = d.activeWeekTemplateId || null;
     return merged;
   }catch(e){ return blankProfileData(); }
 }
@@ -2888,7 +2891,7 @@ const PAGE_TITLES = {
   dashboard:['Dashboard','Your training snapshot'],
   workout:['Workout','Log sets, reps & rest'],
   diet:['Diet','Track meals & macros'],
-  scheduler:['Scheduler','Plan templates & events'],
+  scheduler:['Scheduler','Weekly split templates & last logged sets'],
   progress:['Progress','Trends over time'],
   measurements:['Measurements','Track your body dimensions'],
   missed:['Track Missed','Log past workouts & data'],
@@ -5086,203 +5089,141 @@ function openNewMealModal(){
   window._renderMealChips();
 }
 
-/* ---- Scheduler Page ---- */
-let schedulerTab = 'calendar';
-let schedCurrentMonth = new Date();
+/* ---- Scheduler Page (Weekly Split Templates) ---- */
+const WEEK_DAYS = [
+  {key:'mon', label:'Monday'},
+  {key:'tue', label:'Tuesday'},
+  {key:'wed', label:'Wednesday'},
+  {key:'thu', label:'Thursday'},
+  {key:'fri', label:'Friday'},
+  {key:'sat', label:'Saturday'},
+  {key:'sun', label:'Sunday'},
+];
+function blankWeekTemplateDays(){
+  const days = {};
+  WEEK_DAYS.forEach(d => days[d.key] = {split:'', exerciseIds:[]});
+  return days;
+}
+function todayWeekDayKey(){
+  // JS getDay(): 0=Sun..6=Sat -> map to WEEK_DAYS index (0=mon..6=sun)
+  return WEEK_DAYS[(new Date().getDay() + 6) % 7].key;
+}
+
+let schedulerTab = 'active';
 
 function renderSchedulerPage() {
     const page = document.getElementById('page-scheduler');
-    App.data.schedTemplates = App.data.schedTemplates || [];
-    App.data.scheduledEvents = App.data.scheduledEvents || [];
+    App.data.weekTemplates = App.data.weekTemplates || [];
 
     page.innerHTML = getAnimeQuote('scheduler') + `
         <div class="tabs">
-          <button data-t="calendar" class="${schedulerTab==='calendar'?'active':''}">Calendar View</button>
-          <button data-t="templates" class="${schedulerTab==='templates'?'active':''}">Scheduler Templates</button>
+          <button data-t="active" class="${schedulerTab==='active'?'active':''}">Active Split</button>
+          <button data-t="templates" class="${schedulerTab==='templates'?'active':''}">My Templates</button>
         </div>
         <div id="schedulerTabBody"></div>
     `;
 
     page.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{ schedulerTab=b.dataset.t; renderSchedulerPage(); });
     const body = document.getElementById('schedulerTabBody');
-    if(schedulerTab === 'calendar') renderSchedulerCalendar(body);
+    if(schedulerTab === 'active') renderActiveWeekTemplate(body);
     else renderSchedulerTemplates(body);
 }
 
-function renderSchedulerCalendar(body) {
-    const y = schedCurrentMonth.getFullYear();
-    const m = schedCurrentMonth.getMonth();
-    
-    const firstDay = new Date(y, m, 1);
-    const lastDay = new Date(y, m + 1, 0);
-    const startOffset = firstDay.getDay(); // 0 = Sunday
-    
-    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    
-    let gridHtml = '';
-    const daysInGrid = 42; // 6 rows * 7 days
-    
-    for(let i=0; i<daysInGrid; i++) {
-        const d = new Date(y, m, i - startOffset + 1);
-        const isCurrentMonth = d.getMonth() === m;
-        const dateStrVal = dateStr(d);
-        const isToday = dateStrVal === todayStr();
-        
-       const dayEvents = (App.data.scheduledEvents||[]).filter(e => e.date === dateStrVal).sort((a,b) => a.time.localeCompare(b.time));
-        
-        let eventHtml = dayEvents.map(e => {
-            const tmpl = (App.data.schedTemplates||[]).find(t => t.id === e.templateId);
-            const classType = e.type === 'workout' ? 'workout' : 'diet';
-            const tName = tmpl ? tmpl.name : e.title;
-            return `<div class="cal-event ${classType}" title="${escapeHtml(tName)}">${escapeHtml(tName)}</div>`;
-        }).join('');
-
-        gridHtml += `
-            <div class="cal-cell ${isCurrentMonth?'':'other-month'} ${isToday?'today':''}" data-caldate="${dateStrVal}">
-<!-- ... existing code ... -->
-                <div class="cal-date">${d.getDate()}</div>
-                <div style="flex:1; display:flex; flex-direction:column; gap:2px; overflow:hidden;">
-                    ${eventHtml}
-                </div>
-            </div>
-        `;
+// Finds the most recently logged sets for a given exercise across all saved workouts.
+function getLastLoggedForExercise(exerciseId){
+    if(!App.data || !App.data.workouts) return null;
+    const workouts = [...App.data.workouts].sort((a,b)=>b.date.localeCompare(a.date));
+    for(const w of workouts){
+        const ex = w.exercises.find(e=>e.exerciseId===exerciseId);
+        if(ex && ex.sets && ex.sets.length>0){
+            return {date: w.date, sets: ex.sets};
+        }
     }
-
-    body.innerHTML = `
-        <div class="card">
-            <div class="cal-header-row">
-                <button class="btn sm ghost" id="calPrevBtn">← Prev</button>
-                <h3 style="margin:0; font-size:16px;">${monthNames[m]} ${y}</h3>
-                <button class="btn sm ghost" id="calNextBtn">Next →</button>
-            </div>
-            <div class="calendar-grid">
-                <div class="cal-day-header">Sun</div><div class="cal-day-header">Mon</div><div class="cal-day-header">Tue</div>
-                <div class="cal-day-header">Wed</div><div class="cal-day-header">Thu</div><div class="cal-day-header">Fri</div><div class="cal-day-header">Sat</div>
-                ${gridHtml}
-            </div>
-            <p class="help center mt">Tap a day to view or schedule events.</p>
-        </div>
-    `;
-
-    document.getElementById('calPrevBtn').onclick = () => {
-        schedCurrentMonth.setMonth(schedCurrentMonth.getMonth() - 1);
-        renderSchedulerCalendar(body);
-    };
-    document.getElementById('calNextBtn').onclick = () => {
-        schedCurrentMonth.setMonth(schedCurrentMonth.getMonth() + 1);
-        renderSchedulerCalendar(body);
-    };
-
-    body.querySelectorAll('.cal-cell').forEach(cell => {
-        cell.onclick = () => openDayScheduleModal(cell.dataset.caldate);
-    });
+    return null;
 }
 
-function openDayScheduleModal(dateString) {
-    const root = document.getElementById('modalRoot');
-    const displayDate = fmtDateFull(dateString);
-    
-    function renderContent() {
+function renderActiveWeekTemplate(body){
+    const tmpl = (App.data.weekTemplates||[]).find(t=>t.id===App.data.activeWeekTemplateId);
+    if(!tmpl){
+        body.innerHTML = `
+        <div class="card">
+            <div class="empty-state">
+                <span class="ic">📆</span>
+                <p>No active split selected.</p>
+                <p class="help">Create a weekly template and mark it active from "My Templates".</p>
+            </div>
+            <button class="btn primary block mt" id="goToTemplatesBtn">+ Create a Template</button>
+        </div>`;
+        document.getElementById('goToTemplatesBtn').onclick = ()=>{ schedulerTab='templates'; renderSchedulerPage(); };
+        return;
+    }
 
-      
-        const events = (App.data.scheduledEvents||[]).filter(e => e.date === dateString).sort((a,b) => a.time.localeCompare(b.time));
-        const html = `
-            <div class="modal-backdrop" id="mbSched">
-              <div class="modal">
-                <div class="modal-head"><h2>Schedule for ${displayDate}</h2><button class="modal-close" id="mcSched">&times;</button></div>
-                
-                ${events.length === 0 ? `<div class="empty-state" style="padding:16px;"><p>No events scheduled for this day.</p></div>` :
-                `<div class="sched-event-list">
-                    ${events.map(e => {
-                        const tmpl = (App.data.schedTemplates||[]).find(t => t.id === e.templateId);
-                        const tName = tmpl ? tmpl.name : e.title;
-                        const timeStr = tmpl ? (tmpl.type === 'workout' ? (tmpl.startTime||'') : 'Multi-Time') : '';
-                        return `
-                        <div class="sched-event-item">
-                            <div style="display:flex;align-items:center;">
-                                ${timeStr ? `<span class="sched-time">${timeStr}</span>` : ''}
-                                <div>
-                                    <div style="font-weight:bold;font-size:13px;color:var(--text);">${escapeHtml(tName)}</div>
-                                    <div style="font-size:11px;color:var(--text-faint);">${e.type === 'workout' ? '🏋️ Workout' : '🍴 Diet'}</div>
-                                </div>
-                            </div>
-                            <button class="iconbtn danger" data-delevent="${e.id}">🗑</button>
-                        </div>`;
-                    }).join('')}
-                </div>`}
-                
-                <div class="section-head mt"><h2>Assign Template</h2></div>
-                <div class="field-row">
-                    <div class="field" style="grid-column:1/-1;">
-                        <label>Select Template</label>
-                        <select id="assignTmplSelect">
-                            <option value="">-- Choose --</option>
-                            ${(App.data.schedTemplates||[]).map(t => `<option value="${t.id}">${escapeHtml(t.name)} (${t.type==='workout'?'Workout':'Diet'})</option>`).join('')}
-                        </select>
+    const todayKey = todayWeekDayKey();
+
+    body.innerHTML = `
+      <div class="card">
+        <div class="card-title-row"><h3 style="margin:0;">${escapeHtml(tmpl.name)}</h3><span class="chip on">Active</span></div>
+        <p class="help mb">Your weekly split, with the most recent logged sets for each exercise.</p>
+      </div>
+      <div class="list mt" style="display:flex;flex-direction:column;gap:12px;">
+        ${WEEK_DAYS.map(d=>{
+            const day = tmpl.days[d.key] || {split:'', exerciseIds:[]};
+            const isToday = d.key === todayKey;
+            const exHtml = (day.exerciseIds||[]).map(exId=>{
+                const exDef = EXERCISE_LIBRARY.find(x=>x.id===exId);
+                const last = getLastLoggedForExercise(exId);
+                let lastHtml;
+                if(last){
+                    const isCardio = exDef && exDef.cat === 'Cardio';
+                    const setsTxt = last.sets.map(s => isCardio
+                        ? `${s.reps||0}min${s.weight?` (Lvl ${s.weight})`:''}`
+                        : `${s.weight||0}kg×${s.reps||0}`
+                    ).join('  ·  ');
+                    lastHtml = `<span style="color:var(--accent2);font-weight:600;">Last (${fmtDate(last.date)}):</span> <span style="color:var(--text-dim);">${last.sets.length} sets — ${setsTxt}</span>`;
+                } else {
+                    lastHtml = `<span class="muted">No previous log yet</span>`;
+                }
+                return `<div class="item-row" style="padding:8px 10px;">
+                    <div class="ii-main">
+                        <div class="ii-title" style="font-size:13px;">${exDef?exDef.name:'Unknown'}</div>
+                        <div class="ii-sub" style="font-size:11px;">${lastHtml}</div>
                     </div>
+                </div>`;
+            }).join('') || '<div class="empty-state" style="padding:10px;"><p style="font-size:12px;">Rest day — no exercises</p></div>';
+
+            return `<div class="card" style="${isToday?'border-left:4px solid var(--accent);':''}">
+                <div class="card-title-row">
+                    <h3 style="margin:0;font-size:14px;">${d.label}${isToday?' <span class="chip on" style="margin-left:6px;">Today</span>':''}</h3>
                 </div>
-                <button class="btn primary block" id="saveEventBtn">Schedule Event</button>
-              </div>
+                <div style="font-weight:bold;color:var(--accent2);font-size:13px;margin:2px 0 8px;">
+                    ${day.split ? escapeHtml(day.split) : '<span class="muted">No split named</span>'}
+                </div>
+                <div class="list" style="gap:6px;">${exHtml}</div>
             </div>`;
-        root.innerHTML = html;
-        
-        document.getElementById('mcSched').onclick = () => { root.innerHTML=''; renderSchedulerPage(); };
-        document.getElementById('mbSched').onclick = (e)=>{ if(e.target.id==='mbSched') { root.innerHTML=''; renderSchedulerPage(); } };
-        
-        root.querySelectorAll('[data-delevent]').forEach(btn => {
-            btn.onclick = () => {
-                App.data.scheduledEvents = App.data.scheduledEvents.filter(e => e.id !== btn.dataset.delevent);
-                persist();
-                renderContent();
-            };
-        });
-
-        document.getElementById('saveEventBtn').onclick = () => {
-            const tid = document.getElementById('assignTmplSelect').value;
-            if(!tid) { toast('Please select a template'); return; }
-            
-            const tmpl = App.data.schedTemplates.find(t => t.id === tid);
-            if(!tmpl) return;
-
-            App.data.scheduledEvents.push({
-                id: uid(),
-                date: dateString,
-                time: tmpl.startTime || '12:00', // Keep a sorting fallback value
-                templateId: tid,
-                title: tmpl.name,
-                type: tmpl.type
-            });
-            persist();
-            toast('Event scheduled!');
-            renderContent(); // re-render modal
-            
-            // Check notifications logic (re-init)
-            scheduleReminders();
-        };
-    }
-    renderContent();
+        }).join('')}
+      </div>
+    `;
 }
 
-function renderSchedulerTemplates(body) {
-    const templates = App.data.schedTemplates || [];
+function renderSchedulerTemplates(body){
+    const templates = App.data.weekTemplates || [];
     body.innerHTML = `
         <div class="card">
-            <div class="card-title-row"><h3 style="margin:0;">Scheduler Templates</h3><button class="btn sm primary" id="newSchedTmplBtn">+ New Template</button></div>
-            <p class="help mb">Create structured workouts or meals here, then assign them to dates in the calendar.</p>
-            
-            ${templates.length === 0 ? `<div class="empty-state"><span class="ic">📋</span><p>No scheduler templates yet.</p></div>` :
-            `<div class="sched-template-list mt">
-                ${templates.map(t => {
-                    const details = t.type === 'workout' 
-                        ? `${(t.exercises || t.exerciseIds || []).length} exercises` 
-                        : `${(t.foods||[]).length} items · ${t.foods.reduce((a,f)=>a+f.kcal,0)} kcal`;
-                    return `
-                    <div class="item-row">
+            <div class="card-title-row"><h3 style="margin:0;">My Templates</h3><button class="btn sm primary" id="newWeekTmplBtn">+ New Template</button></div>
+            <p class="help mb">Build a weekly split — name each day and add the exercises you'll do. Mark one template active to see it (with your latest logged sets) in the Active Split tab.</p>
+            ${templates.length === 0 ? `<div class="empty-state"><span class="ic">📋</span><p>No templates yet.</p></div>` :
+            `<div class="list mt" style="gap:8px;">
+                ${templates.map(t=>{
+                    const isActive = t.id === App.data.activeWeekTemplateId;
+                    const daysUsed = WEEK_DAYS.filter(d=>((t.days[d.key]||{}).exerciseIds||[]).length>0).length;
+                    return `<div class="item-row">
                         <div class="ii-main">
-                            <div class="ii-title">${escapeHtml(t.name)}</div>
-                            <div class="ii-sub">${t.type==='workout'?'🏋️ Workout':'🍴 Diet'} · ${details}</div>
+                            <div class="ii-title">${escapeHtml(t.name)} ${isActive?'<span class="chip on">Active</span>':''}</div>
+                            <div class="ii-sub">${daysUsed} day(s) with exercises</div>
                         </div>
                         <div class="ii-actions">
+                            ${isActive?'':`<button class="btn sm" data-activatetmpl="${t.id}">Set Active</button>`}
+                            <button class="iconbtn" data-edittmpl="${t.id}">✏️</button>
                             <button class="iconbtn danger" data-deltmpl="${t.id}">🗑</button>
                         </div>
                     </div>`;
@@ -5291,13 +5232,26 @@ function renderSchedulerTemplates(body) {
         </div>
     `;
 
-    document.getElementById('newSchedTmplBtn').onclick = openNewSchedTemplateModal;
-    
-    body.querySelectorAll('[data-deltmpl]').forEach(b => {
+    document.getElementById('newWeekTmplBtn').onclick = () => openWeekTemplateModal();
+
+    body.querySelectorAll('[data-activatetmpl]').forEach(b=>{
         b.onclick = () => {
-            confirmDialog('Delete this template? Existing scheduled events using this template will break.', () => {
-                App.data.schedTemplates = App.data.schedTemplates.filter(x => x.id !== b.dataset.deltmpl);
-                App.data.scheduledEvents = App.data.scheduledEvents.filter(e => e.templateId !== b.dataset.deltmpl);
+            App.data.activeWeekTemplateId = b.dataset.activatetmpl;
+            persist();
+            renderSchedulerTemplates(body);
+            toast('Active template updated');
+        };
+    });
+    body.querySelectorAll('[data-edittmpl]').forEach(b=>{
+        b.onclick = () => openWeekTemplateModal(b.dataset.edittmpl);
+    });
+    body.querySelectorAll('[data-deltmpl]').forEach(b=>{
+        b.onclick = () => {
+            confirmDialog('Delete this template?', () => {
+                App.data.weekTemplates = App.data.weekTemplates.filter(x => x.id !== b.dataset.deltmpl);
+                if(App.data.activeWeekTemplateId === b.dataset.deltmpl){
+                    App.data.activeWeekTemplateId = (App.data.weekTemplates[0] || {}).id || null;
+                }
                 persist();
                 renderSchedulerTemplates(body);
             }, {danger:true, yesLabel:'Delete'});
@@ -5305,186 +5259,98 @@ function renderSchedulerTemplates(body) {
     });
 }
 
-function openNewSchedTemplateModal() {
-    let currentType = 'workout';
-    window._tempSchedItems = []; // Array of {exerciseId, sets:[]} for workouts, or foods for diet
-    
+function openWeekTemplateModal(existingId){
+    const existing = existingId ? (App.data.weekTemplates||[]).find(t=>t.id===existingId) : null;
+    window._tempWeekDays = existing ? JSON.parse(JSON.stringify(existing.days)) : blankWeekTemplateDays();
+    WEEK_DAYS.forEach(d=>{ if(!window._tempWeekDays[d.key]) window._tempWeekDays[d.key] = {split:'', exerciseIds:[]}; });
+
     const root = document.getElementById('modalRoot');
     root.innerHTML = `
-        <div class="modal-backdrop" id="mbSchedNew">
+        <div class="modal-backdrop" id="mbWeekTmpl">
             <div class="modal">
-                <div class="modal-head"><h2>New Scheduler Template</h2><button class="modal-close" id="mcSchedNew">&times;</button></div>
-                <div class="field">
-                    <label>Template Type</label>
-                    <div class="tabs" id="tmplTypeTabs">
-                        <button class="active" data-ttype="workout">🏋️ Workout</button>
-                        <button data-ttype="diet">🍴 Diet / Meal</button>
-                    </div>
-                </div>
-                <div class="field"><label>Template Name</label><input type="text" id="sTmplName" placeholder="e.g. Morning Run or Pre-workout Snack"></div>
-                
-                <div id="tmplContentArea" style="margin-top: 14px;"></div>
-                
-                <button class="btn primary block mt" id="saveSchedTmplBtn" style="margin-top:20px;">Save Template</button>
+                <div class="modal-head"><h2>${existing?'Edit':'New'} Weekly Template</h2><button class="modal-close" id="mcWeekTmpl">&times;</button></div>
+                <div class="field"><label>Template Name</label><input type="text" id="weekTmplName" placeholder="e.g. Push Pull Legs" value="${existing?escapeHtml(existing.name):''}"></div>
+                <div id="weekTmplDays" style="display:flex;flex-direction:column;gap:10px;margin-top:12px;"></div>
+                <button class="btn primary block mt" id="saveWeekTmplBtn" style="margin-top:20px;">Save Template</button>
             </div>
         </div>
     `;
 
-    function renderTypeContent() {
-        const area = document.getElementById('tmplContentArea');
-        if (currentType === 'workout') {
-            area.innerHTML = `
-                <div class="field-row">
-                    <div class="field"><label>Start Time</label><input type="time" id="sTmplStartTime" value="06:00"></div>
-                    <div class="field"><label>End Time</label><input type="time" id="sTmplEndTime" value="08:00"></div>
-                </div>
-                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:10px;">
-                    <label style="margin:0;">Exercises in Template</label>
-                    <button class="btn sm" id="addTmplExBtn">+ Add Exercise / Routine</button>
-                </div>
-                <div id="chosenTmplChips" style="display:flex; flex-direction:column; gap:8px;"></div>
-            `;
-            
-            const renderWkChips = () => {
-                document.getElementById('chosenTmplChips').innerHTML = window._tempSchedItems.map((exObj, idx) => {
-                    const exDef = EXERCISE_LIBRARY.find(x => x.id === exObj.exerciseId);
-                    
-                    const setsHtml = exObj.sets.map((s, si) => `
-                        <div style="display:flex; gap:6px; margin-top:6px; align-items:center;">
-                            <span class="muted" style="font-size:11px; width:36px;">Set ${si+1}</span>
-                            <input type="number" class="sm-input" value="${s.reps||''}" placeholder="Reps" onchange="window._updTmplSet(${idx},${si},'reps',this.value)">
-                            <input type="number" class="sm-input" value="${s.weight||''}" placeholder="kg" onchange="window._updTmplSet(${idx},${si},'weight',this.value)">
-                            <button class="iconbtn danger" style="width:24px; height:24px; font-size:10px; border:none;" onclick="window._rmTmplSet(${idx},${si})">✕</button>
-                        </div>
-                    `).join('');
-                    
-                    return `
-                    <div class="card" style="background:var(--card2); padding:12px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; padding-bottom:6px; border-bottom:1px solid var(--line);">
-                            <span style="font-size:13.5px; font-weight:bold; color:var(--text);">${exDef?exDef.name:'Unknown'}</span>
-                            <button class="iconbtn danger" style="width:26px; height:26px; font-size:12px;" onclick="window._rmTmplEx(${idx})">🗑</button>
-                        </div>
-                        ${setsHtml}
-                        <button class="btn sm ghost mt" style="padding:4px 8px; color:var(--accent2);" onclick="window._addTmplSet(${idx})">+ Add Set</button>
-                    </div>`;
-                }).join('') || '<div class="empty-state" style="padding:10px;"><p>No exercises selected</p></div>';
+    function renderDays(){
+        document.getElementById('weekTmplDays').innerHTML = WEEK_DAYS.map(d=>{
+            const day = window._tempWeekDays[d.key];
+            const exChips = (day.exerciseIds||[]).map((exId, idx)=>{
+                const exDef = EXERCISE_LIBRARY.find(x=>x.id===exId);
+                return `<div class="item-row" style="padding:6px 8px;">
+                    <div class="ii-main"><div class="ii-title" style="font-size:12.5px;">${exDef?exDef.name:'Unknown'}</div></div>
+                    <button class="iconbtn danger" style="width:24px;height:24px;font-size:11px;" data-rmex="${d.key}:${idx}">✕</button>
+                </div>`;
+            }).join('') || '<div class="empty-state" style="padding:6px;"><p style="font-size:11px;">No exercises added</p></div>';
+
+            return `<div class="card" style="background:var(--card2);padding:12px;">
+                <div style="font-weight:bold;font-size:13px;margin-bottom:8px;">${d.label}</div>
+                <input type="text" placeholder="Name this day's split (e.g. Chest Tri Abs)" value="${escapeHtml(day.split||'')}" data-splitday="${d.key}" style="margin-bottom:8px;">
+                <div style="display:flex;flex-direction:column;gap:6px;">${exChips}</div>
+                <button class="btn sm ghost mt" data-addexday="${d.key}" style="padding:4px 8px;color:var(--accent2);">+ Add Exercise</button>
+            </div>`;
+        }).join('');
+
+        document.getElementById('weekTmplDays').querySelectorAll('[data-splitday]').forEach(inp=>{
+            inp.onchange = () => { window._tempWeekDays[inp.dataset.splitday].split = inp.value; };
+        });
+        document.getElementById('weekTmplDays').querySelectorAll('[data-rmex]').forEach(btn=>{
+            btn.onclick = () => {
+                const [dk, idx] = btn.dataset.rmex.split(':');
+                window._tempWeekDays[dk].exerciseIds.splice(+idx, 1);
+                renderDays();
             };
-            
-            // Global helpers for modal inline editing
-            window._updTmplSet = (ei, si, f, v) => { window._tempSchedItems[ei].sets[si][f] = +v || 0; };
-            window._rmTmplSet = (ei, si) => { window._tempSchedItems[ei].sets.splice(si,1); renderWkChips(); };
-            window._addTmplSet = (ei) => { 
-                const prev = window._tempSchedItems[ei].sets.slice(-1)[0] || {reps:0, weight:0};
-                window._tempSchedItems[ei].sets.push({reps:prev.reps, weight:prev.weight}); 
-                renderWkChips(); 
-            };
-            window._rmTmplEx = (ei) => { window._tempSchedItems.splice(ei,1); renderWkChips(); };
-            
-            document.getElementById('addTmplExBtn').onclick = () => openExercisePicker((id, incomingSets)=>{ 
-                const setsToUse = incomingSets ? JSON.parse(JSON.stringify(incomingSets)) : getDefaultSetsForExercise(id);
-                window._tempSchedItems.push({exerciseId: id, sets: setsToUse}); 
-                renderWkChips(); 
-            });
-            renderWkChips();
-            
-        } else {
-            area.innerHTML = `
-                <div style="display:flex; gap: 10px;">
-                    <div style="flex:1;">
-                        <label>Foods</label>
-                        <div class="list" id="chosenTmplFoods" style="margin-bottom:10px; max-height:200px; overflow-y:auto;"></div>
-                        <button class="btn sm" id="addTmplFoodBtn">+ Add Food</button>
-                    </div>
-                    <div style="width: 120px; flex-shrink:0; background:var(--card2); padding:10px; border-radius:8px; border:1px solid var(--line);">
-                        <div style="font-size:11px; color:var(--text-faint); margin-bottom:4px;">Template Macros</div>
-                        <div id="tmplMacroSummary" style="font-size:12px; font-weight:bold; display:flex; flex-direction:column; gap:4px;">
-                            <span style="color:var(--accent);">0 kcal</span>
-                            <span style="color:var(--accent2);">P: 0g</span>
-                            <span style="color:var(--gold);">C: 0g</span>
-                            <span style="color:var(--r-old);">F: 0g</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            window._renderMealChips = function(){
-                document.getElementById('chosenTmplFoods').innerHTML = window._tempMealFoods.map((f, idx)=>{
-                  return `<div class="item-row" style="padding:8px; flex-direction:column; align-items:stretch;">
-                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                         <div class="ii-main"><div class="ii-title" style="font-size:12px;">${f.name} ×${f.qty}</div><div class="ii-sub" style="font-size:10px;">${f.kcal} kcal</div></div>
-                         <button data-rmfood="${idx}" class="iconbtn danger" style="width:24px;height:24px;font-size:12px;">✕</button>
-                     </div>
-                     <div style="margin-top:8px; padding-top:8px; border-top:1px dashed var(--line); display:flex; align-items:center; gap:8px;">
-                         <span class="muted" style="font-size:11px; font-weight:bold;">Time:</span>
-                         <input type="time" class="sm-input" style="width:110px; padding:6px; font-size:13px;" value="${f.time||'09:00'}" onchange="window._tempMealFoods[${idx}].time = this.value">
-                     </div>
-                  </div>`;
-                }).join('') || '<span class="muted" style="font-size:12px;">No foods added</span>';
-                
-                let tkcal = 0, tp = 0, tc = 0, tf = 0;
-                window._tempMealFoods.forEach(f => { tkcal+=f.kcal; tp+=f.p; tc+=f.c; tf+=f.f; });
-                
-                document.getElementById('tmplMacroSummary').innerHTML = `
-                    <span style="color:var(--accent);">${tkcal} kcal</span>
-                    <span style="color:var(--accent2);">P: ${round1(tp)}g</span>
-                    <span style="color:var(--gold);">C: ${round1(tc)}g</span>
-                    <span style="color:var(--r-old);">F: ${round1(tf)}g</span>
-                `;
-                
-                document.getElementById('chosenTmplFoods').querySelectorAll('[data-rmfood]').forEach(b=>b.onclick=()=>{
-                  window._tempMealFoods.splice(+b.dataset.rmfood, 1);
-                  window._renderMealChips();
+        });
+        document.getElementById('weekTmplDays').querySelectorAll('[data-addexday]').forEach(btn=>{
+            btn.onclick = () => {
+                const dk = btn.dataset.addexday;
+                openExercisePicker((id) => {
+                    window._tempWeekDays[dk].exerciseIds.push(id);
+                    renderDays();
                 });
             };
-            
-            window._tempMealFoods = window._tempSchedItems; // Alias for the food picker return
-            document.getElementById('addTmplFoodBtn').onclick = () => openFoodPicker(null, 'mealBuilder');
-            window._renderMealChips();
-        }
+        });
     }
+    renderDays();
 
-    document.getElementById('tmplTypeTabs').querySelectorAll('button').forEach(btn => {
-        btn.onclick = () => {
-            currentType = btn.dataset.ttype;
-            window._tempSchedItems = []; // Reset list on switch
-            window._tempMealFoods = [];
-            document.getElementById('tmplTypeTabs').querySelectorAll('button').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            renderTypeContent();
-        };
-    });
+    document.getElementById('mcWeekTmpl').onclick = closeModal;
+    document.getElementById('mbWeekTmpl').onclick = (e) => { if(e.target.id === 'mbWeekTmpl') closeModal(); };
 
-    document.getElementById('mcSchedNew').onclick = closeModal;
-    document.getElementById('mbSchedNew').onclick = (e)=>{ if(e.target.id==='mbSchedNew') closeModal(); };
-    
-    document.getElementById('saveSchedTmplBtn').onclick = () => {
-        const name = document.getElementById('sTmplName').value.trim();
-        if(!name) { toast('Please enter a template name'); return; }
-        
-        let payload = { id: uid(), name: name, type: currentType };
-        
-        if (currentType === 'workout') {
-            if(window._tempSchedItems.length === 0) { toast('Add at least one exercise'); return; }
-            payload.startTime = document.getElementById('sTmplStartTime').value || '06:00';
-            payload.endTime = document.getElementById('sTmplEndTime').value || '08:00';
-            payload.exercises = JSON.parse(JSON.stringify(window._tempSchedItems));
+    document.getElementById('saveWeekTmplBtn').onclick = () => {
+        const name = document.getElementById('weekTmplName').value.trim();
+        if(!name){ toast('Please enter a template name'); return; }
+        const hasAnyExercise = WEEK_DAYS.some(d => (window._tempWeekDays[d.key].exerciseIds||[]).length > 0);
+        if(!hasAnyExercise){ toast('Add at least one exercise to at least one day'); return; }
+
+        App.data.weekTemplates = App.data.weekTemplates || [];
+
+        if(existing){
+            existing.name = name;
+            existing.days = JSON.parse(JSON.stringify(window._tempWeekDays));
         } else {
-            if(window._tempMealFoods.length === 0) { toast('Add at least one food'); return; }
-            // Guarantee times exist
-            window._tempMealFoods.forEach(f => { if(!f.time) f.time = '09:00'; });
-            payload.foods = [...window._tempMealFoods];
+            const t = {id: uid(), name, days: JSON.parse(JSON.stringify(window._tempWeekDays))};
+            App.data.weekTemplates.push(t);
+            if(!App.data.activeWeekTemplateId) App.data.activeWeekTemplateId = t.id;
         }
-        
-        App.data.schedTemplates.push(payload);
         persist();
         closeModal();
         renderSchedulerTemplates(document.getElementById('schedulerTabBody'));
-        toast('Scheduler template saved');
+        toast('Template saved');
     };
-
-    renderTypeContent();
 }
 
+// Legacy shim: older saved data/UI paths (e.g. dashboard cards from previously scheduled
+// calendar events) may still call this. It now just points people to the new templates tab.
+function openNewSchedTemplateModal(){
+    navigate('scheduler');
+    schedulerTab = 'templates';
+    renderSchedulerPage();
+    toast('Scheduling has moved to weekly templates — create or edit them here.');
+}
 function renderProgressPage(){
   const page = document.getElementById('page-progress');
   const logs = [...App.data.weightLogs].sort((a,b)=>a.date.localeCompare(b.date));
