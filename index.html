@@ -430,6 +430,12 @@ label{font-size:12px;color:var(--text-dim);font-weight:600;display:block;margin-
 .body-toggle button.active{background:var(--accent2-dim);color:var(--accent2);border-color:var(--accent2); box-shadow: 0 2px 10px rgba(45,212,191,0.2);}
 .bodymap-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;}
 .bodymap-wrap svg{width:100%;max-width:220px;height:auto; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));}
+.anatomy-img-wrap{position:relative;width:100%;border-radius:var(--radius-sm);overflow:hidden;background:var(--card2);border:1px solid var(--line);}
+.anatomy-img-wrap img{display:block;width:100%;height:auto;max-height:220px;object-fit:contain;background:#fff;}
+[data-theme="dark"] .anatomy-img-wrap img, :root:not([data-theme="light"]) .anatomy-img-wrap img{background:#e9e6df;}
+.anatomy-badge{position:absolute;left:6px;bottom:6px;background:var(--accent);color:#1a1a1a;font-size:10.5px;font-weight:800;padding:3px 8px;border-radius:999px;letter-spacing:.02em;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.anatomy-highlight{position:absolute;background:rgba(255,90,60,.32);border:2px solid var(--accent);box-shadow:0 0 0 2000px rgba(0,0,0,.18) inset;pointer-events:none;transition:all .25s ease;}
+.anatomy-credit{font-size:9.5px;color:var(--text-faint);text-align:center;margin-top:4px;}
 .bodymap-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 12px;font-size:10.5px;color:var(--text-faint);}
 .bodymap-legend .lg{display:flex;align-items:center;gap:5px;}
 .bodymap-legend .sw{width:9px;height:9px;border-radius:3px;}
@@ -2238,6 +2244,59 @@ const FOOD_DB = [
   {id:'vaathu', name:'Vaathu (Duck Meat)', type:'meat', unit:'100g', gPerUnit:100, kcal:140, p:19.9, c:0, f:6.4, fiber:0, sugar:0},
   {id:'kaadai', name:'Kaadai (Quail Meat)', type:'meat', unit:'100g', gPerUnit:100, kcal:134, p:21.8, c:0, f:4.5, fiber:0, sugar:0},
   {id:'muyal', name:'Muyal (Rabbit Meat)', type:'meat', unit:'100g', gPerUnit:100, kcal:173, p:33, c:0, f:3.5, fiber:0, sugar:0},
+
+  // ===== Fruits =====
+// Edible portion values
+
+{id:'guava', name:'Guava', type:'general', unit:'1 medium', gPerUnit:100, kcal:68, p:2.6, c:14.3, f:1, fiber:5.4, sugar:8.9},
+
+// Average edible amla, approximately one medium fruit
+{id:'amla', name:'Amla (Indian Gooseberry)', type:'general', unit:'1 piece', gPerUnit:35, kcal:16, p:0.3, c:3.8, f:0.2, fiber:1.5, sugar:1.2},
+
+
+// ===== Dairy / Beverages =====
+// Typical diluted plain buttermilk, no added sugar
+
+{id:'buttermilk', name:'Buttermilk (Plain)', type:'general', unit:'250ml', gPerUnit:250, kcal:75, p:4, c:6.5, f:3, fiber:0, sugar:6},
+
+
+// ===== Egg Preparations =====
+
+// Assumed: 1 whole egg + onion/spices + approximately 1 tsp oil
+{id:'egg-podimas', name:'Egg Podimas (Home Style)', type:'general', unit:'1 serving', gPerUnit:80, kcal:125, p:7.5, c:3.5, f:9, fiber:0.6, sugar:1.5},
+
+// Assumed: 2 whole eggs + onion + tomato + green chilli + approximately 1 tsp oil
+{id:'egg-omelette', name:'Egg Omelette (Onion, Tomato & Green Chilli)', type:'general', unit:'1 omelette', gPerUnit:140, kcal:205, p:14, c:5, f:14, fiber:1, sugar:2.5},
+
+// Cooking duration does not significantly change macros
+{id:'egg-half-boil', name:'Egg Half Boil', type:'general', unit:'1 egg', gPerUnit:50, kcal:78, p:6.3, c:0.6, f:5.3, fiber:0, sugar:0.2},
+
+{id:'egg-full-boil', name:'Egg Full Boil', type:'general', unit:'1 egg', gPerUnit:50, kcal:78, p:6.3, c:0.6, f:5.3, fiber:0, sugar:0.2},
+
+
+// ===== Non-Veg Curry / Gravy Leftover =====
+// IMPORTANT: Gravy only. No significant meat pieces included.
+// Values include typical oil, onion, tomato, spices and meat fat released into the curry.
+
+{id:'chicken-gravy-no-meat', name:'Chicken Curry Leftover (Gravy Only)', type:'general', unit:'100g', gPerUnit:100, kcal:105, p:2.5, c:6, f:8, fiber:1, sugar:2},
+
+{id:'mutton-gravy-no-meat', name:'Mutton Curry Leftover (Gravy Only)', type:'general', unit:'100g', gPerUnit:100, kcal:125, p:2.5, c:6, f:10, fiber:1, sugar:2},
+
+{id:'beef-gravy-no-meat', name:'Beef Curry Leftover (Gravy Only)', type:'general', unit:'100g', gPerUnit:100, kcal:120, p:2.5, c:6, f:9.5, fiber:1, sugar:2},
+
+
+// ===== Generic Leftover Curry =====
+// Use when the exact meat curry type is unknown.
+// Gravy only, without actual meat pieces.
+
+{id:'curry-leftover', name:'Curry Leftover (Gravy Only)', type:'general', unit:'100g', gPerUnit:100, kcal:115, p:2.5, c:6, f:9, fiber:1, sugar:2},
+
+
+// ===== Tamil Nadu Curries =====
+// Typical tamarind-based home-style kara kuzhambu.
+// Includes oil used in tempering/cooking.
+
+{id:'kara-kuzhambu', name:'Kara Kuzhambu', type:'general', unit:'100g', gPerUnit:100, kcal:90, p:1.5, c:11, f:4.5, fiber:2, sugar:3},
 ];
 
 // Mark specific pre-existing entries as raw/cook toggle eligible
@@ -2609,7 +2668,7 @@ function getTrackingStartDate() {
     return earliest;
 }
 
-const chartFilters = { dashVol: '1M', dashWeight: '1M', progWeight: 'All', progWeightAfter: 'All', progCal: '1W', progVol: '1M', progBurn: '1W', progMacro: '1M', progCorr: '1M' };
+const chartFilters = { dashVol: '1M', dashWeight: '1M', progWeight: 'All', progWeightAfter: 'All', progCal: '1W', progVol: '1M', progBurn: '1W', progMacro: '1M', progCorr: '1M', progFiberProtein: '1M' };
 function setChartFilter(chart, val) {
     chartFilters[chart] = val;
     if (chart.startsWith('dash')) renderDashboard();
@@ -3437,6 +3496,72 @@ const MUSCLE_ANATOMY = {
   ]},
 };
 
+// Real anatomical illustrations (public-domain Gray's Anatomy plates / Wikimedia Commons),
+// used instead of the old abstract capsule diagram. If a specific link ever fails to load,
+// we fall back to the generated capsule diagram automatically (see wireAnatomyImageFallback).
+const MUSCLE_ANATOMY_IMAGES = {
+  chest:      { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray410.png', credit:"Gray's Anatomy · Public Domain" },
+  shoulders:  { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray409.png', credit:"Gray's Anatomy · Public Domain" },
+  back:       { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray409.png', credit:"Gray's Anatomy · Public Domain" },
+  traps:      { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Trapezius_Gray409.PNG', credit:"Gray's Anatomy · Public Domain" },
+  abs:        { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray396.png', credit:"Gray's Anatomy · Public Domain" },
+  forearms:   { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray421.png', credit:"Gray's Anatomy · Public Domain" },
+  biceps:     { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray416.png', credit:"Gray's Anatomy · Public Domain" },
+  triceps:    { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray417.png', credit:"Gray's Anatomy · Public Domain" },
+  quads:      { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray432_color.png', credit:"Gray's Anatomy · Public Domain" },
+  hamstrings: { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray437.png', credit:"Gray's Anatomy · Public Domain" },
+  glutes:     { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gluteus_maximus.png', credit:'Wikimedia Commons' },
+  calves:     { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gastrocnemius.png', credit:'Wikimedia Commons' },
+  lowerback:  { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray389.png', credit:"Gray's Anatomy · Public Domain" },
+  cardio:     { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Diagram_of_the_human_heart.svg', credit:'Wikimedia Commons' },
+};
+
+// Per-head images for cases where the sub-section is a genuinely SEPARATE muscle
+// (not just a fiber region of the same muscle) — so each card shows a different photo.
+const MUSCLE_HEAD_IMAGES = {
+  forearms: {
+    flexors:   { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray421.png', credit:"Gray's Anatomy · Public Domain" },
+    extensors: { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray418.png', credit:"Gray's Anatomy · Public Domain" },
+  },
+  quads: {
+    rectus:  { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Rectus_femoris.png', credit:'Wikimedia Commons' },
+    vastus:  { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Vastus_lateralis.png', credit:'Wikimedia Commons' },
+  },
+  hamstrings: {
+    bicepsfem: { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Biceps_femoris_muscle.png', credit:'Wikimedia Commons' },
+    semi:      { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Semitendinosus_muscle.png', credit:'Wikimedia Commons' },
+  },
+  glutes: {
+    maximus: { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gluteus_maximus.png', credit:'Wikimedia Commons' },
+    medius:  { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gluteus_medius_muscle.jpg', credit:'Wikimedia Commons' },
+  },
+  calves: {
+    gastroc:  { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gastrocnemius.png', credit:'Wikimedia Commons' },
+    soleus:   { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Soleus_muscle_-_anterior_view.png', credit:'Wikimedia Commons' },
+    tibialis: { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Tibialis_anterior_muscle_-_posteriror_view.png', credit:'Wikimedia Commons' },
+  },
+};
+
+// For sections that are just fiber regions of the SAME muscle (e.g. upper/mid/lower chest
+// are all pectoralis major — there's no separate "upper chest" photo in nature), we reuse
+// the muscle-level photo but draw a highlighted band/wedge over the relevant part of it,
+// so the cards still look distinct from one another instead of showing an identical image.
+function anatomyHighlightBox(shape, heads, headKey){
+  if(headKey==='general') return null;
+  const named = heads.filter(h=>h.key!=='general');
+  const idx = named.findIndex(h=>h.key===headKey);
+  if(idx===-1) return null;
+  const n = named.length;
+  if(shape==='pie'){
+    const leftPct = (idx/n)*100;
+    const widthPct = 100/n;
+    return `left:${leftPct.toFixed(1)}%;top:0;width:${widthPct.toFixed(1)}%;height:100%;`;
+  }
+  const topPct = (idx/n)*100;
+  const heightPct = 100/n;
+  return `left:0;top:${topPct.toFixed(1)}%;width:100%;height:${heightPct.toFixed(1)}%;`;
+}
+
 function classifyExerciseHead(ex, anatomy){
   const v = (ex.variation||'').toLowerCase();
   for(const h of anatomy.heads){
@@ -3463,7 +3588,48 @@ function anatomyPerformedMap(muscleKey){
   return map;
 }
 
-function anatomyHeadDiagramSVG(shape, heads, activeKey){
+function anatomyRealImageHTML(muscleKey, shape, heads, activeKey, head){
+  const specific = MUSCLE_HEAD_IMAGES[muscleKey] && MUSCLE_HEAD_IMAGES[muscleKey][activeKey];
+  const fallbackMuscleImg = MUSCLE_ANATOMY_IMAGES[muscleKey];
+  const img = specific || fallbackMuscleImg;
+  const badge = escapeHtml(head.label);
+  if(!img){
+    // no real photo mapped for this group — use the capsule diagram directly
+    return capsuleDiagramSVG(shape, heads, activeKey);
+  }
+  const headsJson = escapeHtml(JSON.stringify(heads));
+  // Only draw a highlight box when we're reusing the shared muscle-level photo
+  // (i.e. no dedicated per-head photo exists) so the card still looks distinct.
+  const box = !specific ? anatomyHighlightBox(shape, heads, activeKey) : null;
+  const highlightHtml = box ? `<div class="anatomy-highlight" style="${box}"></div>` : '';
+  return `
+    <div class="anatomy-img-wrap" data-shape="${shape}" data-active="${escapeHtml(activeKey)}" data-heads='${headsJson}'>
+      <img class="anatomy-img" src="${img.url}" alt="${badge} anatomy illustration" loading="lazy" referrerpolicy="no-referrer">
+      ${highlightHtml}
+      <span class="anatomy-badge">${badge}</span>
+    </div>
+    <div class="anatomy-credit">${escapeHtml(img.credit)}${box?' · highlighted region approximate':''}</div>
+  `;
+}
+
+function wireAnatomyImageFallback(root){
+  root.querySelectorAll('.anatomy-img').forEach(imgEl=>{
+    imgEl.addEventListener('error', ()=>{
+      const wrap = imgEl.closest('.anatomy-img-wrap');
+      if(!wrap) return;
+      try{
+        const shape = wrap.dataset.shape;
+        const activeKey = wrap.dataset.active;
+        const heads = JSON.parse(wrap.dataset.heads);
+        const creditEl = wrap.nextElementSibling;
+        if(creditEl && creditEl.classList.contains('anatomy-credit')) creditEl.remove();
+        wrap.outerHTML = capsuleDiagramSVG(shape, heads, activeKey);
+      }catch(e){ /* leave broken-image icon as last resort */ }
+    }, {once:true});
+  });
+}
+
+function capsuleDiagramSVG(shape, heads, activeKey){
   const n = heads.length;
   const activeIdx = Math.max(0, heads.findIndex(h=>h.key===activeKey));
   const accent = 'var(--accent)', dim = 'var(--card2)', dimStroke='var(--line)';
@@ -3542,6 +3708,7 @@ function renderAnatomyPage(){
 
   const listEl = document.getElementById('anatomyHeadList');
   listEl.innerHTML = anatomy.heads.map(h=>renderAnatomyHeadCard(muscle, anatomy, h, performed)).join('');
+  wireAnatomyImageFallback(listEl);
 
   // wire "show more" toggles
   listEl.querySelectorAll('[data-more-toggle]').forEach(btn=>{
@@ -3559,7 +3726,7 @@ function renderAnatomyHeadCard(muscle, anatomy, head, performedMap){
   const doneList = eligible.filter(e=>performedMap[e.id]).sort((a,b)=>performedMap[b.id].lastDate.localeCompare(performedMap[a.id].lastDate));
   const todoList = eligible.filter(e=>!performedMap[e.id]).sort((a,b)=>a.name.localeCompare(b.name));
 
-  const diagram = anatomyHeadDiagramSVG(anatomy.shape, anatomy.heads, head.key);
+  const diagram = anatomyRealImageHTML(muscle.key, anatomy.shape, anatomy.heads, head.key, head);
 
   const doneHtml = doneList.length ? `<div class="list" style="gap:6px;">
       ${doneList.map(e=>{
@@ -3604,7 +3771,7 @@ function renderAnatomyHeadCard(muscle, anatomy, head, performedMap){
     </div>
     <div class="two-col" style="margin-top:10px;align-items:start;">
       <div class="bodymap-wrap" style="align-items:flex-start;">
-        <div style="width:100%;max-width:150px;">${diagram}</div>
+        <div style="width:100%;max-width:170px;">${diagram}</div>
       </div>
       <div style="min-width:0;">
         <p style="font-size:12.5px;color:var(--text-dim);line-height:1.5;margin:0 0 10px;">${escapeHtml(head.desc)}</p>
@@ -5694,6 +5861,17 @@ function renderProgressPage(){
 
     <div class="card mt">
       <div class="card-title-row">
+         <h3 style="margin:0;">Fiber vs Protein <span class="tag" style="display:inline-block;margin-left:4px;">grams/day</span></h3>
+         ${chartFilterHTML('progFiberProtein')}
+      </div>
+      <div style="position:relative; height: 200px; width: 100%;">
+        <canvas id="fiberProteinChart"></canvas>
+      </div>
+      <p class="help center mt">Fiber slows digestion and feeds the gut bacteria that help break protein down and absorb it — low fiber alongside high protein is a common gap.</p>
+    </div>
+
+    <div class="card mt">
+      <div class="card-title-row">
          <h3 style="margin:0;">Weight vs Calorie Correlation</h3>
          ${chartFilterHTML('progCorr')}
       </div>
@@ -5738,6 +5916,7 @@ function renderProgressPage(){
   renderBurnTrendChart();
   renderVolTrendChart();
   renderMacroDistChart();
+  renderFiberProteinChart();
   renderWeightCalCorrChart();
   renderMuscleRadarChart();
   renderLayeredHeatmap();
@@ -5929,6 +6108,44 @@ function renderMacroDistChart(){
       x:{ grid:{color:chartGrid()}, ticks:{color:chartText(), font:{size:10.5}}, stacked:true },
       y:{ grid:{color:chartGrid()}, ticks:{color:chartText(), font:{size:10.5}}, stacked:true }
     }}
+  });
+}
+
+function renderFiberProteinChart(){
+  const ctx = document.getElementById('fiberProteinChart');
+  if(!ctx) return;
+  const filter = chartFilters.progFiberProtein;
+  const daysCount = filter === '1W' ? 7 : filter === '1M' ? 30 : Math.max(7, daysBetween(getTrackingStartDate(), todayStr()) + 1);
+  const daysArr = [...Array(daysCount)].map((_,i)=>addDays(todayStr(), - (daysCount - 1 - i)));
+  const fiberData = [], proteinData = [];
+  daysArr.forEach(d=>{
+    const logs = App.data.foodLogs.filter(f=>f.date===d);
+    fiberData.push(round1(logs.reduce((a,f)=>a+(f.fiber||0),0)));
+    proteinData.push(round1(logs.reduce((a,f)=>a+(f.p||0),0)));
+  });
+  const fiberTarget = 30; // general daily fiber guideline (g)
+  destroyChart('fiberProtein');
+  App.charts.fiberProtein = new Chart(ctx, {
+    type:'bar',
+    data:{ labels: daysArr.map(fmtDate), datasets:[
+      {label:'Fiber (g)', data: fiberData, backgroundColor: getCss('--accent2'), borderRadius:4},
+      {label:'Protein (g)', data: proteinData, backgroundColor: getCss('--accent'), borderRadius:4},
+      {type:'line', label:'Fiber target', data: daysArr.map(()=>fiberTarget), borderColor: getCss('--gold'), borderDash:[6,4], pointRadius:0, borderWidth:1.5}
+    ]},
+    options: { ...baseChartOpts({legend:true}),
+      plugins:{
+        legend:{display:true, labels:{color:chartText()}},
+        tooltip:{ enabled:true, mode:'index', intersect:false, position:'nearest',
+          callbacks:{
+            afterBody:(items)=>{
+              const f = fiberData[items[0].dataIndex], p = proteinData[items[0].dataIndex];
+              if(!p) return '';
+              return `Fiber:Protein ratio ≈ ${round1(f/p)}:1`;
+            }
+          }
+        }
+      }
+    }
   });
 }
 
