@@ -796,6 +796,7 @@ label{font-size:12px;color:var(--text-dim);font-weight:600;display:block;margin-
         <section id="page-missed" class="page"></section>
         <section id="page-goals" class="page"></section>
         <section id="page-library" class="page"></section>
+        <section id="page-anatomy" class="page"></section>
         <section id="page-guide" class="page"></section>
         <section id="page-settings" class="page"></section>
       </main>
@@ -2237,28 +2238,6 @@ const FOOD_DB = [
   {id:'vaathu', name:'Vaathu (Duck Meat)', type:'meat', unit:'100g', gPerUnit:100, kcal:140, p:19.9, c:0, f:6.4, fiber:0, sugar:0},
   {id:'kaadai', name:'Kaadai (Quail Meat)', type:'meat', unit:'100g', gPerUnit:100, kcal:134, p:21.8, c:0, f:4.5, fiber:0, sugar:0},
   {id:'muyal', name:'Muyal (Rabbit Meat)', type:'meat', unit:'100g', gPerUnit:100, kcal:173, p:33, c:0, f:3.5, fiber:0, sugar:0},
-
-  // ===== Fruits =====
-{id:'guava', name:'Guava', type:'general', unit:'1 medium', gPerUnit:100, kcal:68, p:2.6, c:14.3, f:1, fiber:5.4, sugar:8.9},
-{id:'amla', name:'Amla (Indian Gooseberry)', type:'general', unit:'1 piece', gPerUnit:35, kcal:16, p:0.4, c:3.7, f:0.1, fiber:2.1, sugar:1.5},
-
-// ===== Dairy / Beverages =====
-{id:'buttermilk', name:'Buttermilk (Plain)', type:'general', unit:'250ml', gPerUnit:250, kcal:75, p:4, c:6, f:3, fiber:0, sugar:5},
-
-// ===== Egg Preparations =====
-{id:'egg-podimas', name:'Egg Podimas', type:'general', unit:'1 serving', gPerUnit:60, kcal:105, p:7, c:2, f:7.5, fiber:0.3, sugar:0.8},
-{id:'egg-omelette', name:'Egg Omelette (Onion, Tomato & Green Chilli)', type:'general', unit:'1 serving', gPerUnit:120, kcal:145, p:8, c:4, f:10, fiber:0.8, sugar:1.8},
-{id:'egg-half-boil', name:'Egg Half Boil', type:'general', unit:'1 egg', gPerUnit:50, kcal:78, p:6.3, c:0.6, f:5.3, fiber:0, sugar:0.2},
-{id:'egg-full-boil', name:'Egg Full Boil', type:'general', unit:'1 egg', gPerUnit:50, kcal:78, p:6.3, c:0.6, f:5.3, fiber:0, sugar:0.2},
-
-// ===== Non-Veg Gravy / Curry Without Meat =====
-// Values represent mainly the leftover gravy, excluding edible meat pieces.
-{id:'chicken-gravy-no-meat', name:'Chicken Gravy (Without Meat)', type:'general', unit:'100g', gPerUnit:100, kcal:95, p:2, c:7, f:6, fiber:1, sugar:1.5},
-{id:'mutton-gravy-no-meat', name:'Mutton Gravy (Without Meat)', type:'general', unit:'100g', gPerUnit:100, kcal:110, p:2, c:7, f:8, fiber:1, sugar:1.5},
-{id:'beef-gravy-no-meat', name:'Beef Gravy (Without Meat)', type:'general', unit:'100g', gPerUnit:100, kcal:105, p:2, c:7, f:7.5, fiber:1, sugar:1.5},
-
-// ===== Tamil Nadu Curries =====
-{id:'kara-kuzhambu', name:'Kara Kuzhambu', type:'general', unit:'100ml', gPerUnit:100, kcal:80, p:2, c:9, f:4, fiber:2, sugar:2},
 ];
 
 // Mark specific pre-existing entries as raw/cook toggle eligible
@@ -2655,6 +2634,7 @@ const NAV_ITEMS = [
   {id:'missed',    label:'Track Missed', ic:'📅'},
   {id:'goals',     label:'Goals',     ic:'🎯'},
   {id:'library',   label:'Library',   ic:'📚'},
+  {id:'anatomy',   label:'Anatomy',   ic:'🧬'},
   {id:'guide',     label:'Guide',     ic:'📖'},
   {id:'settings',  label:'Settings',  ic:'⚙'},
 ];
@@ -2919,6 +2899,7 @@ const PAGE_TITLES = {
   missed:['Track Missed','Log past workouts & data'],
   goals:['Goals','Targets & achievements'],
   library:['Exercise Library','Browse & learn movements'],
+  anatomy:['Muscle Anatomy','Head-by-head breakdown of every muscle'],
   guide:['App Guide','How to use Parakarom'],
   settings:['Settings','Profiles, theme & data'],
 };
@@ -3013,6 +2994,7 @@ function renderPage(page){
   else if(page==='missed') renderMissedPage();
   else if(page==='goals') renderGoalsPage();
   else if(page==='library') renderLibraryPage();
+  else if(page==='anatomy') renderAnatomyPage();
   else if(page==='guide') renderGuidePage();
   else if(page==='settings') renderSettingsPage();
 }
@@ -3370,6 +3352,270 @@ function openMuscleHistoryModal(muscleKey){
     </div>`;
   document.getElementById('mc').onclick = closeModal;
   document.getElementById('mb').onclick = (e)=>{ if(e.target.id==='mb') closeModal(); };
+}
+
+/* =========================================================================
+   MUSCLE ANATOMY BREAKDOWN PAGE
+   ========================================================================= */
+const MUSCLE_ANATOMY = {
+  chest: { shape:'panel', heads:[
+    {key:'upper', label:'Upper Chest', sub:'Clavicular Head', kw:['upper'], desc:'The upper fibers of pectoralis major, running from the collarbone to the humerus. Emphasized by incline pressing angles.'},
+    {key:'mid',   label:'Middle Chest', sub:'Sternal Head', kw:['mid','middle','center'], desc:'The largest portion of the chest, running from the sternum outward. Drives flat pressing and fly movements.'},
+    {key:'lower', label:'Lower Chest', sub:'Costal Head', kw:['lower'], desc:'The lower fibers of pectoralis major, attaching near the ribs. Emphasized by decline angles and dips.'},
+    {key:'general', label:'Overall Chest', sub:'General / Compound', kw:[], desc:'Compound presses and flys that recruit the whole chest together rather than one head specifically.'},
+  ]},
+  shoulders: { shape:'pie', heads:[
+    {key:'anterior', label:'Anterior Delt', sub:'Front Head', kw:['front delt','front'], desc:'The front of the shoulder. Heavily involved in all pressing movements, so it usually needs the least direct work.'},
+    {key:'lateral', label:'Lateral Delt', sub:'Side Head', kw:['lateral delt','lateral','side'], desc:'The middle/side head, responsible for shoulder width. Best built with raises out to the side.'},
+    {key:'posterior', label:'Posterior Delt', sub:'Rear Head', kw:['rear delt','rear','posterior'], desc:'The back of the shoulder. Trained with pulling and reverse-fly style movements; commonly under-trained.'},
+    {key:'general', label:'Overall Shoulder', sub:'Rotator Cuff & Stability', kw:['rotator','stability','mobility'], desc:'Rotator cuff and stabilizer work that supports the whole shoulder joint rather than one delt head.'},
+  ]},
+  triceps: { shape:'limb', heads:[
+    {key:'long', label:'Long Head', sub:'Inner/Back of Arm', kw:['long head','long'], desc:'Crosses the shoulder joint, so it responds best to overhead extension positions where it is stretched.'},
+    {key:'lateral', label:'Lateral Head', sub:'Outer Sweep', kw:['lateral head','lateral'], desc:'The outer head, giving the arm its visible outer sweep. Trained well by pushdowns with the arm at your side.'},
+    {key:'medial', label:'Medial Head', sub:'Deep/Stabilizer', kw:['medial head','medial'], desc:'Sits underneath the other two heads and assists on almost every triceps movement as a stabilizer.'},
+    {key:'general', label:'Overall Triceps', sub:'Compound / Overall', kw:[], desc:'Compound pressing and dip-style movements that hit all three heads together.'},
+  ]},
+  biceps: { shape:'limb', heads:[
+    {key:'long', label:'Long Head', sub:'Outer Head', kw:['long head','long'], desc:'The outer head, which creates biceps "peak." Best emphasized with the arm behind the body or in a stretched position.'},
+    {key:'short', label:'Short Head', sub:'Inner Head', kw:['short head','short'], desc:'The inner head, contributing to overall biceps width and thickness. Emphasized with the arm in front of the body.'},
+    {key:'brachialis', label:'Brachialis', sub:'Underneath Biceps', kw:['brachialis'], desc:'Sits underneath the biceps and pushes it up, adding arm thickness. Best hit with a neutral (hammer) grip.'},
+    {key:'general', label:'Overall Biceps', sub:'General / Compound', kw:[], desc:'Standard curling movements that train the whole biceps without isolating one head.'},
+  ]},
+  back: { shape:'panel', heads:[
+    {key:'lats', label:'Lats', sub:'Width', kw:['lats','width'], desc:'The large fan-shaped latissimus dorsi. Vertical pulling (pulldowns, pull-ups) builds back width.'},
+    {key:'midback', label:'Mid-Back', sub:'Thickness — Rhomboids/Mid-Traps', kw:['thickness','upper back','mid'], desc:'Rhomboids and mid-traps between the shoulder blades. Horizontal rowing builds back thickness.'},
+    {key:'lowerlats', label:'Lower Lats', sub:'Bottom of the Lat', kw:['lower'], desc:'The lower portion of the lat, emphasized by pulldown and pullover variations that pull the elbow down and in.'},
+    {key:'general', label:'Overall Back', sub:'General / Compound', kw:[], desc:'Big compound pulls that recruit the whole back together.'},
+  ]},
+  traps: { shape:'panel', heads:[
+    {key:'upper', label:'Upper Traps', sub:'Neck/Shoulder Line', kw:['upper'], desc:'Runs from the neck to the shoulder. Built directly with shrugging movements.'},
+    {key:'middle', label:'Middle Traps', sub:'Between Shoulder Blades', kw:['mid'], desc:'Pulls the shoulder blades together; trained by rows and face pulls with a strong squeeze.'},
+    {key:'lower', label:'Lower Traps', sub:'Mid-Back, Below the Blades', kw:['lower'], desc:'Helps rotate and stabilize the shoulder blade; trained with Y-raises and pulldown-style movements.'},
+    {key:'general', label:'Overall Traps', sub:'General / Compound', kw:[], desc:'Movements that hit the traps generally as part of a bigger back or shoulder exercise.'},
+  ]},
+  abs: { shape:'panel', heads:[
+    {key:'upper', label:'Upper Abs', sub:'Above the Navel', kw:['upper'], desc:'The upper portion of the rectus abdominis, emphasized by crunch-style movements that flex the upper spine.'},
+    {key:'lower', label:'Lower Abs', sub:'Below the Navel', kw:['lower'], desc:'The lower portion of the rectus abdominis, emphasized by leg/hip raise movements.'},
+    {key:'obliques', label:'Obliques', sub:'Sides of the Core', kw:['oblique','rotation','side'], desc:'The muscles along the sides of the torso, trained with rotation and side-bend movements.'},
+    {key:'general', label:'Overall Core', sub:'General / Compound', kw:[], desc:'Planks and anti-movement exercises that brace the whole core together.'},
+  ]},
+  forearms: { shape:'limb', heads:[
+    {key:'brachioradialis', label:'Brachioradialis', sub:'Top of Forearm', kw:['brachioradialis'], desc:'The prominent muscle on top of the forearm near the elbow, emphasized by neutral/hammer grip movements.'},
+    {key:'flexors', label:'Wrist Flexors', sub:'Palm Side', kw:['flexor','pronat'], desc:'Runs along the palm side of the forearm; trained with wrist curls and grip work.'},
+    {key:'extensors', label:'Wrist Extensors', sub:'Back of Forearm', kw:['extensor'], desc:'Runs along the back of the forearm; trained with reverse wrist curls and often neglected.'},
+    {key:'general', label:'Grip & Overall', sub:'General / Compound', kw:[], desc:'Grip-focused and carry-style work that trains the forearm as a whole.'},
+  ]},
+  quads: { shape:'limb', heads:[
+    {key:'rectus', label:'Rectus Femoris', sub:'Center of Thigh', kw:[], desc:'Runs down the center of the thigh and also helps flex the hip; trained by most squat and press movements.', note:true},
+    {key:'vastus', label:'Vastus Lateralis / Medialis', sub:'Outer & Inner Thigh', kw:[], desc:'The outer and inner quad sweep, most visible just above the knee; built by close/wide stance leg work.', note:true},
+    {key:'adductors', label:'Adductors', sub:'Inner Thigh', kw:['adductor'], desc:'The inner-thigh muscles that pull the leg inward; trained by wide-stance and adduction-specific movements.'},
+    {key:'general', label:'Overall Quads', sub:'General / Compound', kw:['quad'], desc:'Squat and press-style movements that train the whole quad group together.'},
+  ]},
+  hamstrings: { shape:'limb', heads:[
+    {key:'bicepsfem', label:'Biceps Femoris', sub:'Outer Hamstring', kw:[], desc:'The outer hamstring muscle, most active during hip-hinge and sprinting-style movement.', note:true},
+    {key:'semi', label:'Semitendinosus & Semimembranosus', sub:'Inner Hamstring', kw:[], desc:'The inner hamstring muscles; emphasized by leg-curl style knee-flexion movements.', note:true},
+    {key:'general', label:'Overall Hamstrings', sub:'General / Compound', kw:['hamstring'], desc:'Hip-hinge and curl movements that train the hamstring group as a whole.'},
+  ]},
+  glutes: { shape:'limb', heads:[
+    {key:'maximus', label:'Gluteus Maximus', sub:'Main Glute Mass', kw:[], desc:'The largest, most powerful glute muscle, trained by hip-extension movements like hip thrusts and squats.', note:true},
+    {key:'medius', label:'Gluteus Medius', sub:'Side of the Hip', kw:['medius','abduct'], desc:'Sits on the side of the hip and stabilizes the pelvis; trained by abduction-style movements.'},
+    {key:'general', label:'Overall Glutes', sub:'General / Compound', kw:['glute'], desc:'Compound lower-body movements that train the glutes as a whole.'},
+  ]},
+  calves: { shape:'limb', heads:[
+    {key:'gastroc', label:'Gastrocnemius', sub:'Upper Calf', kw:['gastrocnemius'], desc:'The larger, visible upper calf muscle; best trained with straight-leg calf raises.'},
+    {key:'soleus', label:'Soleus', sub:'Lower Calf', kw:['soleus'], desc:'A flatter muscle underneath the gastrocnemius; best trained with bent-knee calf raises.'},
+    {key:'tibialis', label:'Tibialis Anterior', sub:'Front of Shin', kw:['tibialis'], desc:'Runs along the front of the shin, opposite the calf; trained with dorsiflexion (toe-raise) movements.'},
+    {key:'general', label:'Overall Calves', sub:'General / Compound', kw:[], desc:'General calf-raise work that trains the lower leg as a whole.'},
+  ]},
+  lowerback: { shape:'panel', heads:[
+    {key:'erector', label:'Erector Spinae', sub:'Along the Spine', kw:[], desc:'The long muscles running along the spine that keep the back extended and stable; trained by hip-hinge and extension movements.', note:true},
+    {key:'general', label:'Overall Lower Back', sub:'General / Compound', kw:[], desc:'Deadlift-style and extension movements that train the lower back as a whole.'},
+  ]},
+  cardio: { shape:'panel', heads:[
+    {key:'general', label:'Cardiovascular System', sub:'Heart & Lungs', kw:[], desc:'Sustained or interval work that trains heart and lung capacity rather than a specific muscle head.'},
+  ]},
+};
+
+function classifyExerciseHead(ex, anatomy){
+  const v = (ex.variation||'').toLowerCase();
+  for(const h of anatomy.heads){
+    if(h.key==='general') continue;
+    if(h.kw && h.kw.some(k=>v.includes(k))) return h.key;
+  }
+  return 'general';
+}
+
+function anatomyPerformedMap(muscleKey){
+  const map = {}; // exerciseId -> {sessions, sets, lastDate, bestWeight}
+  App.data.workouts.forEach(w=>{
+    w.exercises.forEach(e=>{
+      const ex = EXERCISE_LIBRARY.find(x=>x.id===e.exerciseId);
+      if(!ex || ex.primary!==muscleKey) return;
+      const rec = map[e.exerciseId] || {sessions:0, sets:0, lastDate:null, bestWeight:0};
+      rec.sessions += 1;
+      rec.sets += e.sets.length;
+      if(!rec.lastDate || w.date > rec.lastDate) rec.lastDate = w.date;
+      e.sets.forEach(s=>{ if((s.weight||0) > rec.bestWeight) rec.bestWeight = s.weight||0; });
+      map[e.exerciseId] = rec;
+    });
+  });
+  return map;
+}
+
+function anatomyHeadDiagramSVG(shape, heads, activeKey){
+  const n = heads.length;
+  const activeIdx = Math.max(0, heads.findIndex(h=>h.key===activeKey));
+  const accent = 'var(--accent)', dim = 'var(--card2)', dimStroke='var(--line)';
+  if(shape==='pie'){
+    // 3 wedges for named heads + a center ring representing "general"
+    const named = heads.filter(h=>h.key!=='general');
+    const cx=70, cy=70, r=58;
+    const isGeneral = heads[activeIdx].key==='general';
+    let wedges = '';
+    named.forEach((h,i)=>{
+      const a0 = (-90 + i*(360/named.length)) * Math.PI/180;
+      const a1 = (-90 + (i+1)*(360/named.length)) * Math.PI/180;
+      const x0 = cx + r*Math.cos(a0), y0 = cy + r*Math.sin(a0);
+      const x1 = cx + r*Math.cos(a1), y1 = cy + r*Math.sin(a1);
+      const active = isGeneral || h.key===activeKey;
+      wedges += `<path d="M${cx},${cy} L${x0.toFixed(1)},${y0.toFixed(1)} A${r},${r} 0 0 1 ${x1.toFixed(1)},${y1.toFixed(1)} Z" fill="${active?accent:dim}" stroke="var(--bg-elev)" stroke-width="2" opacity="${active?0.95:0.55}"/>`;
+    });
+    return `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="${cx}" cy="${cy}" r="${r+4}" fill="none" stroke="${dimStroke}" stroke-width="1.5"/>
+      ${wedges}
+      <circle cx="${cx}" cy="${cy}" r="14" fill="${isGeneral?accent:'var(--card)'}" stroke="${dimStroke}" stroke-width="1.5"/>
+    </svg>`;
+  }
+  // 'limb' (tall) or 'panel' (wide) — stacked band diagram
+  const W = shape==='limb' ? 100 : 220;
+  const H = shape==='limb' ? 230 : 130;
+  const bandH = H/n;
+  let bands = '';
+  heads.forEach((h,i)=>{
+    const y = i*bandH;
+    const active = i===activeIdx;
+    bands += `<rect x="0" y="${y.toFixed(1)}" width="${W}" height="${bandH.toFixed(1)}" fill="${active?accent:dim}" opacity="${active?0.95:0.55}" stroke="var(--bg-elev)" stroke-width="2"/>`;
+  });
+  const rx = shape==='limb' ? W/2.4 : 22;
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <defs><clipPath id="clip-${shape}"><rect x="0" y="0" width="${W}" height="${H}" rx="${rx}"/></clipPath></defs>
+    <g clip-path="url(#clip-${shape})">
+      <rect x="0" y="0" width="${W}" height="${H}" fill="var(--card2)"/>
+      ${bands}
+    </g>
+    <rect x="1" y="1" width="${W-2}" height="${H-2}" rx="${rx}" fill="none" stroke="${dimStroke}" stroke-width="2"/>
+  </svg>`;
+}
+
+let anatomySelectedMuscle = 'biceps';
+function renderAnatomyPage(){
+  const page = document.getElementById('page-anatomy');
+  const anatomyMuscles = MUSCLES; // all muscle groups, traps to calves (and cardio)
+  const muscle = MUSCLES.find(m=>m.key===anatomySelectedMuscle) || MUSCLES[0];
+  const anatomy = MUSCLE_ANATOMY[muscle.key];
+  const performed = anatomyPerformedMap(muscle.key);
+  const days = daysSinceTrained(App.data.workouts, muscle.key);
+  const daysTxt = days===null ? 'Never trained' : days===0 ? 'Trained today' : `Trained ${days} day${days>1?'s':''} ago`;
+  const totalPrimaryExercises = EXERCISE_LIBRARY.filter(e=>e.primary===muscle.key).length;
+  const totalPerformedCount = Object.keys(performed).length;
+
+  page.innerHTML = `
+    <div class="card" style="margin-bottom:14px;">
+      <h3 style="margin-bottom:10px;">Select a Muscle Group</h3>
+      <div class="field" style="margin-bottom:0;">
+        <select id="anatomyMuscleSelect">
+          ${anatomyMuscles.map(m=>`<option value="${m.key}" ${m.key===muscle.key?'selected':''}>${m.label}</option>`).join('')}
+        </select>
+      </div>
+      <div class="stat-strip mt" style="margin-bottom:0;">
+        <div class="stat-box"><div class="num">${anatomy.heads.length}</div><div class="lbl">Sections</div></div>
+        <div class="stat-box"><div class="num">${totalPerformedCount}/${totalPrimaryExercises}</div><div class="lbl">Exercises Logged</div></div>
+        <div class="stat-box"><div class="num" style="font-size:13px;">${daysTxt}</div><div class="lbl">Recency</div></div>
+      </div>
+    </div>
+    <div class="list" id="anatomyHeadList" style="gap:14px;"></div>
+  `;
+
+  const sel = document.getElementById('anatomyMuscleSelect');
+  sel.onchange = ()=>{ anatomySelectedMuscle = sel.value; renderAnatomyPage(); };
+
+  const listEl = document.getElementById('anatomyHeadList');
+  listEl.innerHTML = anatomy.heads.map(h=>renderAnatomyHeadCard(muscle, anatomy, h, performed)).join('');
+
+  // wire "show more" toggles
+  listEl.querySelectorAll('[data-more-toggle]').forEach(btn=>{
+    btn.onclick = ()=>{
+      const target = document.getElementById(btn.dataset.moreToggle);
+      const isHidden = target.classList.contains('hidden');
+      target.classList.toggle('hidden');
+      btn.textContent = isHidden ? 'Show fewer' : btn.dataset.moreLabel;
+    };
+  });
+}
+
+function renderAnatomyHeadCard(muscle, anatomy, head, performedMap){
+  const eligible = EXERCISE_LIBRARY.filter(e=>e.primary===muscle.key && classifyExerciseHead(e, anatomy)===head.key);
+  const doneList = eligible.filter(e=>performedMap[e.id]).sort((a,b)=>performedMap[b.id].lastDate.localeCompare(performedMap[a.id].lastDate));
+  const todoList = eligible.filter(e=>!performedMap[e.id]).sort((a,b)=>a.name.localeCompare(b.name));
+
+  const diagram = anatomyHeadDiagramSVG(anatomy.shape, anatomy.heads, head.key);
+
+  const doneHtml = doneList.length ? `<div class="list" style="gap:6px;">
+      ${doneList.map(e=>{
+        const p = performedMap[e.id];
+        const isCardio = e.cat==='Cardio';
+        return `<div class="item-row">
+          <div class="ii-main">
+            <div class="ii-title">${escapeHtml(e.name)}</div>
+            <div class="ii-sub">${p.sessions} session${p.sessions>1?'s':''} · ${p.sets} set${p.sets>1?'s':''} · last ${fmtDate(p.lastDate)}${p.bestWeight?` · best ${p.bestWeight}${isCardio?'':'kg'}`:''}</div>
+          </div>
+          <span class="chip on">Logged</span>
+        </div>`;
+      }).join('')}
+    </div>` : `<p class="help">You haven't logged any exercise for this section yet.</p>`;
+
+  const cap = 8;
+  const shownTodo = todoList.slice(0, cap);
+  const restTodo = todoList.slice(cap);
+  const todoId = `todo-${muscle.key}-${head.key}`;
+  const todoHtml = todoList.length ? `
+    <div class="chiprow">
+      ${shownTodo.map(e=>`<span class="chip" title="${escapeHtml(e.equip)}">${escapeHtml(e.name)}</span>`).join('')}
+    </div>
+    ${restTodo.length ? `
+      <div class="chiprow hidden" id="${todoId}" style="margin-top:8px;">
+        ${restTodo.map(e=>`<span class="chip" title="${escapeHtml(e.equip)}">${escapeHtml(e.name)}</span>`).join('')}
+      </div>
+      <button class="btn ghost mt" style="font-size:11.5px;padding:6px 10px;" data-more-toggle="${todoId}" data-more-label="+${restTodo.length} more">+${restTodo.length} more</button>
+    ` : ''}
+  ` : `<p class="help">Nothing left to try — you've logged every eligible exercise for this section!</p>`;
+
+  const noteHtml = head.note ? `<p class="help" style="margin-top:6px;">No exercise in your library isolates this head specifically — it's trained together with the rest of ${MUSCLE_LABEL[muscle.key]} in the exercises above/below.</p>` : '';
+
+  return `
+  <div class="card">
+    <div class="card-title-row" style="align-items:flex-start;">
+      <div style="min-width:0;">
+        <h3 style="font-size:16px;color:var(--text);margin-bottom:2px;">${escapeHtml(head.label)}</h3>
+        <div class="help" style="margin-top:0;">${escapeHtml(head.sub)}</div>
+      </div>
+      <span class="chip">${eligible.length} exercise${eligible.length!==1?'s':''}</span>
+    </div>
+    <div class="two-col" style="margin-top:10px;align-items:start;">
+      <div class="bodymap-wrap" style="align-items:flex-start;">
+        <div style="width:100%;max-width:150px;">${diagram}</div>
+      </div>
+      <div style="min-width:0;">
+        <p style="font-size:12.5px;color:var(--text-dim);line-height:1.5;margin:0 0 10px;">${escapeHtml(head.desc)}</p>
+        ${noteHtml}
+      </div>
+    </div>
+    <div class="section-head" style="margin:16px 0 8px;"><h2 style="font-size:12.5px;">✅ Exercises You've Performed</h2></div>
+    ${doneHtml}
+    <div class="section-head" style="margin:16px 0 8px;"><h2 style="font-size:12.5px;">🎯 Also Eligible For This Section</h2></div>
+    ${todoHtml}
+  </div>`;
 }
 
 function ringSVG(pct, colorVar, size=64){
