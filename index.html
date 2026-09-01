@@ -623,6 +623,47 @@ label{font-size:12px;color:var(--text-dim);font-weight:600;display:block;margin-
 .guide-section p { font-size: 13px; color: var(--text-dim); line-height: 1.5; margin: 0 0 8px 0; }
 .guide-highlight { color: var(--gold); font-weight: 600; }
 
+/* Workout Analyzer */
+.analyzer-card{margin-bottom:16px;}
+.analyzer-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+.analyzer-card-head .actl{display:flex;align-items:center;gap:8px;}
+.analyzer-card-head h3{font-size:14px;color:var(--text);display:flex;align-items:center;gap:8px;}
+.analyzer-card-head .sub{font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:2px;}
+.analyzer-toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+.analyzer-toolbar input[type=text],.analyzer-toolbar select{width:auto;min-width:150px;flex:1;}
+.table-scroll{overflow-x:auto;border-radius:10px;border:1px solid var(--line);}
+table.edit-table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px;}
+table.edit-table th{
+  background:var(--card2);color:var(--text-dim);font-size:11px;text-transform:uppercase;letter-spacing:.03em;
+  text-align:left;padding:9px 10px;white-space:nowrap;position:sticky;top:0;border-bottom:1px solid var(--line);
+}
+table.edit-table td{
+  padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--text);line-height:1.4;
+}
+table.edit-table tbody tr:last-child td{border-bottom:none;}
+table.edit-table tbody tr:hover{background:rgba(255,255,255,0.02);}
+table.edit-table td[contenteditable="true"]{
+  cursor:text;border-radius:6px;transition:box-shadow .2s, background .2s;
+  min-width:60px;
+}
+table.edit-table td[contenteditable="true"]:hover{background:var(--card2);}
+table.edit-table td[contenteditable="true"]:focus{
+  outline:none;background:var(--bg-elev);box-shadow:0 0 0 2px var(--accent2);
+}
+table.edit-table td.col-verdict,table.edit-table td.col-note,table.edit-table td.col-blurb{min-width:200px;}
+table.edit-table td.col-muscle{font-weight:700;color:var(--accent);white-space:nowrap;}
+table.edit-table td.col-exercise{font-weight:600;white-space:nowrap;}
+table.edit-table .row-del{
+  background:transparent;border:none;color:var(--text-faint);font-size:15px;line-height:1;
+  padding:4px 6px;border-radius:6px;transition:color .2s, background .2s;
+}
+table.edit-table .row-del:hover{color:var(--danger);background:rgba(239,68,68,0.12);}
+table.edit-table td.col-del{width:32px;text-align:center;padding:6px;}
+.analyzer-empty{padding:22px;text-align:center;color:var(--text-faint);font-size:13px;}
+.analyzer-legend-row{display:flex;align-items:center;gap:10px;}
+.analyzer-save-hint{font-size:11px;color:var(--text-faint);display:flex;align-items:center;gap:5px;margin-top:8px;}
+.analyzer-save-hint .dot2{width:6px;height:6px;border-radius:50%;background:var(--accent2);box-shadow:0 0 6px var(--accent2);}
+
 .pr-badge{background:var(--gold);color:#332400;font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:6px;letter-spacing:.03em; box-shadow: 0 0 10px rgba(245, 196, 81, 0.4);}
 .progress-bar{height:8px;background:var(--card2);border-radius:6px;overflow:hidden;border:1px solid var(--line); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);}
 .progress-bar i{display:block;height:100%;background:linear-gradient(90deg, var(--accent2), #4ade80); transition: width 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);}
@@ -795,6 +836,7 @@ label{font-size:12px;color:var(--text-dim);font-weight:600;display:block;margin-
       <main id="pages">
         <section id="page-dashboard" class="page"></section>
         <section id="page-workout" class="page"></section>
+        <section id="page-analyzer" class="page"></section>
         <section id="page-diet" class="page"></section>
         <section id="page-progress" class="page"></section>
         <section id="page-measurements" class="page"></section>
@@ -2409,6 +2451,7 @@ function blankProfileData(){
     workouts:[], foodLogs:[], personalFoods:[], foodOverrides:{}, weightLogs:[], waterLogs:[], measurementLogs:[], meals:[],
     goals:[], routines: getDefaultRoutines(), prs:{}, achievements:[], photos:[],
     schedTemplates: [], scheduledEvents: [], weekTemplates: [], activeWeekTemplateId: null, proteinBlend: null,
+    analyzer: null,
     settings:{waterTargetMl:5000, reminders:{water:false, meals:false, workout:false}, lastDigestWeek:null}
   };
 }
@@ -2436,6 +2479,7 @@ function loadProfileData(id){
 
     merged.weekTemplates = d.weekTemplates || [];
     merged.activeWeekTemplateId = d.activeWeekTemplateId || null;
+    merged.analyzer = d.analyzer || null;
     return merged;
   }catch(e){ return blankProfileData(); }
 }
@@ -2686,6 +2730,7 @@ function chartFilterHTML(chart) {
 const NAV_ITEMS = [
   {id:'dashboard', label:'Dashboard', ic:'⌂'},
   {id:'workout',   label:'Workout',   ic:'🏋'},
+  {id:'analyzer',  label:'Analyzer',  ic:'🗳️'},
   {id:'diet',      label:'Diet',      ic:'🍴'},
   {id:'scheduler', label:'Scheduler', ic:'📆'},
   {id:'progress',  label:'Progress',  ic:'📈'},
@@ -2951,6 +2996,7 @@ function renderNav(){
 const PAGE_TITLES = {
   dashboard:['Dashboard','Your training snapshot'],
   workout:['Workout','Log sets, reps & rest'],
+  analyzer:['Workout Analyzer','5th-judge exercise ratings & AI comparison'],
   diet:['Diet','Track meals & macros'],
   scheduler:['Scheduler','Weekly split templates & last logged sets'],
   progress:['Progress','Trends over time'],
@@ -3046,6 +3092,7 @@ function getAnimeQuote(id) {
 function renderPage(page){
   if(page==='dashboard') renderDashboard();
   else if(page==='workout') renderWorkoutPage();
+  else if(page==='analyzer') renderAnalyzerPage();
   else if(page==='diet') renderDietPage();
   else if(page==='scheduler') renderSchedulerPage();
   else if(page==='progress') renderProgressPage();
@@ -7065,6 +7112,308 @@ function renderGuidePage() {
             }
         };
     });
+}
+
+/* ============================= Workout Analyzer ============================= */
+function getDefaultAnalyzerData(){
+  const row = (obj)=>Object.assign({_id:uid()}, obj);
+  return {
+    legend: [
+      row({stars:'⭐⭐⭐⭐⭐', meaning:'Excellent / top-tier'}),
+      row({stars:'⭐⭐⭐⭐', meaning:'Very good'}),
+      row({stars:'⭐⭐⭐', meaning:'Good'}),
+      row({stars:'⭐⭐', meaning:'Okay, but better alternatives exist'}),
+      row({stars:'⭐', meaning:'Not ideal as a top-3 choice'}),
+    ],
+    votes: [
+      row({muscle:'Chest', exercise:'Barbell Bench Press', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent mass builder'}),
+      row({muscle:'Chest', exercise:'Incline Dumbbell Press', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Top-tier for chest'}),
+      row({muscle:'Chest', exercise:'Cable Fly/Crossover', aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent isolation'}),
+      row({muscle:'Chest', exercise:'Dips', aiVotes:'2/4', myVote:'⭐⭐⭐⭐', verdict:'Great, but individual comfort matters'}),
+      row({muscle:'Back', exercise:'Pull-Ups / Lat Pulldown', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Essential vertical pull'}),
+      row({muscle:'Back', exercise:'Chest-Supported Row', aiVotes:'1/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent hypertrophy choice'}),
+      row({muscle:'Back', exercise:'Barbell Row', aiVotes:'3/4', myVote:'⭐⭐⭐⭐', verdict:'Very effective but fatiguing'}),
+      row({muscle:'Back', exercise:'Single-Arm Row', aiVotes:'2/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent unilateral option'}),
+      row({muscle:'Back', exercise:'Deadlift', aiVotes:'1/4', myVote:'⭐⭐⭐', verdict:"Great strength exercise, not my top hypertrophy pick"}),
+      row({muscle:'Shoulders', exercise:'Lateral Raise', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Must-have for side delts'}),
+      row({muscle:'Shoulders', exercise:'Overhead Press', aiVotes:'4/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent overall pressing'}),
+      row({muscle:'Shoulders', exercise:'Reverse Pec Deck', aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent rear-delt isolation'}),
+      row({muscle:'Shoulders', exercise:'Face Pull', aiVotes:'3/4', myVote:'⭐⭐⭐⭐', verdict:"Good, but not my first rear-delt hypertrophy choice"}),
+      row({muscle:'Biceps', exercise:'Incline Dumbbell Curl', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent lengthened-position exercise'}),
+      row({muscle:'Biceps', exercise:'Barbell/EZ Curl', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent overall mass builder'}),
+      row({muscle:'Biceps', exercise:'Hammer Curl', aiVotes:'3/4', myVote:'⭐⭐⭐⭐½', verdict:'Great for brachialis/arm thickness'}),
+      row({muscle:'Biceps', exercise:'Cable/Bayesian Curl', aiVotes:'1/4', myVote:'⭐⭐⭐⭐⭐', verdict:'One of my favorite biceps choices'}),
+      row({muscle:'Triceps', exercise:'Overhead Extension', aiVotes:'3/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Best long-head choice'}),
+      row({muscle:'Triceps', exercise:'Cable Pushdown', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent isolation'}),
+      row({muscle:'Triceps', exercise:'Close-Grip Bench Press', aiVotes:'4/4', myVote:'⭐⭐⭐⭐', verdict:'Good heavy compound'}),
+      row({muscle:'Triceps', exercise:'Skull Crusher', aiVotes:'2/4', myVote:'⭐⭐⭐⭐', verdict:'Effective, but elbows can be limiting'}),
+      row({muscle:'Quads', exercise:'Squat', aiVotes:'3/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent, but not mandatory'}),
+      row({muscle:'Quads', exercise:'Hack Squat', aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Top-tier quad exercise'}),
+      row({muscle:'Quads', exercise:'Leg Press', aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent for overload'}),
+      row({muscle:'Quads', exercise:'Bulgarian Split Squat', aiVotes:'2/4', myVote:'⭐⭐⭐⭐½', verdict:'Very effective but demanding'}),
+      row({muscle:'Quads', exercise:'Leg Extension', aiVotes:'3/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent isolation'}),
+      row({muscle:'Hamstrings', exercise:'Romanian Deadlift', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Top-tier hamstring exercise'}),
+      row({muscle:'Hamstrings', exercise:'Seated Leg Curl', aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'My preferred curl variation'}),
+      row({muscle:'Hamstrings', exercise:'Lying Leg Curl', aiVotes:'3/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent alternative'}),
+      row({muscle:'Hamstrings', exercise:'Nordic Curl', aiVotes:'2/4', myVote:'⭐⭐⭐⭐', verdict:'Very difficult, excellent eccentric work'}),
+      row({muscle:'Glutes', exercise:'Hip Thrust', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent glute isolation'}),
+      row({muscle:'Glutes', exercise:'Bulgarian Split Squat', aiVotes:'3/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent glute + quad work'}),
+      row({muscle:'Glutes', exercise:'RDL', aiVotes:'2/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent stretch-focused movement'}),
+      row({muscle:'Glutes', exercise:'Squat', aiVotes:'2/4', myVote:'⭐⭐⭐⭐', verdict:'Great compound, less glute-specific'}),
+      row({muscle:'Calves', exercise:'Standing Calf Raise', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Essential gastrocnemius work'}),
+      row({muscle:'Calves', exercise:'Seated Calf Raise', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Essential soleus work'}),
+      row({muscle:'Calves', exercise:'Leg Press Calf Raise', aiVotes:'3/4', myVote:'⭐⭐⭐⭐', verdict:'Good additional variation'}),
+      row({muscle:'Abs', exercise:'Cable Crunch', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Best for progressive overload'}),
+      row({muscle:'Abs', exercise:'Hanging Leg Raise', aiVotes:'4/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent when controlled'}),
+      row({muscle:'Abs', exercise:'Ab Wheel', aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent anti-extension/core exercise'}),
+      row({muscle:'Abs', exercise:'Plank', aiVotes:'1/4', myVote:'⭐⭐⭐', verdict:'Great core stability, less hypertrophy-focused'}),
+      row({muscle:'Forearms', exercise:'Hammer Curl', aiVotes:'1/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent brachioradialis work'}),
+      row({muscle:'Forearms', exercise:'Reverse Curl', aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent for upper forearms'}),
+      row({muscle:'Forearms', exercise:'Wrist Curl', aiVotes:'3/4', myVote:'⭐⭐⭐⭐½', verdict:'Good direct flexor work'}),
+      row({muscle:'Forearms', exercise:'Reverse Wrist Curl', aiVotes:'1/4', myVote:'⭐⭐⭐⭐½', verdict:'Important for balanced development'}),
+      row({muscle:'Forearms', exercise:"Farmer's Carry", aiVotes:'2/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent grip + forearms'}),
+      row({muscle:'Forearms', exercise:'Dead Hang', aiVotes:'1/4', myVote:'⭐⭐⭐⭐', verdict:'Good grip endurance'}),
+    ],
+    winners: [
+      row({muscle:'Chest', best:'Incline DB Press', second:'Flat Bench Press', third:'Cable Fly'}),
+      row({muscle:'Back', best:'Pull-Up/Lat Pulldown', second:'Chest-Supported Row', third:'One-Arm Cable Row'}),
+      row({muscle:'Shoulders', best:'Lateral Raise', second:'Reverse Pec Deck', third:'Overhead Press'}),
+      row({muscle:'Biceps', best:'Incline DB Curl', second:'EZ-Bar Curl', third:'Hammer/Cable Curl'}),
+      row({muscle:'Triceps', best:'Overhead Cable Extension', second:'Cable Pushdown', third:'Close-Grip Bench'}),
+      row({muscle:'Quads', best:'Hack Squat', second:'Leg Press', third:'Leg Extension'}),
+      row({muscle:'Hamstrings', best:'RDL', second:'Seated Leg Curl', third:'Lying Leg Curl'}),
+      row({muscle:'Glutes', best:'Hip Thrust', second:'Bulgarian Split Squat', third:'RDL'}),
+      row({muscle:'Calves', best:'Standing Calf Raise', second:'Seated Calf Raise', third:'Leg Press Calf Raise'}),
+      row({muscle:'Abs', best:'Cable Crunch', second:'Hanging Leg Raise', third:'Ab Wheel'}),
+      row({muscle:'Forearms', best:'Reverse Curl', second:'Hammer Curl', third:'Wrist Curl + Extension'}),
+    ],
+    ranking: [
+      row({rank:'🥇', ai:'AI #1', note:'Most balanced and practical for hypertrophy.'}),
+      row({rank:'🥈', ai:'AI #4', note:'Very good exercise explanations and selections, although a few claims are slightly oversimplified.'}),
+      row({rank:'🥉', ai:'AI #2', note:'Strong list, but relies a bit too heavily on phrases like "highest EMG" or "king," which doesn\u2019t automatically mean the best muscle-growth exercise.'}),
+      row({rank:'4️⃣', ai:'AI #3', note:"Still a good basic list, but less hypertrophy-specific and includes deadlifts as a top back exercise, which wouldn't be prioritized for this goal."}),
+    ],
+  };
+}
+
+function ensureAnalyzerData(){
+  if(!App.data.analyzer){
+    App.data.analyzer = getDefaultAnalyzerData();
+    persist();
+  }
+}
+
+const ANALYZER_TABLES = {
+  legend:{
+    icon:'🗳️', title:'Voting System', sub:'What each star rating means',
+    columns:[{key:'stars',label:'Stars'},{key:'meaning',label:'Meaning',cls:'col-note'}],
+    blank:{stars:'⭐', meaning:''}
+  },
+  votes:{
+    icon:'💪', title:'Exercise Vote Table', sub:'Per-exercise hypertrophy rating by muscle group',
+    columns:[
+      {key:'muscle',label:'Muscle Group',cls:'col-muscle'},
+      {key:'exercise',label:'Exercise',cls:'col-exercise'},
+      {key:'aiVotes',label:'AI Votes'},
+      {key:'myVote',label:'My Vote'},
+      {key:'verdict',label:'Verdict',cls:'col-verdict'}
+    ],
+    blank:{muscle:'', exercise:'', aiVotes:'', myVote:'⭐⭐⭐', verdict:''},
+    filterable:true
+  },
+  winners:{
+    icon:'🏆', title:'Final "Best 3" Winners', sub:'Top pick per muscle group',
+    columns:[
+      {key:'muscle',label:'Muscle Group',cls:'col-muscle'},
+      {key:'best',label:'🥇 Best'},
+      {key:'second',label:'🥈 Second'},
+      {key:'third',label:'🥉 Third'}
+    ],
+    blank:{muscle:'', best:'', second:'', third:''}
+  },
+  ranking:{
+    icon:'🤖', title:'Overall AI Ranking', sub:'How the 4 compared AI answers stacked up',
+    columns:[{key:'rank',label:'Rank'},{key:'ai',label:'AI',cls:'col-exercise'},{key:'note',label:'Note',cls:'col-note'}],
+    blank:{rank:'', ai:'', note:''}
+  }
+};
+
+let analyzerVotesFilter = {q:'', muscle:''};
+
+function buildEditTableRows(tableKey, columns, rows){
+  return rows.map(row=>{
+    return `<tr data-row-id="${row._id}">${columns.map(c=>
+      `<td class="${c.cls||''}" contenteditable="true" data-table="${tableKey}" data-row="${row._id}" data-key="${c.key}">${escapeHtml(row[c.key]||'')}</td>`
+    ).join('')}<td class="col-del"><button class="row-del" data-del-table="${tableKey}" data-del-row="${row._id}" title="Delete row">✕</button></td></tr>`;
+  }).join('');
+}
+
+function renderAnalyzerTable(tableKey){
+  const cfg = ANALYZER_TABLES[tableKey];
+  const container = document.getElementById('analyzerTbl_'+tableKey);
+  if(!container) return;
+  let rows = App.data.analyzer[tableKey] || [];
+
+  if(cfg.filterable){
+    const q = analyzerVotesFilter.q.trim().toLowerCase();
+    const m = analyzerVotesFilter.muscle;
+    rows = rows.filter(r=>{
+      const okM = !m || (r.muscle||'').toLowerCase() === m.toLowerCase();
+      const okQ = !q || (r.exercise||'').toLowerCase().includes(q) || (r.verdict||'').toLowerCase().includes(q) || (r.muscle||'').toLowerCase().includes(q);
+      return okM && okQ;
+    });
+  }
+
+  if(rows.length===0){
+    container.innerHTML = `<div class="analyzer-empty">No rows${cfg.filterable?' match your search':''}. Tap "+ Add Row" to create one.</div>`;
+    return;
+  }
+
+  const thead = `<tr>${cfg.columns.map(c=>`<th>${c.label}</th>`).join('')}<th class="col-del"></th></tr>`;
+  const tbody = buildEditTableRows(tableKey, cfg.columns, rows);
+  container.innerHTML = `<div class="table-scroll"><table class="edit-table"><thead>${thead}</thead><tbody>${tbody}</tbody></table></div>`;
+}
+
+function addAnalyzerRow(tableKey){
+  const cfg = ANALYZER_TABLES[tableKey];
+  const newRow = Object.assign({_id:uid()}, cfg.blank);
+  App.data.analyzer[tableKey] = App.data.analyzer[tableKey] || [];
+  App.data.analyzer[tableKey].push(newRow);
+  persist();
+  if(tableKey==='votes'){ analyzerVotesFilter = {q:'', muscle:''}; const s=document.getElementById('analyzerSearch'); if(s) s.value=''; const ms=document.getElementById('analyzerMuscleFilter'); if(ms) ms.value=''; }
+  renderAnalyzerTable(tableKey);
+  toast('Row added');
+  // focus first editable cell of new row
+  requestAnimationFrame(()=>{
+    const cell = document.querySelector(`#analyzerTbl_${tableKey} [data-row="${newRow._id}"]`);
+    if(cell) cell.focus();
+  });
+}
+
+function deleteAnalyzerRow(tableKey, rowId){
+  confirmDialog('Delete this row?', ()=>{
+    App.data.analyzer[tableKey] = (App.data.analyzer[tableKey]||[]).filter(r=>r._id!==rowId);
+    persist();
+    renderAnalyzerTable(tableKey);
+    toast('Row deleted');
+  }, {yesLabel:'Delete'});
+}
+
+function resetAnalyzerTable(tableKey){
+  const cfg = ANALYZER_TABLES[tableKey];
+  confirmDialog(`Reset "${cfg.title}" back to its original values? Your edits to this table will be lost.`, ()=>{
+    const fresh = getDefaultAnalyzerData()[tableKey];
+    App.data.analyzer[tableKey] = fresh;
+    persist();
+    renderAnalyzerTable(tableKey);
+    toast('Table reset to default');
+  }, {yesLabel:'Reset'});
+}
+
+function exportAnalyzerTableCSV(tableKey){
+  const cfg = ANALYZER_TABLES[tableKey];
+  const rows = App.data.analyzer[tableKey] || [];
+  const esc = (v)=>`"${String(v==null?'':v).replace(/"/g,'""')}"`;
+  const lines = [cfg.columns.map(c=>esc(c.label)).join(',')];
+  rows.forEach(r=> lines.push(cfg.columns.map(c=>esc(r[c.key])).join(',')));
+  const blob = new Blob([lines.join('\n')], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `${tableKey}-analyzer.csv`; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function analyzerTableCardHTML(tableKey){
+  const cfg = ANALYZER_TABLES[tableKey];
+  let toolbar = '';
+  if(cfg.filterable){
+    const muscles = [...new Set((App.data.analyzer[tableKey]||[]).map(r=>r.muscle).filter(Boolean))];
+    toolbar = `
+      <div class="analyzer-toolbar">
+        <input type="text" id="analyzerSearch" placeholder="🔎 Search exercise, muscle or verdict…" value="${escapeHtml(analyzerVotesFilter.q)}">
+        <select id="analyzerMuscleFilter">
+          <option value="">All muscle groups</option>
+          ${muscles.map(m=>`<option value="${escapeHtml(m)}" ${analyzerVotesFilter.muscle===m?'selected':''}>${escapeHtml(m)}</option>`).join('')}
+        </select>
+      </div>`;
+  }
+  return `
+  <div class="card analyzer-card">
+    <div class="analyzer-card-head">
+      <div>
+        <h3><span>${cfg.icon}</span>${cfg.title}</h3>
+        <div class="sub">${cfg.sub}</div>
+      </div>
+      <div class="actl">
+        <button class="btn sm" data-analyzer-add="${tableKey}">+ Add Row</button>
+        <button class="btn sm ghost" data-analyzer-csv="${tableKey}">⬇ CSV</button>
+        <button class="btn sm danger" data-analyzer-reset="${tableKey}">↺ Reset</button>
+      </div>
+    </div>
+    ${toolbar}
+    <div id="analyzerTbl_${tableKey}"></div>
+    <div class="analyzer-save-hint"><span class="dot2"></span>Tap any cell to edit — changes save automatically</div>
+  </div>`;
+}
+
+function renderAnalyzerPage(){
+  ensureAnalyzerData();
+  const page = document.getElementById('page-analyzer');
+
+  page.innerHTML = `
+    <div class="card" style="text-align:center; margin-bottom: 20px; animation: slideInUp 0.3s backwards;">
+      <h2 style="color: var(--accent); margin-bottom:8px;">🗳️ Workout Analyzer</h2>
+      <p style="color: var(--text-dim); font-size: 14px; line-height: 1.5; margin:0;">
+        A 5th-judge review comparing exercise picks across muscle groups — fully editable so you can adjust ratings, add your own exercises, or reorder verdicts to match your own experience.
+      </p>
+    </div>
+    ${analyzerTableCardHTML('legend')}
+    ${analyzerTableCardHTML('votes')}
+    ${analyzerTableCardHTML('winners')}
+    ${analyzerTableCardHTML('ranking')}
+  `;
+
+  Object.keys(ANALYZER_TABLES).forEach(renderAnalyzerTable);
+
+  // Delegated events for the whole page
+  page.onclick = (e)=>{
+    const addBtn = e.target.closest('[data-analyzer-add]');
+    if(addBtn){ addAnalyzerRow(addBtn.dataset.analyzerAdd); return; }
+    const csvBtn = e.target.closest('[data-analyzer-csv]');
+    if(csvBtn){ exportAnalyzerTableCSV(csvBtn.dataset.analyzerCsv); return; }
+    const resetBtn = e.target.closest('[data-analyzer-reset]');
+    if(resetBtn){ resetAnalyzerTable(resetBtn.dataset.analyzerReset); return; }
+    const delBtn = e.target.closest('[data-del-row]');
+    if(delBtn){ deleteAnalyzerRow(delBtn.dataset.delTable, delBtn.dataset.delRow); return; }
+  };
+
+  page.addEventListener('focusout', (e)=>{
+    const cell = e.target.closest('td[contenteditable="true"]');
+    if(!cell) return;
+    const {table, row, key} = cell.dataset;
+    if(!table || !row || !key) return;
+    const list = App.data.analyzer[table] || [];
+    const rec = list.find(r=>r._id===row);
+    if(!rec) return;
+    const val = cell.textContent.trim();
+    if(rec[key] !== val){
+      rec[key] = val;
+      persist();
+    }
+  });
+
+  page.addEventListener('input', (e)=>{
+    if(e.target.id==='analyzerSearch'){
+      analyzerVotesFilter.q = e.target.value;
+      renderAnalyzerTable('votes');
+    }
+  });
+  page.addEventListener('change', (e)=>{
+    if(e.target.id==='analyzerMuscleFilter'){
+      analyzerVotesFilter.muscle = e.target.value;
+      renderAnalyzerTable('votes');
+    }
+  });
 }
 
 function renderSettingsPage(){
