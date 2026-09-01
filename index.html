@@ -664,6 +664,86 @@ table.edit-table td.col-del{width:32px;text-align:center;padding:6px;}
 .analyzer-save-hint{font-size:11px;color:var(--text-faint);display:flex;align-items:center;gap:5px;margin-top:8px;}
 .analyzer-save-hint .dot2{width:6px;height:6px;border-radius:50%;background:var(--accent2);box-shadow:0 0 6px var(--accent2);}
 
+/* Auto Draft Workout Plan */
+.autodraft-cta{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  background:linear-gradient(135deg, var(--accent-dim), var(--card));
+  border:1px solid var(--accent);border-radius:var(--radius);padding:16px;margin-bottom:16px;
+  animation: slideInUp 0.3s backwards;
+}
+.autodraft-cta .adc-text h3{font-size:15px;color:var(--accent);margin-bottom:3px;display:flex;align-items:center;gap:6px;}
+.autodraft-cta .adc-text p{margin:0;font-size:12px;color:var(--text-dim);line-height:1.4;}
+.autodraft-cta .btn{flex-shrink:0;}
+.plan-card{margin-bottom:16px;animation: slideInUp 0.3s backwards;}
+.plan-head-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+.plan-head-row h3{font-size:14.5px;display:flex;align-items:center;gap:7px;margin-bottom:3px;}
+.plan-head-row .sub{font-size:11.5px;color:var(--text-faint);font-weight:500;}
+.plan-head-actions{display:flex;gap:6px;flex-wrap:wrap;}
+.plan-progress-wrap{margin:10px 0 14px;}
+.plan-progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);margin-bottom:5px;font-weight:600;}
+.plan-day-tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;padding-bottom:4px;scrollbar-width:none;}
+.plan-day-tabs::-webkit-scrollbar{display:none;}
+.plan-day-tab{
+  flex-shrink:0;position:relative;background:var(--card2);border:1px solid var(--line);color:var(--text-dim);
+  font-size:11.5px;font-weight:700;padding:8px 12px 8px 12px;border-radius:12px;white-space:nowrap;text-align:left;
+  transition:all .25s cubic-bezier(.175,.885,.32,1.275);display:flex;flex-direction:column;gap:1px;min-width:64px;
+}
+.plan-day-tab .pdt-n{font-size:9.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.04em;}
+.plan-day-tab.active{background:var(--accent-dim);color:var(--accent);border-color:var(--accent);box-shadow:0 4px 12px rgba(255,90,60,.3);}
+.plan-day-tab.done{border-color:var(--accent2);}
+.plan-day-tab.done::after{content:'✓';position:absolute;top:-6px;right:-6px;background:var(--accent2);color:#04211c;width:16px;height:16px;border-radius:50%;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:900;}
+.plan-day-tab.rest{opacity:.55;}
+.plan-day-body{animation: fadeInTip .3s ease;}
+.plan-day-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+.plan-day-banner .muscles{display:flex;flex-wrap:wrap;gap:5px;}
+.plan-muscle-chip{background:var(--card2);border:1px solid var(--line);color:var(--text-dim);font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:999px;text-transform:capitalize;}
+.plan-muscle-chip.opt{border-style:dashed;color:var(--text-faint);}
+.plan-rest-card{text-align:center;padding:30px 16px;color:var(--text-faint);}
+.plan-rest-card .ic{font-size:32px;display:block;margin-bottom:8px;}
+.plan-ex-row{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;transition:border-color .2s;}
+.plan-ex-row.completed{border-color:var(--accent2);background:var(--accent2-dim);}
+.plan-ex-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;}
+.plan-ex-title{font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.plan-ex-sub{font-size:11px;color:var(--text-faint);margin-top:2px;text-transform:capitalize;}
+.plan-ex-actions{display:flex;gap:4px;flex-shrink:0;}
+.high-eff-badge{background:var(--gold);color:#231a04;font-size:9px;font-weight:900;padding:2px 6px;border-radius:999px;letter-spacing:.02em;white-space:nowrap;}
+.new-pick-badge{background:var(--accent2-dim);color:var(--accent2);font-size:9px;font-weight:900;padding:2px 6px;border-radius:999px;letter-spacing:.02em;white-space:nowrap;}
+.plan-set-grid{display:grid;grid-template-columns:44px 1fr 1fr;gap:6px;align-items:center;}
+.plan-set-grid .psg-lbl{font-size:10.5px;color:var(--text-faint);font-weight:700;}
+.plan-set-grid input{padding:7px 8px;font-size:12.5px;border-radius:7px;}
+.plan-set-grid .psg-head{font-size:9.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.04em;font-weight:700;}
+.plan-day-footer{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
+.plan-history-item{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;}
+.plan-history-item .phi-title{font-weight:700;font-size:12.5px;}
+.plan-history-item .phi-sub{font-size:11px;color:var(--text-faint);margin-top:2px;}
+.autodraft-step{margin-bottom:16px;}
+.autodraft-step > label{font-size:12px;color:var(--text-dim);font-weight:700;display:block;margin-bottom:8px;}
+.autodraft-choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.autodraft-choice{
+  background:var(--card2);border:1.5px solid var(--line);border-radius:11px;padding:11px 10px;text-align:left;
+  transition:all .2s;cursor:pointer;
+}
+.autodraft-choice .ac-t{font-weight:700;font-size:12.5px;display:block;}
+.autodraft-choice .ac-s{font-size:10.5px;color:var(--text-faint);display:block;margin-top:2px;line-height:1.3;}
+.autodraft-choice.active{border-color:var(--accent);background:var(--accent-dim);}
+.autodraft-choice.active .ac-t{color:var(--accent);}
+.custom-day-block{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:10px;margin-bottom:8px;}
+.custom-day-block .cdb-head{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.custom-day-block .cdb-head input{flex:1;}
+.custom-day-block .cdb-muscles{display:flex;flex-wrap:wrap;gap:6px;}
+.muscle-toggle{
+  background:var(--card);border:1px solid var(--line);color:var(--text-dim);font-size:11px;font-weight:600;
+  padding:5px 10px;border-radius:999px;text-transform:capitalize;transition:all .2s;
+}
+.muscle-toggle.on{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);}
+.tab-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-left:3px;vertical-align:middle;box-shadow:0 0 0 3px var(--accent-dim);}
+.plan-preview-card{background:linear-gradient(155deg, var(--card) 0%, var(--card2) 100%);border:1px solid var(--line);}
+.plan-preview-today{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;padding:10px 12px;background:var(--card2);border-radius:10px;border:1px solid var(--line);}
+.plan-preview-today .ppt-label{font-weight:800;font-size:12.5px;}
+.plan-preview-today .ppt-meta{font-size:11px;color:var(--text-faint);}
+.apc-actions{flex-direction:column;gap:8px;}
+.apc-actions .btn{margin:0;}
+
 .pr-badge{background:var(--gold);color:#332400;font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:6px;letter-spacing:.03em; box-shadow: 0 0 10px rgba(245, 196, 81, 0.4);}
 .progress-bar{height:8px;background:var(--card2);border-radius:6px;overflow:hidden;border:1px solid var(--line); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);}
 .progress-bar i{display:block;height:100%;background:linear-gradient(90deg, var(--accent2), #4ade80); transition: width 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);}
@@ -2451,7 +2531,7 @@ function blankProfileData(){
     workouts:[], foodLogs:[], personalFoods:[], foodOverrides:{}, weightLogs:[], waterLogs:[], measurementLogs:[], meals:[],
     goals:[], routines: getDefaultRoutines(), prs:{}, achievements:[], photos:[],
     schedTemplates: [], scheduledEvents: [], weekTemplates: [], activeWeekTemplateId: null, proteinBlend: null,
-    analyzer: null,
+    analyzer: null, workoutPlans: [],
     settings:{waterTargetMl:5000, reminders:{water:false, meals:false, workout:false}, lastDigestWeek:null}
   };
 }
@@ -2480,6 +2560,7 @@ function loadProfileData(id){
     merged.weekTemplates = d.weekTemplates || [];
     merged.activeWeekTemplateId = d.activeWeekTemplateId || null;
     merged.analyzer = d.analyzer || null;
+    merged.workoutPlans = Array.isArray(d.workoutPlans) ? d.workoutPlans : [];
     return merged;
   }catch(e){ return blankProfileData(); }
 }
@@ -4255,10 +4336,13 @@ function getDefaultSetsForExercise(exerciseId) {
 }
 
 function renderWorkoutPage(){
+  ensurePlansData();
   const page = document.getElementById('page-workout');
+  const hasPlan = !!getActivePlan();
   page.innerHTML = getAnimeQuote('workout') + `
     <div class="tabs">
       <button data-t="log" class="${workoutTab==='log'?'active':''}">Log Workout</button>
+      <button data-t="plan" class="${workoutTab==='plan'?'active':''}">🪄 Plan${hasPlan?' <span class="tab-dot"></span>':''}</button>
       <button data-t="routines" class="${workoutTab==='routines'?'active':''}">Routines</button>
       <button data-t="history" class="${workoutTab==='history'?'active':''}">History</button>
     </div>
@@ -4266,8 +4350,14 @@ function renderWorkoutPage(){
   page.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{ workoutTab=b.dataset.t; renderWorkoutPage(); });
   const body = document.getElementById('workoutTabBody');
   if(workoutTab==='log') renderWorkoutLog(body);
+  else if(workoutTab==='plan') renderWorkoutPlanTab(body);
   else if(workoutTab==='routines') renderRoutines(body);
   else renderWorkoutHistory(body);
+}
+
+function renderWorkoutPlanTab(body){
+  body.innerHTML = renderPlanSection({full:true});
+  attachPlanControls(body);
 }
 
 function renderWorkoutLog(body){
@@ -7417,8 +7507,689 @@ function analyzerTableCardHTML(tableKey){
   </div>`;
 }
 
+/* ============================= Auto Draft Workout Plan ============================= */
+
+const SPLIT_PRESETS = {
+  default:{
+    name:'Your Default 3-Day Split',
+    days:[
+      {label:'Chest + Triceps', muscles:['chest','triceps'], optional:['abs']},
+      {label:'Back + Biceps + Forearm', muscles:['back','biceps','forearms'], optional:[]},
+      {label:'Shoulders + Legs', muscles:['shoulders','quads','hamstrings','glutes','calves'], optional:[]}
+    ]
+  },
+  ppl:{
+    name:'Push / Pull / Legs',
+    days:[
+      {label:'Push (Chest, Shoulders, Triceps)', muscles:['chest','shoulders','triceps'], optional:['abs']},
+      {label:'Pull (Back, Biceps, Forearm)', muscles:['back','biceps','forearms'], optional:[]},
+      {label:'Legs', muscles:['quads','hamstrings','glutes','calves'], optional:[]}
+    ]
+  },
+  upperlower:{
+    name:'Upper / Lower',
+    days:[
+      {label:'Upper Body', muscles:['chest','back','shoulders','biceps','triceps','forearms'], optional:['abs']},
+      {label:'Lower Body', muscles:['quads','hamstrings','glutes','calves'], optional:[]}
+    ]
+  },
+  fullbody:{
+    name:'Full Body',
+    days:[
+      {label:'Full Body', muscles:['chest','back','shoulders','quads','hamstrings','glutes','biceps','triceps'], optional:['abs']}
+    ]
+  }
+};
+const PLAN_MUSCLES = MUSCLES.filter(m=>m.key!=='cardio');
+
+const MAJOR_MUSCLES = ['chest','back','shoulders','quads'];
+function exerciseCountForMuscle(muscle){
+  if(MAJOR_MUSCLES.includes(muscle)) return 3;
+  if(muscle==='abs') return 1;
+  return 2;
+}
+// Caps a day's total working-set load: starts from ideal per-muscle counts, then trims the
+// currently-highest count (favoring minor muscles on a tie) until the day fits a realistic budget.
+function computeDayExerciseCounts(muscles, budget){
+  budget = budget || 8;
+  const counts = {};
+  muscles.forEach(m=>{ counts[m] = exerciseCountForMuscle(m); });
+  let total = muscles.reduce((a,m)=>a+counts[m],0);
+  while(total>budget){
+    let target = null;
+    muscles.forEach(m=>{
+      if(counts[m]<=1) return;
+      if(target===null){ target=m; return; }
+      const mIsMajor = MAJOR_MUSCLES.includes(m), tIsMajor = MAJOR_MUSCLES.includes(target);
+      if(counts[m]>counts[target]) target=m;
+      else if(counts[m]===counts[target] && !mIsMajor && tIsMajor) target=m;
+    });
+    if(!target) break;
+    counts[target]--; total--;
+  }
+  return counts;
+}
+
+function ensurePlansData(){
+  if(!Array.isArray(App.data.workoutPlans)) App.data.workoutPlans = [];
+}
+function getActivePlan(){
+  ensurePlansData();
+  return App.data.workoutPlans.find(p=>p.status==='active') || null;
+}
+
+function starScoreFromVote(v){
+  if(!v) return 0;
+  const full = (v.match(/⭐/g)||[]).length;
+  const half = v.includes('½') ? 0.5 : 0;
+  return full + half;
+}
+function normExName(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]/g,''); }
+
+function computeExerciseEffectiveness(){
+  ensureAnalyzerData();
+  const rows = [...(App.data.analyzer.aVotes||[]), ...(App.data.analyzer.bVotes||[])];
+  const bestRows = [...(App.data.analyzer.aBest||[]), ...(App.data.analyzer.bBest||[])];
+  const map = {};
+  EXERCISE_LIBRARY.forEach(ex=>{
+    const nEx = normExName(ex.name);
+    let best = 0, isBestPick = false;
+    rows.forEach(r=>{
+      if(!r.exercise) return;
+      const nR = normExName(r.exercise);
+      if(nR.length<4) return;
+      if(nEx.includes(nR) || nR.includes(nEx)){
+        const s = starScoreFromVote(r.myVote);
+        if(s>best) best = s;
+      }
+    });
+    bestRows.forEach(r=>{
+      [[r.best,1],[r.second,0.5],[r.third,0.25]].forEach(([name,bonus])=>{
+        if(!name) return;
+        const nR = normExName(name);
+        if(nR.length<4) return;
+        if(nEx.includes(nR) || nR.includes(nEx)){
+          if(bonus===1) isBestPick = true;
+          best = Math.max(best, 4 + bonus);
+        }
+      });
+    });
+    map[ex.id] = {score:best, isHighEffective: best>=4.5 || isBestPick};
+  });
+  return map;
+}
+
+function buildUsageMapFromHistory(){
+  const map = {};
+  [...App.data.workouts].sort((a,b)=>a.date.localeCompare(b.date)).forEach(w=>{
+    w.exercises.forEach(e=>{ map[e.exerciseId] = w.date; });
+  });
+  return map;
+}
+
+function draftSetsForExercise(exerciseId){
+  const workouts = [...App.data.workouts].sort((a,b)=>b.date.localeCompare(a.date));
+  let baseReps = 10, baseWeight = 0;
+  for(const w of workouts){
+    const found = w.exercises.find(e=>e.exerciseId===exerciseId);
+    if(found && found.sets && found.sets.length){
+      const last = found.sets[found.sets.length-1];
+      baseReps = last.reps || baseReps;
+      baseWeight = (last.weight!=null) ? last.weight : baseWeight;
+      break;
+    }
+  }
+  return [0,1,2].map(()=>({reps:baseReps, weight:baseWeight}));
+}
+
+function pickForMuscle(muscle, n, dateStr, usageMap, effMap){
+  const pool = EXERCISE_LIBRARY.filter(e=>e.primary===muscle && e.cat!=='Cardio');
+  if(pool.length===0) return [];
+  const annotated = pool.map(e=>{
+    const eff = effMap[e.id] || {score:0, isHighEffective:false};
+    const lastUsed = usageMap[e.id];
+    const gap = lastUsed ? daysBetween(lastUsed, dateStr) : 999;
+    const recentlyUsed = gap>=0 && gap<=3;
+    return {ex:e, score:eff.score, isHighEffective:eff.isHighEffective, recentlyUsed};
+  });
+  let allowed = annotated.filter(a=>!a.recentlyUsed || a.isHighEffective);
+  if(allowed.length < n) allowed = annotated.slice();
+  allowed.sort((a,b)=> (b.score-a.score) || ((a.recentlyUsed?1:0)-(b.recentlyUsed?1:0)) || (Math.random()-0.5));
+  const chosen = [];
+  for(const a of allowed){
+    if(chosen.length>=n) break;
+    chosen.push(a);
+  }
+  // if forced into an all-repeat set for a multi-exercise muscle, swap one slot for a fresh pick to satisfy "mix in a new exercise"
+  if(n>1 && chosen.length && chosen.every(c=>c.recentlyUsed)){
+    const fresh = annotated.find(a=>!a.recentlyUsed && !chosen.some(c=>c.ex.id===a.ex.id));
+    if(fresh) chosen[chosen.length-1] = fresh;
+  }
+  chosen.forEach(c=>{ usageMap[c.ex.id] = dateStr; });
+  return chosen.map(c=>({
+    exerciseId:c.ex.id,
+    isHighEffective: !!c.isHighEffective,
+    isFreshPick: !c.recentlyUsed,
+    sets: draftSetsForExercise(c.ex.id)
+  }));
+}
+
+function pickExercisesForDay(muscles, optional, dateStr, usageMap, effMap){
+  let out = [];
+  const counts = computeDayExerciseCounts(muscles||[]);
+  (muscles||[]).forEach(m=>{ out = out.concat(pickForMuscle(m, counts[m], dateStr, usageMap, effMap)); });
+  (optional||[]).forEach(m=>{ out = out.concat(pickForMuscle(m, 1, dateStr, usageMap, effMap)); });
+  return out;
+}
+
+function detectNextRotationIndex(rotation){
+  if(!App.data.workouts.length) return 0;
+  const last = [...App.data.workouts].sort((a,b)=>b.date.localeCompare(a.date))[0];
+  const musclesUsed = new Set(last.exercises.map(e=>{
+    const ex = EXERCISE_LIBRARY.find(x=>x.id===e.exerciseId); return ex ? ex.primary : null;
+  }).filter(Boolean));
+  let bestIdx = 0, bestScore = -1;
+  rotation.forEach((slot,idx)=>{
+    const overlap = slot.muscles.filter(m=>musclesUsed.has(m)).length;
+    if(overlap>bestScore){ bestScore = overlap; bestIdx = idx; }
+  });
+  return (bestIdx+1) % rotation.length;
+}
+
+function generateWorkoutPlan(opts){
+  const splitDef = opts.splitKey==='custom' ? {name:'Custom Split', days:opts.customDays} : SPLIT_PRESETS[opts.splitKey];
+  const rotation = splitDef.days.filter(d=>d.muscles && d.muscles.length);
+  if(!rotation.length) return null;
+  const effMap = computeExerciseEffectiveness();
+  const usageMap = buildUsageMapFromHistory();
+  const startDate = opts.startDate || todayStr();
+  const daysPerWeek = clamp(opts.daysPerWeek||6, 1, 7);
+
+  let planDays = [];
+  if(opts.scope==='day'){
+    const idx = opts.singleDayIndex==='auto' ? detectNextRotationIndex(rotation) : (opts.singleDayIndex||0);
+    const slot = rotation[idx % rotation.length];
+    const exercises = pickExercisesForDay(slot.muscles, slot.optional, startDate, usageMap, effMap);
+    planDays.push({id:uid(), dayNumber:1, label:slot.label, muscles:slot.muscles, optionalMuscles:slot.optional||[], date:startDate, exercises, completed:false, isRest:false, loggedWorkoutId:null});
+  } else {
+    const totalCalendarDays = opts.scope==='week' ? 7 : 28;
+    let rotIdx = 0;
+    for(let i=0;i<totalCalendarDays;i++){
+      const dStr = addDays(startDate, i);
+      const isRest = (i % 7) >= daysPerWeek;
+      if(isRest){
+        planDays.push({id:uid(), dayNumber:i+1, label:'Rest Day', muscles:[], optionalMuscles:[], date:dStr, exercises:[], completed:false, isRest:true, loggedWorkoutId:null});
+        continue;
+      }
+      const slot = rotation[rotIdx % rotation.length];
+      rotIdx++;
+      const exercises = pickExercisesForDay(slot.muscles, slot.optional, dStr, usageMap, effMap);
+      planDays.push({id:uid(), dayNumber:i+1, label:slot.label, muscles:slot.muscles, optionalMuscles:slot.optional||[], date:dStr, exercises, completed:false, isRest:false, loggedWorkoutId:null});
+    }
+  }
+  return {
+    id:uid(), createdAt:new Date().toISOString(), scope:opts.scope, splitName:splitDef.name,
+    daysPerWeek, days:planDays, status:'active', completedAt:null
+  };
+}
+
+/* ---------- Auto Draft Modal ---------- */
+let autoDraftState = null;
+function freshCustomDays(){ return [{id:uid(), label:'Day 1', muscles:[]}]; }
+function openAutoDraftModal(){
+  autoDraftState = { scope:'week', splitKey:'default', daysPerWeek:6, singleDayIndex:'auto', customDays:freshCustomDays(), startDate:todayStr() };
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = `<div class="modal-backdrop" id="adBackdrop"><div class="modal" id="adModal">
+    <div class="modal-head"><h2>🪄 Auto Draft Plan</h2><button class="modal-close" id="adClose">&times;</button></div>
+    <div id="adBody"></div>
+  </div></div>`;
+  document.getElementById('adClose').onclick = ()=>{ root.innerHTML=''; };
+  document.getElementById('adBackdrop').onclick = (e)=>{ if(e.target.id==='adBackdrop') root.innerHTML=''; };
+  renderAutoDraftModalBody();
+}
+function renderAutoDraftModalBody(){
+  const s = autoDraftState;
+  const body = document.getElementById('adBody');
+  if(!body) return;
+  const splitDef = s.splitKey==='custom' ? {days:s.customDays} : SPLIT_PRESETS[s.splitKey];
+  body.innerHTML = `
+    <div class="autodraft-step">
+      <label>How much do you want drafted?</label>
+      <div class="autodraft-choice-grid">
+        <button class="autodraft-choice ${s.scope==='day'?'active':''}" data-adscope="day"><span class="ac-t">📅 Single Day</span><span class="ac-s">Draft just one workout</span></button>
+        <button class="autodraft-choice ${s.scope==='week'?'active':''}" data-adscope="week"><span class="ac-t">🗓️ Full Week</span><span class="ac-s">7 days, following your split</span></button>
+        <button class="autodraft-choice ${s.scope==='month'?'active':''}" data-adscope="month"><span class="ac-t">📆 Full Month</span><span class="ac-s">4 weeks with variation</span></button>
+      </div>
+    </div>
+    <div class="autodraft-step">
+      <label>Split type</label>
+      <select id="adSplitKey">
+        <option value="default" ${s.splitKey==='default'?'selected':''}>Default — Chest+Tri / Back+Bi+Forearm / Shoulder+Legs</option>
+        <option value="ppl" ${s.splitKey==='ppl'?'selected':''}>Push / Pull / Legs</option>
+        <option value="upperlower" ${s.splitKey==='upperlower'?'selected':''}>Upper / Lower</option>
+        <option value="fullbody" ${s.splitKey==='fullbody'?'selected':''}>Full Body</option>
+        <option value="custom" ${s.splitKey==='custom'?'selected':''}>Custom Split</option>
+      </select>
+    </div>
+    ${s.splitKey==='custom' ? `
+    <div class="autodraft-step">
+      <label>Build your split — add each training day and pick its muscle groups</label>
+      <div id="adCustomDays">${s.customDays.map((d,i)=>`
+        <div class="custom-day-block" data-cdid="${d.id}">
+          <div class="cdb-head">
+            <input type="text" data-cd-label="${d.id}" value="${escapeHtml(d.label)}" placeholder="Day ${i+1} name">
+            ${s.customDays.length>1?`<button class="iconbtn danger" data-cd-del="${d.id}">✕</button>`:''}
+          </div>
+          <div class="cdb-muscles">${PLAN_MUSCLES.map(m=>`<button type="button" class="muscle-toggle ${d.muscles.includes(m.key)?'on':''}" data-cd-muscle="${d.id}:${m.key}">${m.label}</button>`).join('')}</div>
+        </div>`).join('')}</div>
+      <button class="btn sm ghost block mt" id="adAddCustomDay">+ Add Another Day</button>
+    </div>` : ''}
+    ${s.scope==='day' ? `
+    <div class="autodraft-step">
+      <label>Which day?</label>
+      <select id="adSingleDay">
+        <option value="auto" ${s.singleDayIndex==='auto'?'selected':''}>🤖 Auto (recommended — next in rotation)</option>
+        ${(splitDef.days||[]).map((d,i)=>`<option value="${i}" ${s.singleDayIndex==i?'selected':''}>${escapeHtml(d.label||('Day '+(i+1)))}</option>`).join('')}
+      </select>
+    </div>` : `
+    <div class="autodraft-step">
+      <label>Workout days per week (default 6)</label>
+      <input type="number" id="adDaysPerWeek" min="1" max="7" value="${s.daysPerWeek}">
+    </div>`}
+    <div class="autodraft-step">
+      <label>Start date</label>
+      <input type="date" id="adStartDate" value="${s.startDate}">
+    </div>
+    <button class="btn primary block" id="adGenerate">✨ Generate Draft</button>
+  `;
+  body.querySelectorAll('[data-adscope]').forEach(b=>b.onclick=()=>{ s.scope=b.dataset.adscope; renderAutoDraftModalBody(); });
+  document.getElementById('adSplitKey').onchange = (e)=>{ s.splitKey=e.target.value; renderAutoDraftModalBody(); };
+  const sd = document.getElementById('adSingleDay'); if(sd) sd.onchange=(e)=>{ s.singleDayIndex = e.target.value==='auto'?'auto':+e.target.value; };
+  const dpw = document.getElementById('adDaysPerWeek'); if(dpw) dpw.onchange=(e)=>{ s.daysPerWeek = clamp(+e.target.value||6,1,7); };
+  document.getElementById('adStartDate').onchange = (e)=>{ s.startDate = e.target.value || todayStr(); };
+  const addDayBtn = document.getElementById('adAddCustomDay');
+  if(addDayBtn) addDayBtn.onclick = ()=>{ s.customDays.push({id:uid(), label:'Day '+(s.customDays.length+1), muscles:[]}); renderAutoDraftModalBody(); };
+  body.querySelectorAll('[data-cd-del]').forEach(b=>b.onclick=()=>{ s.customDays = s.customDays.filter(d=>d.id!==b.dataset.cdDel); renderAutoDraftModalBody(); });
+  body.querySelectorAll('[data-cd-label]').forEach(inp=>inp.oninput=(e)=>{ const d=s.customDays.find(x=>x.id===inp.dataset.cdLabel); if(d) d.label=e.target.value; });
+  body.querySelectorAll('[data-cd-muscle]').forEach(b=>b.onclick=()=>{
+    const [id,muscle] = b.dataset.cdMuscle.split(':');
+    const d = s.customDays.find(x=>x.id===id); if(!d) return;
+    if(d.muscles.includes(muscle)) d.muscles = d.muscles.filter(m=>m!==muscle); else d.muscles.push(muscle);
+    renderAutoDraftModalBody();
+  });
+  document.getElementById('adGenerate').onclick = handleGenerateDraft;
+}
+function handleGenerateDraft(){
+  const s = autoDraftState;
+  if(s.splitKey==='custom'){
+    s.customDays = s.customDays.map(d=>({...d, label: d.label && d.label.trim() ? d.label.trim() : 'Custom Day'}));
+    if(!s.customDays.some(d=>d.muscles.length)){ toast('Add at least one muscle group to a custom day'); return; }
+  }
+  const doGenerate = ()=>{
+    const plan = generateWorkoutPlan(s);
+    if(!plan){ toast('Could not generate a plan — check your split'); return; }
+    ensurePlansData();
+    App.data.workoutPlans.forEach(p=>{ if(p.status==='active') p.status='archived'; });
+    App.data.workoutPlans.unshift(plan);
+    persist();
+    document.getElementById('modalRoot').innerHTML = '';
+    planUiState.activeDayId = plan.days.find(d=>!d.isRest)?.id || plan.days[0]?.id || null;
+    refreshPlanHost();
+    toast('Plan drafted! Review, edit, and mark days complete as you go 💪');
+  };
+  const existing = getActivePlan();
+  if(existing){
+    confirmDialog('You already have an active plan. Replace it with this new draft? (The old one moves to history.)', doGenerate, {yesLabel:'Replace', danger:false});
+  } else doGenerate();
+}
+
+/* ---------- Plan Display ---------- */
+let planUiState = { activeDayId: null };
+
+// Re-renders whichever page (Analyzer preview or Workout full view) is currently on screen,
+// so plan edits made from either surface reflect immediately.
+function refreshPlanHost(){
+  if(App.page==='workout') renderWorkoutPage();
+  else if(App.page==='analyzer') renderAnalyzerPage();
+}
+
+// Wires up all plan-related click/change interactions for a container. Used by both the
+// Analyzer's compact preview card and the Workout page's full Plan tab.
+function attachPlanControls(container){
+  container.addEventListener('click', (e)=>{
+    const openAd = e.target.closest('#openAutoDraftBtn');
+    if(openAd){ openAutoDraftModal(); return; }
+    const openFull = e.target.closest('#planOpenFullBtn');
+    if(openFull){ workoutTab = 'plan'; navigate('workout'); return; }
+    const dayTab = e.target.closest('[data-planday]');
+    if(dayTab){ planUiState.activeDayId = dayTab.dataset.planday; refreshPlanHost(); return; }
+    const markAll = e.target.closest('#planMarkAllBtn');
+    if(markAll){ markWholePlanComplete(); return; }
+    const discardBtn = e.target.closest('#planDiscardBtn');
+    if(discardBtn){ discardActivePlan(); return; }
+    const markDay = e.target.closest('[data-plan-markday]');
+    if(markDay){ const [pid,did] = markDay.dataset.planMarkday.split(':'); markPlanDayComplete(pid,did); return; }
+    const logDay = e.target.closest('[data-plan-logday]');
+    if(logDay){ const [pid,did] = logDay.dataset.planLogday.split(':'); logPlanDayAsWorkout(pid,did); return; }
+    const addExBtn = e.target.closest('[data-planaddday]');
+    if(addExBtn){ addPlanExercise(getActivePlan()?.id, addExBtn.dataset.planaddday); return; }
+    const rmExBtn = e.target.closest('[data-plan-rmex]');
+    if(rmExBtn){ const [pid,did,ei] = rmExBtn.dataset.planRmex.split(':'); removePlanExercise(pid,did,+ei); return; }
+    const swapBtn = e.target.closest('[data-plan-swap]');
+    if(swapBtn){ const [pid,did,ei] = swapBtn.dataset.planSwap.split(':'); swapPlanExercise(pid,did,+ei); return; }
+    const delHist = e.target.closest('[data-plan-delhist]');
+    if(delHist){
+      confirmDialog('Remove this plan from history?', ()=>{
+        App.data.workoutPlans = App.data.workoutPlans.filter(p=>p.id!==delHist.dataset.planDelhist);
+        persist(); refreshPlanHost();
+      }, {danger:true, yesLabel:'Remove'});
+      return;
+    }
+  });
+  container.addEventListener('change', (e)=>{
+    const doneBox = e.target.closest('[data-plan-exdone]');
+    if(doneBox){
+      const [pid,did,ei] = doneBox.dataset.planExdone.split(':');
+      const {day} = findPlanDay(pid,did);
+      if(day && day.exercises[ei]){ day.exercises[ei].done = doneBox.checked; persist(); }
+      return;
+    }
+    const setField = e.target.closest('[data-plan-set]');
+    if(setField){
+      const [pid,did,ei,si,field] = setField.dataset.planSet.split(':');
+      const {day} = findPlanDay(pid,did);
+      if(day && day.exercises[ei] && day.exercises[ei].sets[si]){
+        day.exercises[ei].sets[si][field] = +setField.value || 0;
+        persist();
+      }
+      return;
+    }
+  });
+}
+
+function planProgress(plan){
+  const workoutDays = plan.days.filter(d=>!d.isRest);
+  const done = workoutDays.filter(d=>d.completed).length;
+  return {done, total:workoutDays.length};
+}
+function planDateLabel(d){
+  try{ return new Date(d+'T00:00:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}); }catch(e){ return d; }
+}
+
+function planScopeLabel(active){
+  return active.scope==='day'?'Single day draft':active.scope==='week'?'Weekly draft':'Monthly draft';
+}
+
+// opts.full=false (default) → compact "quick preview" card for the Analyzer page.
+// opts.full=true → the complete editable plan view (day tabs, exercise editor, history) for the Workout page.
+function renderPlanSection(opts){
+  opts = opts || {};
+  ensurePlansData();
+  const active = getActivePlan();
+  const history = App.data.workoutPlans.filter(p=>p.status!=='active').slice(0,8);
+
+  const cta = `
+    <div class="autodraft-cta">
+      <div class="adc-text">
+        <h3>🪄 Auto Draft Plan</h3>
+        <p>Generate a smart workout plan from your split &amp; recent training — no close repeats, high-effective moves get priority.</p>
+      </div>
+      <button class="btn primary" id="openAutoDraftBtn">${active ? '🔄 New Draft' : '✨ Draft My Plan'}</button>
+    </div>`;
+
+  if(!active){
+    return cta + (opts.full && history.length ? renderPlanHistoryHTML(history) : '');
+  }
+
+  if(!planUiState.activeDayId || !active.days.some(d=>d.id===planUiState.activeDayId)){
+    planUiState.activeDayId = active.days.find(d=>!d.isRest && !d.completed)?.id || active.days.find(d=>!d.isRest)?.id || active.days[0]?.id;
+  }
+  const prog = planProgress(active);
+  const day = active.days.find(d=>d.id===planUiState.activeDayId) || active.days[0];
+
+  if(!opts.full){
+    // Compact preview: plan name, progress, today's snapshot, and a link to the full editable view.
+    const exCount = day.isRest ? 0 : day.exercises.length;
+    const hiCount = day.isRest ? 0 : day.exercises.filter(e=>e.isHighEffective).length;
+    return `
+      <div class="card plan-card plan-preview-card">
+        <div class="plan-head-row">
+          <div>
+            <h3>📋 ${escapeHtml(active.splitName)}</h3>
+            <div class="sub">${planScopeLabel(active)} · ${prog.done}/${prog.total} days done</div>
+          </div>
+          <button class="btn sm ghost" id="openAutoDraftBtn">🔄 New</button>
+        </div>
+        <div class="plan-progress-wrap">
+          <div class="progress-bar"><i style="width:${prog.total?(prog.done/prog.total*100):0}%"></i></div>
+        </div>
+        <div class="plan-preview-today">
+          <span class="ppt-label">${day.isRest?'😴 Rest Day':'Up next: '+escapeHtml(day.label||'')}</span>
+          ${!day.isRest ? `<span class="ppt-meta">${exCount} exercise${exCount!==1?'s':''}${hiCount?` · 🔥 ${hiCount} high-effective`:''}</span>` : ''}
+        </div>
+        <button class="btn primary block mt" id="planOpenFullBtn">Open Full Plan in Workout →</button>
+      </div>`;
+  }
+
+  return `
+    ${cta}
+    <div class="card plan-card">
+      <div class="plan-head-row">
+        <div>
+          <h3>📋 ${escapeHtml(active.splitName)}</h3>
+          <div class="sub">${planScopeLabel(active)} · Created ${new Date(active.createdAt).toLocaleDateString()}</div>
+        </div>
+        <div class="plan-head-actions">
+          <button class="btn sm accent2" id="planMarkAllBtn">✔ Complete Plan</button>
+          <button class="btn sm danger" id="planDiscardBtn">🗑 Discard</button>
+        </div>
+      </div>
+      <div class="plan-progress-wrap">
+        <div class="plan-progress-label"><span>${prog.done} / ${prog.total} workout days done</span><span>${prog.total?Math.round(prog.done/prog.total*100):0}%</span></div>
+        <div class="progress-bar"><i style="width:${prog.total?(prog.done/prog.total*100):0}%"></i></div>
+      </div>
+      <div class="plan-day-tabs">
+        ${active.days.map(d=>`
+          <button class="plan-day-tab ${d.id===day.id?'active':''} ${d.completed?'done':''} ${d.isRest?'rest':''}" data-planday="${d.id}">
+            <span class="pdt-n">${d.isRest?'Rest':'Day '+d.dayNumber}</span>
+            <span>${d.isRest?'😴':escapeHtml((d.label||'').split(' ')[0])}</span>
+          </button>`).join('')}
+      </div>
+      <div class="plan-day-body">${renderPlanDayBodyHTML(active, day)}</div>
+    </div>
+    ${renderPlanHistoryHTML(history)}
+  `;
+}
+
+function renderPlanDayBodyHTML(plan, day){
+  if(!day) return '';
+  if(day.isRest){
+    return `<div class="plan-rest-card"><span class="ic">😴</span><p>Rest Day</p><p style="font-size:11.5px;">Recovery is part of the plan — no exercises drafted here.</p></div>`;
+  }
+  const muscleChips = (day.muscles||[]).map(m=>`<span class="plan-muscle-chip">${MUSCLE_LABEL[m]||m}</span>`).join('')
+    + (day.optionalMuscles||[]).map(m=>`<span class="plan-muscle-chip opt">+${MUSCLE_LABEL[m]||m} (optional)</span>`).join('');
+  const exRows = day.exercises.length ? day.exercises.map((ex,ei)=>{
+    const def = EXERCISE_LIBRARY.find(x=>x.id===ex.exerciseId);
+    return `
+    <div class="plan-ex-row ${ex.done?'completed':''}">
+      <div class="plan-ex-head">
+        <div>
+          <div class="plan-ex-title">
+            <input type="checkbox" data-plan-exdone="${plan.id}:${day.id}:${ei}" ${ex.done?'checked':''}>
+            ${escapeHtml(def?def.name:'Unknown Exercise')}
+            ${ex.isHighEffective?'<span class="high-eff-badge">🔥 HIGH-EFFECTIVE</span>':''}
+            ${ex.isFreshPick?'<span class="new-pick-badge">✨ NEW</span>':''}
+          </div>
+          <div class="plan-ex-sub">${def?`${MUSCLE_LABEL[def.primary]||def.primary} · ${def.equip}`:''}</div>
+        </div>
+        <div class="plan-ex-actions">
+          <button class="iconbtn" title="Swap exercise" data-plan-swap="${plan.id}:${day.id}:${ei}">🔁</button>
+          <button class="iconbtn danger" title="Remove" data-plan-rmex="${plan.id}:${day.id}:${ei}">✕</button>
+        </div>
+      </div>
+      <div class="plan-set-grid">
+        <span class="psg-head"></span><span class="psg-head">Reps</span><span class="psg-head">Weight (kg)</span>
+        ${ex.sets.map((s,si)=>`
+          <span class="psg-lbl">Set ${si+1}</span>
+          <input type="number" min="0" value="${s.reps}" data-plan-set="${plan.id}:${day.id}:${ei}:${si}:reps">
+          <input type="number" min="0" step="0.5" value="${s.weight}" data-plan-set="${plan.id}:${day.id}:${ei}:${si}:weight">
+        `).join('')}
+      </div>
+    </div>`;
+  }).join('') : `<div class="empty-state"><p>No exercises in this day yet.</p></div>`;
+
+  return `
+    <div class="plan-day-banner">
+      <div class="muscles">${muscleChips}</div>
+    </div>
+    ${exRows}
+    <button class="btn sm ghost block" id="planAddExBtn" data-planaddday="${day.id}">+ Add Exercise</button>
+    <div class="plan-day-footer">
+      <button class="btn sm ${day.completed?'':'accent2'} block" data-plan-markday="${plan.id}:${day.id}">${day.completed?'↺ Unmark Complete':'✔ Mark Day Complete'}</button>
+      <button class="btn sm ghost block" data-plan-logday="${plan.id}:${day.id}">📝 Log as Today's Workout</button>
+    </div>
+  `;
+}
+
+function renderPlanHistoryHTML(history){
+  if(!history.length) return '';
+  return `
+    <div class="card" style="animation: slideInUp 0.3s backwards;">
+      <h3 style="margin-bottom:10px;font-size:13.5px;">📚 Plan History</h3>
+      ${history.map(p=>{
+        const prog = planProgress(p);
+        return `<div class="plan-history-item">
+          <div><div class="phi-title">${escapeHtml(p.splitName)}</div><div class="phi-sub">${new Date(p.createdAt).toLocaleDateString()} · ${prog.done}/${prog.total} days · ${p.status}</div></div>
+          <button class="iconbtn danger" data-plan-delhist="${p.id}">🗑</button>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function findPlanDay(planId, dayId){
+  ensurePlansData();
+  const plan = App.data.workoutPlans.find(p=>p.id===planId);
+  const day = plan && plan.days.find(d=>d.id===dayId);
+  return {plan, day};
+}
+function maybeAutoCompletePlan(plan){
+  const workoutDays = plan.days.filter(d=>!d.isRest);
+  if(workoutDays.length && workoutDays.every(d=>d.completed) && plan.status==='active'){
+    plan.status = 'completed';
+    plan.completedAt = new Date().toISOString();
+    toast('🎉 Plan complete — great work!');
+  }
+}
+// Small 3-way modal used any time completing a day/plan could also mean logging it to
+// workout history — per your preference, Claude asks each time rather than guessing.
+function askPlanCompletionChoice(message, onJustMark, onLogToo){
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = `
+    <div class="modal-backdrop" id="apcBackdrop">
+      <div class="modal confirm-box" style="max-width:380px;">
+        <div class="modal-head"><h2>Mark as Complete</h2></div>
+        <p>${escapeHtml(message)}</p>
+        <div class="confirm-actions apc-actions">
+          <button class="btn primary block" id="apcLogToo">✔ Complete &amp; Log to History</button>
+          <button class="btn block" id="apcJustMark">Just Mark Complete</button>
+          <button class="btn ghost block" id="apcCancel">Cancel</button>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('apcCancel').onclick = ()=>{ root.innerHTML=''; };
+  document.getElementById('apcBackdrop').onclick = (e)=>{ if(e.target.id==='apcBackdrop') root.innerHTML=''; };
+  document.getElementById('apcJustMark').onclick = ()=>{ root.innerHTML=''; onJustMark(); };
+  document.getElementById('apcLogToo').onclick = ()=>{ root.innerHTML=''; onLogToo(); };
+}
+function markPlanDayComplete(planId, dayId){
+  const {plan, day} = findPlanDay(planId, dayId);
+  if(!plan || !day) return;
+  if(day.completed){
+    // Unmarking needs no prompt — just revert.
+    day.completed = false;
+    day.exercises.forEach(ex=>ex.done=false);
+    persist(); refreshPlanHost();
+    return;
+  }
+  askPlanCompletionChoice(
+    `Mark "${day.label||'this day'}" complete. Should Claude also log it to your workout history?`,
+    ()=>{
+      day.completed = true;
+      day.exercises.forEach(ex=>ex.done=true);
+      maybeAutoCompletePlan(plan);
+      persist(); refreshPlanHost();
+      toast('Day marked complete');
+    },
+    ()=> logPlanDayAsWorkout(planId, dayId)
+  );
+}
+function logPlanDayAsWorkout(planId, dayId){
+  const {plan, day} = findPlanDay(planId, dayId);
+  if(!plan || !day || day.exercises.length===0) return;
+  const exercises = day.exercises.map(ex=>({exerciseId:ex.exerciseId, sets: ex.sets.map(s=>({reps:+s.reps||0, weight:+s.weight||0, rpe:null})), superset:null}));
+  App.data.workouts.push({id:uid(), date: day.date || todayStr(), exercises});
+  day.completed = true;
+  day.exercises.forEach(ex=>ex.done=true);
+  maybeAutoCompletePlan(plan);
+  persist(); refreshPlanHost();
+  toast('Logged to your workout history!');
+}
+function discardActivePlan(){
+  const active = getActivePlan();
+  if(!active) return;
+  confirmDialog('Discard this drafted plan? This cannot be undone.', ()=>{
+    App.data.workoutPlans = App.data.workoutPlans.filter(p=>p.id!==active.id);
+    persist(); refreshPlanHost(); toast('Plan discarded');
+  }, {danger:true, yesLabel:'Discard'});
+}
+function markWholePlanComplete(){
+  const active = getActivePlan();
+  if(!active) return;
+  askPlanCompletionChoice(
+    'Mark the entire plan complete. Should Claude also log the remaining days to your workout history?',
+    ()=>{
+      active.days.forEach(d=>{ if(!d.isRest){ d.completed=true; d.exercises.forEach(ex=>ex.done=true); } });
+      active.status='completed'; active.completedAt=new Date().toISOString();
+      persist(); refreshPlanHost(); toast('🎉 Plan marked complete!');
+    },
+    ()=>{
+      active.days.forEach(d=>{
+        if(d.isRest || d.completed || !d.exercises.length) return;
+        const exercises = d.exercises.map(ex=>({exerciseId:ex.exerciseId, sets: ex.sets.map(s=>({reps:+s.reps||0, weight:+s.weight||0, rpe:null})), superset:null}));
+        App.data.workouts.push({id:uid(), date: d.date || todayStr(), exercises});
+        d.completed = true; d.exercises.forEach(ex=>ex.done=true);
+      });
+      active.status='completed'; active.completedAt=new Date().toISOString();
+      persist(); refreshPlanHost(); toast('🎉 Plan complete — logged to workout history!');
+    }
+  );
+}
+function removePlanExercise(planId, dayId, exIdx){
+  const {day} = findPlanDay(planId, dayId);
+  if(!day) return;
+  day.exercises.splice(exIdx,1);
+  persist(); refreshPlanHost();
+}
+function swapPlanExercise(planId, dayId, exIdx){
+  const {plan, day} = findPlanDay(planId, dayId);
+  if(!day) return;
+  openExercisePicker((newExId)=>{
+    day.exercises[exIdx] = {exerciseId:newExId, isHighEffective:false, isFreshPick:true, sets: draftSetsForExercise(newExId)};
+    persist(); refreshPlanHost();
+  });
+}
+function addPlanExercise(planId, dayId){
+  const {day} = findPlanDay(planId, dayId);
+  if(!day) return;
+  openExercisePicker((exId, sets)=>{
+    day.exercises.push({exerciseId:exId, isHighEffective:false, isFreshPick:true, sets: sets ? JSON.parse(JSON.stringify(sets)) : draftSetsForExercise(exId)});
+    persist(); refreshPlanHost();
+  });
+}
+
 function renderAnalyzerPage(){
   ensureAnalyzerData();
+  ensurePlansData();
   const page = document.getElementById('page-analyzer');
 
   page.innerHTML = `
@@ -7428,6 +8199,7 @@ function renderAnalyzerPage(){
         A 5th-judge review comparing Workout A (foundation compounds) against Workout B (complementary variations) — fully editable so you can adjust ratings, add your own exercises, or tweak verdicts to match your own experience.
       </p>
     </div>
+    ${renderPlanSection({full:false})}
     ${analyzerTableCardHTML('aVotes')}
     ${analyzerTableCardHTML('aBest')}
     ${analyzerTableCardHTML('bVotes')}
@@ -7440,8 +8212,9 @@ function renderAnalyzerPage(){
   `;
 
   Object.keys(ANALYZER_TABLES).forEach(renderAnalyzerTable);
+  attachPlanControls(page);
 
-  // Delegated events for the whole page
+  // Delegated events for the whole page (analyzer-table specific — plan events are in attachPlanControls)
   page.onclick = (e)=>{
     const addBtn = e.target.closest('[data-analyzer-add]');
     if(addBtn){ addAnalyzerRow(addBtn.dataset.analyzerAdd); return; }
