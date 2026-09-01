@@ -727,6 +727,9 @@ table.edit-table td.col-del{width:32px;text-align:center;padding:6px;}
 .autodraft-choice .ac-s{font-size:10.5px;color:var(--text-faint);display:block;margin-top:2px;line-height:1.3;}
 .autodraft-choice.active{border-color:var(--accent);background:var(--accent-dim);}
 .autodraft-choice.active .ac-t{color:var(--accent);}
+.equip-region{margin-bottom:12px;}
+.equip-region:last-child{margin-bottom:0;}
+.equip-region-label{font-size:11px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px;}
 .custom-day-block{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:10px;margin-bottom:8px;}
 .custom-day-block .cdb-head{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
 .custom-day-block .cdb-head input{flex:1;}
@@ -7542,6 +7545,95 @@ const SPLIT_PRESETS = {
 };
 const PLAN_MUSCLES = MUSCLES.filter(m=>m.key!=='cardio');
 
+/* ---------- Equipment / Machine Availability ---------- */
+// Gyms vary a lot in which specific machines they stock (pec deck vs shoulder press machine,
+// preacher curl machine vs bicep curl machine, etc). Barbell/Dumbbell/Bodyweight gear is assumed
+// universally available. Cable/pulley stations are treated as ONE flexible piece of equipment —
+// confirming "Cable Machine" once covers every cable-based exercise across every muscle group,
+// since a single adjustable cable station can do lat pulldowns, curls, pushdowns, rows, etc.
+// Single-purpose machines (pec deck, leg press, preacher curl machine...) are each their own
+// specific toggle so a gym missing one doesn't block exercises that use a different machine.
+const EQUIP_CONFIRM_TYPES = ['Machine','Cable'];
+function classifyMachineExercise(ex){
+  const hay = ((ex.id||'')+' '+(ex.name||'')).toLowerCase();
+  if(ex.equip==='Cable') return {key:'cable_station', label:'Cable Machine / Cable Station'};
+  if(ex.cat==='Forearm' && /cable|rope/.test(hay)) return {key:'cable_station', label:'Cable Machine / Cable Station'};
+  if(/smith machine/.test(hay)) return {key:'smith_machine', label:'Smith Machine'};
+  if(ex.cat==='Chest'){
+    if(/pec.?deck|fly/.test(hay)) return {key:'pec_deck_machine', label:'Pec Deck / Chest Fly Machine'};
+    return {key:'chest_press_machine', label:'Chest Press Machine'};
+  }
+  if(ex.cat==='Shoulder'){
+    if(/shrug/.test(hay)) return {key:'shrug_machine', label:'Shrug Machine'};
+    if(/rear.?delt|reverse pec deck/.test(hay)) return {key:'rear_delt_machine', label:'Rear-Delt / Reverse Pec Deck Machine'};
+    if(/lateral raise|abduction/.test(hay)) return {key:'lateral_raise_machine', label:'Lateral Raise Machine'};
+    if(/upright row|high row|high pull|face pull/.test(hay)) return {key:'row_face_pull_machine', label:'Upright Row / Face-Pull Machine'};
+    if(/rotation|rotator/.test(hay)) return {key:'rotator_cuff_machine', label:'Rotator Cuff Machine'};
+    return {key:'shoulder_press_machine', label:'Shoulder Press Machine'};
+  }
+  if(ex.cat==='Bicep'){
+    if(/preacher/.test(hay)) return {key:'preacher_curl_machine', label:'Preacher Curl Machine'};
+    return {key:'bicep_curl_machine', label:'Bicep Curl Machine'};
+  }
+  if(ex.cat==='Back' || ex.cat==='Lat'){
+    if(/t.?bar/.test(hay)) return {key:'t_bar_row_machine', label:'T-Bar Row Machine'};
+    return {key:'other_back_machine', label:'Other Back Machine'};
+  }
+  if(ex.cat==='Legs'){
+    if(/calf/.test(hay)) return {key:'calf_raise_machine', label:'Calf Raise Machine'};
+    if(/leg extension/.test(hay)) return {key:'leg_extension_machine', label:'Leg Extension Machine'};
+    if(/leg curl|hamstring curl|nordic curl|glute-ham raise/.test(hay)) return {key:'leg_curl_machine', label:'Leg Curl Machine'};
+    if(/hip abduction|outer.?thigh/.test(hay)) return {key:'hip_abduction_machine', label:'Hip Abduction Machine'};
+    if(/hip adduction|inner.?thigh/.test(hay)) return {key:'hip_adduction_machine', label:'Hip Adduction Machine'};
+    if(/glute|hip thrust|hip extension|kickback|hyperextension/.test(hay)) return {key:'glute_machine', label:'Glute Machine (Hip Thrust / Kickback)'};
+    if(/sled/.test(hay)) return {key:'sled_machine', label:'Sled Push / Drag Machine'};
+    if(/leg press|hack squat|v-?squat|belt squat|pendulum|leverage squat|machine squat|split squat|step-up|lateral squat|reverse lunge/.test(hay)) return {key:'leg_press_squat_machine', label:'Leg Press / Hack Squat Machine'};
+    return {key:'other_leg_machine', label:'Other Leg Machine'};
+  }
+  if(ex.cat==='Forearm') return {key:'forearm_wrist_machine', label:'Wrist / Forearm Machine'};
+  return {key:'other_'+(ex.cat||'misc').toLowerCase()+'_machine', label:'Other '+(ex.cat||'Misc')+' Machine'};
+}
+function equipGroupKey(ex){ return classifyMachineExercise(ex).key; }
+function buildEquipmentGroups(){
+  const groups = {};
+  EXERCISE_LIBRARY.forEach(ex=>{
+    if(!EQUIP_CONFIRM_TYPES.includes(ex.equip) || ex.cat==='Cardio') return;
+    const {key,label} = classifyMachineExercise(ex);
+    if(!groups[key]) groups[key] = {key, label, exampleNames:[], exerciseIds:[]};
+    groups[key].exerciseIds.push(ex.id);
+    if(groups[key].exampleNames.length<3) groups[key].exampleNames.push(ex.name);
+  });
+  return Object.values(groups);
+}
+const EQUIPMENT_GROUPS = buildEquipmentGroups();
+// Purely cosmetic grouping for the confirmation UI (a machine can still serve exercises across
+// several muscles — this just organizes the checklist into readable sections).
+const EQUIPMENT_REGIONS = [
+  {label:'🌐 Universal', keys:['cable_station','smith_machine']},
+  {label:'💪 Chest', keys:['chest_press_machine','pec_deck_machine']},
+  {label:'🏋️ Shoulders', keys:['shoulder_press_machine','lateral_raise_machine','rear_delt_machine','shrug_machine','row_face_pull_machine','rotator_cuff_machine']},
+  {label:'💪 Arms', keys:['preacher_curl_machine','bicep_curl_machine','forearm_wrist_machine']},
+  {label:'🔙 Back', keys:['t_bar_row_machine','other_back_machine']},
+  {label:'🦵 Legs', keys:['leg_press_squat_machine','leg_extension_machine','leg_curl_machine','calf_raise_machine','hip_abduction_machine','hip_adduction_machine','glute_machine','sled_machine','other_leg_machine']}
+];
+function ensureEquipmentPrefs(){
+  if(!App.data.equipmentPrefs || typeof App.data.equipmentPrefs!=='object') App.data.equipmentPrefs = {};
+}
+function isEquipGroupAvailable(key){
+  ensureEquipmentPrefs();
+  return App.data.equipmentPrefs[key] !== false; // default: assume available until user says otherwise
+}
+// Seeds any not-yet-toggled group's default from the user's saved preference (or "available").
+// The checklist is shown in full regardless of the chosen split — a machine you have (or don't
+// have) doesn't depend on which muscles you're training that day.
+function syncEquipAvailability(s){
+  ensureEquipmentPrefs();
+  EQUIPMENT_GROUPS.forEach(g=>{
+    if(!(g.key in s.equipAvailability)) s.equipAvailability[g.key] = isEquipGroupAvailable(g.key);
+  });
+  return EQUIPMENT_GROUPS;
+}
+
 const MAJOR_MUSCLES = ['chest','back','shoulders','quads'];
 function exerciseCountForMuscle(muscle){
   if(MAJOR_MUSCLES.includes(muscle)) return 3;
@@ -7643,7 +7735,10 @@ function draftSetsForExercise(exerciseId){
 }
 
 function pickForMuscle(muscle, n, dateStr, usageMap, effMap){
-  const pool = EXERCISE_LIBRARY.filter(e=>e.primary===muscle && e.cat!=='Cardio');
+  let pool = EXERCISE_LIBRARY.filter(e=>e.primary===muscle && e.cat!=='Cardio');
+  // Respect the gym's confirmed machine/cable availability — never draft an exercise that
+  // needs equipment the user told us their gym doesn't have.
+  pool = pool.filter(e=> !EQUIP_CONFIRM_TYPES.includes(e.equip) || isEquipGroupAvailable(equipGroupKey(e)));
   if(pool.length===0) return [];
   const annotated = pool.map(e=>{
     const eff = effMap[e.id] || {score:0, isHighEffective:false};
@@ -7737,7 +7832,7 @@ function generateWorkoutPlan(opts){
 let autoDraftState = null;
 function freshCustomDays(){ return [{id:uid(), label:'Day 1', muscles:[]}]; }
 function openAutoDraftModal(){
-  autoDraftState = { scope:'week', splitKey:'default', daysPerWeek:6, singleDayIndex:'auto', customDays:freshCustomDays(), startDate:todayStr() };
+  autoDraftState = { scope:'week', splitKey:'default', daysPerWeek:6, singleDayIndex:'auto', customDays:freshCustomDays(), startDate:todayStr(), equipAvailability:{} };
   const root = document.getElementById('modalRoot');
   root.innerHTML = `<div class="modal-backdrop" id="adBackdrop"><div class="modal" id="adModal">
     <div class="modal-head"><h2>🪄 Auto Draft Plan</h2><button class="modal-close" id="adClose">&times;</button></div>
@@ -7752,6 +7847,7 @@ function renderAutoDraftModalBody(){
   const body = document.getElementById('adBody');
   if(!body) return;
   const splitDef = s.splitKey==='custom' ? {days:s.customDays} : SPLIT_PRESETS[s.splitKey];
+  const equipGroups = syncEquipAvailability(s);
   body.innerHTML = `
     <div class="autodraft-step">
       <label>How much do you want drafted?</label>
@@ -7783,6 +7879,26 @@ function renderAutoDraftModalBody(){
           <div class="cdb-muscles">${PLAN_MUSCLES.map(m=>`<button type="button" class="muscle-toggle ${d.muscles.includes(m.key)?'on':''}" data-cd-muscle="${d.id}:${m.key}">${m.label}</button>`).join('')}</div>
         </div>`).join('')}</div>
       <button class="btn sm ghost block mt" id="adAddCustomDay">+ Add Another Day</button>
+    </div>` : ''}
+    ${equipGroups.length ? `
+    <div class="autodraft-step">
+      <label>🔧 Confirm machines available at your gym</label>
+      <div class="ac-s" style="margin-bottom:8px;line-height:1.4;">Some gyms are missing certain machines (e.g. pec deck but no shoulder press machine, or a bicep curl machine but no preacher curl machine). Turn off anything yours doesn't have. Cable Machine covers every cable-based exercise, whatever muscle it's for.</div>
+      ${EQUIPMENT_REGIONS.map(region=>{
+        const groupsInRegion = region.keys.map(k=>equipGroups.find(g=>g.key===k)).filter(Boolean);
+        if(!groupsInRegion.length) return '';
+        return `
+        <div class="equip-region">
+          <div class="equip-region-label">${region.label}</div>
+          <div class="autodraft-choice-grid">
+            ${groupsInRegion.map(g=>`
+            <button type="button" class="autodraft-choice equip-toggle ${s.equipAvailability[g.key]?'active':''}" data-equip-key="${g.key}">
+              <span class="ac-t">${s.equipAvailability[g.key]?'✅':'🚫'} ${escapeHtml(g.label)}</span>
+              <span class="ac-s">${escapeHtml(g.exampleNames.join(', '))}${g.exerciseIds.length>g.exampleNames.length?', …':''}</span>
+            </button>`).join('')}
+          </div>
+        </div>`;
+      }).join('')}
     </div>` : ''}
     ${s.scope==='day' ? `
     <div class="autodraft-step">
@@ -7817,6 +7933,11 @@ function renderAutoDraftModalBody(){
     if(d.muscles.includes(muscle)) d.muscles = d.muscles.filter(m=>m!==muscle); else d.muscles.push(muscle);
     renderAutoDraftModalBody();
   });
+  body.querySelectorAll('[data-equip-key]').forEach(b=>b.onclick=()=>{
+    const k = b.dataset.equipKey;
+    s.equipAvailability[k] = !s.equipAvailability[k];
+    renderAutoDraftModalBody();
+  });
   document.getElementById('adGenerate').onclick = handleGenerateDraft;
 }
 function handleGenerateDraft(){
@@ -7825,6 +7946,11 @@ function handleGenerateDraft(){
     s.customDays = s.customDays.map(d=>({...d, label: d.label && d.label.trim() ? d.label.trim() : 'Custom Day'}));
     if(!s.customDays.some(d=>d.muscles.length)){ toast('Add at least one muscle group to a custom day'); return; }
   }
+  // Save the confirmed machine/cable availability so the draft respects it, and so future
+  // drafts remember the gym's equipment without asking again from scratch.
+  ensureEquipmentPrefs();
+  Object.keys(s.equipAvailability).forEach(k=>{ App.data.equipmentPrefs[k] = s.equipAvailability[k]; });
+  persist();
   const doGenerate = ()=>{
     const plan = generateWorkoutPlan(s);
     if(!plan){ toast('Could not generate a plan — check your split'); return; }
