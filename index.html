@@ -7118,111 +7118,149 @@ function renderGuidePage() {
 function getDefaultAnalyzerData(){
   const row = (obj)=>Object.assign({_id:uid()}, obj);
   return {
-    legend: [
-      row({stars:'⭐⭐⭐⭐⭐', meaning:'Excellent / top-tier'}),
-      row({stars:'⭐⭐⭐⭐', meaning:'Very good'}),
-      row({stars:'⭐⭐⭐', meaning:'Good'}),
-      row({stars:'⭐⭐', meaning:'Okay, but better alternatives exist'}),
-      row({stars:'⭐', meaning:'Not ideal as a top-3 choice'}),
-    ],
-    votes: [
+    aVotes: [
       row({muscle:'Chest', exercise:'Barbell Bench Press', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent mass builder'}),
-      row({muscle:'Chest', exercise:'Incline Dumbbell Press', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Top-tier for chest'}),
+      row({muscle:'Chest', exercise:'Incline Dumbbell Press', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Elite upper/overall chest'}),
       row({muscle:'Chest', exercise:'Cable Fly/Crossover', aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent isolation'}),
-      row({muscle:'Chest', exercise:'Dips', aiVotes:'2/4', myVote:'⭐⭐⭐⭐', verdict:'Great, but individual comfort matters'}),
-      row({muscle:'Back', exercise:'Pull-Ups / Lat Pulldown', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Essential vertical pull'}),
-      row({muscle:'Back', exercise:'Chest-Supported Row', aiVotes:'1/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent hypertrophy choice'}),
-      row({muscle:'Back', exercise:'Barbell Row', aiVotes:'3/4', myVote:'⭐⭐⭐⭐', verdict:'Very effective but fatiguing'}),
-      row({muscle:'Back', exercise:'Single-Arm Row', aiVotes:'2/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent unilateral option'}),
-      row({muscle:'Back', exercise:'Deadlift', aiVotes:'1/4', myVote:'⭐⭐⭐', verdict:"Great strength exercise, not my top hypertrophy pick"}),
-      row({muscle:'Shoulders', exercise:'Lateral Raise', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Must-have for side delts'}),
-      row({muscle:'Shoulders', exercise:'Overhead Press', aiVotes:'4/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent overall pressing'}),
-      row({muscle:'Shoulders', exercise:'Reverse Pec Deck', aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent rear-delt isolation'}),
-      row({muscle:'Shoulders', exercise:'Face Pull', aiVotes:'3/4', myVote:'⭐⭐⭐⭐', verdict:"Good, but not my first rear-delt hypertrophy choice"}),
-      row({muscle:'Biceps', exercise:'Incline Dumbbell Curl', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent lengthened-position exercise'}),
-      row({muscle:'Biceps', exercise:'Barbell/EZ Curl', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent overall mass builder'}),
-      row({muscle:'Biceps', exercise:'Hammer Curl', aiVotes:'3/4', myVote:'⭐⭐⭐⭐½', verdict:'Great for brachialis/arm thickness'}),
-      row({muscle:'Biceps', exercise:'Cable/Bayesian Curl', aiVotes:'1/4', myVote:'⭐⭐⭐⭐⭐', verdict:'One of my favorite biceps choices'}),
-      row({muscle:'Triceps', exercise:'Overhead Extension', aiVotes:'3/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Best long-head choice'}),
+      row({muscle:'Chest', exercise:'Dips', aiVotes:'2/4', myVote:'⭐⭐⭐⭐', verdict:'Great, but comfort-dependent'}),
+      row({muscle:'Back', exercise:'Pull-Ups / Lat Pulldown', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Elite vertical pull'}),
+      row({muscle:'Back', exercise:'Chest-Supported Row', aiVotes:'1/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Elite hypertrophy row'}),
+      row({muscle:'Back', exercise:'One-Arm Cable Row', aiVotes:'1/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent lat-focused row'}),
+      row({muscle:'Back', exercise:'Barbell Bent-Over Row', aiVotes:'3/4', myVote:'⭐⭐⭐⭐', verdict:'Effective but fatiguing'}),
+      row({muscle:'Back', exercise:'Deadlift', aiVotes:'1/4', myVote:'⭐⭐⭐', verdict:'Great for strength, not top hypertrophy'}),
+      row({muscle:'Shoulders', exercise:'Lateral Raise', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Essential side-delt exercise'}),
+      row({muscle:'Shoulders', exercise:'Overhead Press', aiVotes:'4/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent pressing movement'}),
+      row({muscle:'Shoulders', exercise:'Reverse Pec Deck', aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Elite rear-delt isolation'}),
+      row({muscle:'Shoulders', exercise:'Face Pull', aiVotes:'3/4', myVote:'⭐⭐⭐⭐', verdict:'Good secondary movement'}),
+      row({muscle:'Biceps', exercise:'Incline Dumbbell Curl', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Elite lengthened-position curl'}),
+      row({muscle:'Biceps', exercise:'EZ-Bar / Barbell Curl', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent mass builder'}),
+      row({muscle:'Biceps', exercise:'Hammer Curl', aiVotes:'3/4', myVote:'⭐⭐⭐⭐½', verdict:'Great arm thickness'}),
+      row({muscle:'Triceps', exercise:'Overhead Extension', aiVotes:'3/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Elite long-head exercise'}),
       row({muscle:'Triceps', exercise:'Cable Pushdown', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent isolation'}),
-      row({muscle:'Triceps', exercise:'Close-Grip Bench Press', aiVotes:'4/4', myVote:'⭐⭐⭐⭐', verdict:'Good heavy compound'}),
-      row({muscle:'Triceps', exercise:'Skull Crusher', aiVotes:'2/4', myVote:'⭐⭐⭐⭐', verdict:'Effective, but elbows can be limiting'}),
-      row({muscle:'Quads', exercise:'Squat', aiVotes:'3/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent, but not mandatory'}),
-      row({muscle:'Quads', exercise:'Hack Squat', aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Top-tier quad exercise'}),
-      row({muscle:'Quads', exercise:'Leg Press', aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent for overload'}),
-      row({muscle:'Quads', exercise:'Bulgarian Split Squat', aiVotes:'2/4', myVote:'⭐⭐⭐⭐½', verdict:'Very effective but demanding'}),
-      row({muscle:'Quads', exercise:'Leg Extension', aiVotes:'3/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent isolation'}),
-      row({muscle:'Hamstrings', exercise:'Romanian Deadlift', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Top-tier hamstring exercise'}),
-      row({muscle:'Hamstrings', exercise:'Seated Leg Curl', aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'My preferred curl variation'}),
-      row({muscle:'Hamstrings', exercise:'Lying Leg Curl', aiVotes:'3/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent alternative'}),
-      row({muscle:'Hamstrings', exercise:'Nordic Curl', aiVotes:'2/4', myVote:'⭐⭐⭐⭐', verdict:'Very difficult, excellent eccentric work'}),
-      row({muscle:'Glutes', exercise:'Hip Thrust', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent glute isolation'}),
+      row({muscle:'Triceps', exercise:'Close-Grip Bench Press', aiVotes:'4/4', myVote:'⭐⭐⭐⭐', verdict:'Great compound'}),
+      row({muscle:'Quads', exercise:'Hack Squat / Squat', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Top-tier quad builder'}),
+      row({muscle:'Quads', exercise:'Leg Press', aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent overload potential'}),
+      row({muscle:'Quads', exercise:'Leg Extension', aiVotes:'3/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Elite isolation'}),
+      row({muscle:'Hamstrings', exercise:'Romanian Deadlift', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Elite lengthened exercise'}),
+      row({muscle:'Hamstrings', exercise:'Seated Leg Curl', aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Elite hamstring isolation'}),
+      row({muscle:'Hamstrings', exercise:'Lying Leg Curl', aiVotes:'3/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent variation'}),
+      row({muscle:'Glutes', exercise:'Hip Thrust', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Elite glute-focused movement'}),
       row({muscle:'Glutes', exercise:'Bulgarian Split Squat', aiVotes:'3/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent glute + quad work'}),
-      row({muscle:'Glutes', exercise:'RDL', aiVotes:'2/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent stretch-focused movement'}),
-      row({muscle:'Glutes', exercise:'Squat', aiVotes:'2/4', myVote:'⭐⭐⭐⭐', verdict:'Great compound, less glute-specific'}),
+      row({muscle:'Glutes', exercise:'Romanian Deadlift', aiVotes:'2/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent stretch stimulus'}),
       row({muscle:'Calves', exercise:'Standing Calf Raise', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Essential gastrocnemius work'}),
       row({muscle:'Calves', exercise:'Seated Calf Raise', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Essential soleus work'}),
-      row({muscle:'Calves', exercise:'Leg Press Calf Raise', aiVotes:'3/4', myVote:'⭐⭐⭐⭐', verdict:'Good additional variation'}),
-      row({muscle:'Abs', exercise:'Cable Crunch', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Best for progressive overload'}),
+      row({muscle:'Calves', exercise:'Leg Press Calf Raise', aiVotes:'3/4', myVote:'⭐⭐⭐⭐', verdict:'Good additional option'}),
+      row({muscle:'Abs', exercise:'Cable Crunch', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Best progressive overload'}),
       row({muscle:'Abs', exercise:'Hanging Leg Raise', aiVotes:'4/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent when controlled'}),
-      row({muscle:'Abs', exercise:'Ab Wheel', aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent anti-extension/core exercise'}),
-      row({muscle:'Abs', exercise:'Plank', aiVotes:'1/4', myVote:'⭐⭐⭐', verdict:'Great core stability, less hypertrophy-focused'}),
-      row({muscle:'Forearms', exercise:'Hammer Curl', aiVotes:'1/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent brachioradialis work'}),
-      row({muscle:'Forearms', exercise:'Reverse Curl', aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent for upper forearms'}),
+      row({muscle:'Abs', exercise:'Ab Wheel', aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Elite core exercise'}),
+      row({muscle:'Forearms', exercise:'Hammer Curl', aiVotes:'1/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent brachioradialis'}),
+      row({muscle:'Forearms', exercise:'Reverse Curl', aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent forearm development'}),
       row({muscle:'Forearms', exercise:'Wrist Curl', aiVotes:'3/4', myVote:'⭐⭐⭐⭐½', verdict:'Good direct flexor work'}),
-      row({muscle:'Forearms', exercise:'Reverse Wrist Curl', aiVotes:'1/4', myVote:'⭐⭐⭐⭐½', verdict:'Important for balanced development'}),
       row({muscle:'Forearms', exercise:"Farmer's Carry", aiVotes:'2/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent grip + forearms'}),
-      row({muscle:'Forearms', exercise:'Dead Hang', aiVotes:'1/4', myVote:'⭐⭐⭐⭐', verdict:'Good grip endurance'}),
     ],
-    winners: [
-      row({muscle:'Chest', best:'Incline DB Press', second:'Flat Bench Press', third:'Cable Fly'}),
-      row({muscle:'Back', best:'Pull-Up/Lat Pulldown', second:'Chest-Supported Row', third:'One-Arm Cable Row'}),
+    aBest: [
+      row({muscle:'Chest', best:'Incline Dumbbell Press', second:'Barbell Bench Press', third:'Cable Fly'}),
+      row({muscle:'Back', best:'Pull-Up / Lat Pulldown', second:'Chest-Supported Row', third:'One-Arm Cable Row'}),
       row({muscle:'Shoulders', best:'Lateral Raise', second:'Reverse Pec Deck', third:'Overhead Press'}),
-      row({muscle:'Biceps', best:'Incline DB Curl', second:'EZ-Bar Curl', third:'Hammer/Cable Curl'}),
-      row({muscle:'Triceps', best:'Overhead Cable Extension', second:'Cable Pushdown', third:'Close-Grip Bench'}),
+      row({muscle:'Biceps', best:'Incline Dumbbell Curl', second:'EZ-Bar Curl', third:'Hammer Curl'}),
+      row({muscle:'Triceps', best:'Overhead Extension', second:'Cable Pushdown', third:'Close-Grip Bench'}),
       row({muscle:'Quads', best:'Hack Squat', second:'Leg Press', third:'Leg Extension'}),
-      row({muscle:'Hamstrings', best:'RDL', second:'Seated Leg Curl', third:'Lying Leg Curl'}),
+      row({muscle:'Hamstrings', best:'Romanian Deadlift', second:'Seated Leg Curl', third:'Lying Leg Curl'}),
       row({muscle:'Glutes', best:'Hip Thrust', second:'Bulgarian Split Squat', third:'RDL'}),
       row({muscle:'Calves', best:'Standing Calf Raise', second:'Seated Calf Raise', third:'Leg Press Calf Raise'}),
       row({muscle:'Abs', best:'Cable Crunch', second:'Hanging Leg Raise', third:'Ab Wheel'}),
-      row({muscle:'Forearms', best:'Reverse Curl', second:'Hammer Curl', third:'Wrist Curl + Extension'}),
+      row({muscle:'Forearms', best:'Reverse Curl', second:'Hammer Curl', third:'Wrist Curl'}),
     ],
-    ranking: [
-      row({rank:'🥇', ai:'AI #1', note:'Most balanced and practical for hypertrophy.'}),
-      row({rank:'🥈', ai:'AI #4', note:'Very good exercise explanations and selections, although a few claims are slightly oversimplified.'}),
-      row({rank:'🥉', ai:'AI #2', note:'Strong list, but relies a bit too heavily on phrases like "highest EMG" or "king," which doesn\u2019t automatically mean the best muscle-growth exercise.'}),
-      row({rank:'4️⃣', ai:'AI #3', note:"Still a good basic list, but less hypertrophy-specific and includes deadlifts as a top back exercise, which wouldn't be prioritized for this goal."}),
+    bVotes: [
+      row({muscle:'Chest', exercise:'Flat Dumbbell Press', aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent barbell variation'}),
+      row({muscle:'Chest', exercise:'Incline Barbell Press', aiVotes:'2/4', myVote:'⭐⭐⭐⭐½', verdict:'Great heavy upper-chest variation'}),
+      row({muscle:'Chest', exercise:'Machine Chest Press', aiVotes:'3/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent stable overload'}),
+      row({muscle:'Chest', exercise:'Pec Deck', aiVotes:'3/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent isolation'}),
+      row({muscle:'Chest', exercise:'Dumbbell Fly', aiVotes:'1/4', myVote:'⭐⭐⭐⭐', verdict:'Effective but less stable'}),
+      row({muscle:'Back', exercise:'Neutral-Grip Pulldown', aiVotes:'3/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent lat variation'}),
+      row({muscle:'Back', exercise:'Seated Cable Row', aiVotes:'4/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Elite horizontal pull'}),
+      row({muscle:'Back', exercise:'T-Bar Row', aiVotes:'2/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent thickness builder'}),
+      row({muscle:'Back', exercise:'Single-Arm Dumbbell Row', aiVotes:'2/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent unilateral movement'}),
+      row({muscle:'Back', exercise:'Straight-Arm Pulldown', aiVotes:'1/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent lat isolation'}),
+      row({muscle:'Shoulders', exercise:'Cable Lateral Raise', aiVotes:'3/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Elite side-delt variation'}),
+      row({muscle:'Shoulders', exercise:'Machine Shoulder Press', aiVotes:'3/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent stable overload'}),
+      row({muscle:'Shoulders', exercise:'Rear-Delt Cable Fly', aiVotes:'1/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent rear-delt work'}),
+      row({muscle:'Shoulders', exercise:'Arnold Press', aiVotes:'1/4', myVote:'⭐⭐⭐⭐', verdict:'Good, but not superior'}),
+      row({muscle:'Biceps', exercise:'Preacher Curl', aiVotes:'3/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent strict curl'}),
+      row({muscle:'Biceps', exercise:'Bayesian Cable Curl', aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Elite lengthened curl'}),
+      row({muscle:'Biceps', exercise:'Cable Curl', aiVotes:'3/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent constant tension'}),
+      row({muscle:'Biceps', exercise:'Concentration Curl', aiVotes:'1/4', myVote:'⭐⭐⭐⭐', verdict:'Good but lower overload potential'}),
+      row({muscle:'Triceps', exercise:'EZ-Bar Skull Crusher', aiVotes:'3/4', myVote:'⭐⭐⭐⭐', verdict:'Effective but elbow-dependent'}),
+      row({muscle:'Triceps', exercise:'Single-Arm Cable Pushdown', aiVotes:'1/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent unilateral isolation'}),
+      row({muscle:'Triceps', exercise:'Assisted/Weighted Dip', aiVotes:'3/4', myVote:'⭐⭐⭐⭐', verdict:'Good compound variation'}),
+      row({muscle:'Triceps', exercise:'Cross-Body Cable Extension', aiVotes:'1/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent triceps isolation'}),
+      row({muscle:'Triceps', exercise:'Diamond Push-Up', aiVotes:'1/4', myVote:'⭐⭐⭐', verdict:'Fine, harder to progressively overload'}),
+      row({muscle:'Quads', exercise:'Bulgarian Split Squat', aiVotes:'3/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Elite unilateral movement'}),
+      row({muscle:'Quads', exercise:'Front Squat', aiVotes:'3/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent quad-focused squat'}),
+      row({muscle:'Quads', exercise:'Smith Machine Squat', aiVotes:'1/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent stable quad loading'}),
+      row({muscle:'Quads', exercise:'Walking Lunges', aiVotes:'2/4', myVote:'⭐⭐⭐⭐', verdict:'Great but fatiguing'}),
+      row({muscle:'Hamstrings', exercise:'Nordic Curl', aiVotes:'3/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent but very demanding'}),
+      row({muscle:'Hamstrings', exercise:'Stiff-Leg Deadlift', aiVotes:'2/4', myVote:'⭐⭐⭐⭐', verdict:'Similar to RDL'}),
+      row({muscle:'Hamstrings', exercise:'Single-Leg Curl', aiVotes:'1/4', myVote:'⭐⭐⭐⭐½', verdict:'Great unilateral isolation'}),
+      row({muscle:'Hamstrings', exercise:'Good Morning', aiVotes:'2/4', myVote:'⭐⭐⭐⭐', verdict:'Effective but technique-sensitive'}),
+      row({muscle:'Hamstrings', exercise:'Glute-Ham Raise', aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent posterior-chain work'}),
+      row({muscle:'Glutes', exercise:'Cable Pull-Through', aiVotes:'3/4', myVote:'⭐⭐⭐⭐', verdict:'Good but limited loading'}),
+      row({muscle:'Glutes', exercise:'Reverse Lunge', aiVotes:'1/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent glute-biased unilateral work'}),
+      row({muscle:'Glutes', exercise:'Cable Kickback', aiVotes:'1/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent isolation'}),
+      row({muscle:'Glutes', exercise:'Step-Up', aiVotes:'2/4', myVote:'⭐⭐⭐⭐½', verdict:'Very good glute variation'}),
+      row({muscle:'Calves', exercise:'Donkey Calf Raise', aiVotes:'3/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent loaded stretch'}),
+      row({muscle:'Calves', exercise:'Smith Machine Calf Raise', aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent stable overload'}),
+      row({muscle:'Calves', exercise:'Single-Leg Calf Raise', aiVotes:'3/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent unilateral option'}),
+      row({muscle:'Calves', exercise:'Tibialis Raise', aiVotes:'1/4', myVote:'⭐⭐⭐⭐', verdict:'Good lower-leg balance, not calf hypertrophy'}),
+      row({muscle:'Abs', exercise:'Reverse Crunch', aiVotes:'3/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent controlled exercise'}),
+      row({muscle:'Abs', exercise:'Machine Crunch', aiVotes:'1/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent progressive overload'}),
+      row({muscle:'Abs', exercise:'Decline Weighted Sit-Up', aiVotes:'2/4', myVote:'⭐⭐⭐⭐', verdict:'Effective but technique matters'}),
+      row({muscle:'Abs', exercise:'Cable Woodchopper', aiVotes:'2/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent oblique exercise'}),
+      row({muscle:'Forearms', exercise:'Wrist Extension', aiVotes:'1/4', myVote:'⭐⭐⭐⭐½', verdict:'Important direct extensor work'}),
+      row({muscle:'Forearms', exercise:"Farmer's Carry", aiVotes:'2/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Elite grip/forearm exercise'}),
+      row({muscle:'Forearms', exercise:'Behind-the-Back Wrist Curl', aiVotes:'2/4', myVote:'⭐⭐⭐⭐', verdict:'Good variation'}),
+      row({muscle:'Forearms', exercise:'Plate Pinch', aiVotes:'1/4', myVote:'⭐⭐⭐⭐½', verdict:'Excellent grip training'}),
+      row({muscle:'Forearms', exercise:'Wrist Roller', aiVotes:'1/4', myVote:'⭐⭐⭐⭐⭐', verdict:'Excellent forearm burnout'}),
+    ],
+    bBest: [
+      row({muscle:'Chest', best:'Machine Chest Press', second:'Flat Dumbbell Press', third:'Pec Deck'}),
+      row({muscle:'Back', best:'Neutral-Grip Pulldown', second:'Seated Cable Row', third:'T-Bar Row'}),
+      row({muscle:'Shoulders', best:'Cable Lateral Raise', second:'Machine Shoulder Press', third:'Rear-Delt Cable Fly'}),
+      row({muscle:'Biceps', best:'Bayesian Cable Curl', second:'Preacher Curl', third:'Cable Curl'}),
+      row({muscle:'Triceps', best:'Cross-Body Cable Extension', second:'Skull Crusher', third:'Single-Arm Pushdown'}),
+      row({muscle:'Quads', best:'Bulgarian Split Squat', second:'Smith Machine Squat', third:'Front Squat'}),
+      row({muscle:'Hamstrings', best:'Nordic Curl', second:'Glute-Ham Raise', third:'Single-Leg Leg Curl'}),
+      row({muscle:'Glutes', best:'Reverse Lunge', second:'Step-Up', third:'Cable Kickback'}),
+      row({muscle:'Calves', best:'Donkey Calf Raise', second:'Smith Machine Calf Raise', third:'Single-Leg Calf Raise'}),
+      row({muscle:'Abs', best:'Machine Crunch', second:'Reverse Crunch', third:'Cable Woodchopper'}),
+      row({muscle:'Forearms', best:"Farmer's Carry", second:'Wrist Roller', third:'Wrist Extension'}),
     ],
   };
 }
 
 function ensureAnalyzerData(){
-  if(!App.data.analyzer){
+  const REQUIRED_KEYS = ['aVotes','aBest','bVotes','bBest'];
+  if(!App.data.analyzer || !REQUIRED_KEYS.every(k=>Array.isArray(App.data.analyzer[k]))){
     App.data.analyzer = getDefaultAnalyzerData();
     persist();
   }
 }
 
 const ANALYZER_TABLES = {
-  legend:{
-    icon:'🗳️', title:'Voting System', sub:'What each star rating means',
-    columns:[{key:'stars',label:'Stars'},{key:'meaning',label:'Meaning',cls:'col-note'}],
-    blank:{stars:'⭐', meaning:''}
-  },
-  votes:{
-    icon:'💪', title:'Exercise Vote Table', sub:'Per-exercise hypertrophy rating by muscle group',
+  aVotes:{
+    icon:'💪', title:'Workout A — All Exercises + Voting', sub:'Foundation movements: per-exercise hypertrophy rating by muscle group',
     columns:[
       {key:'muscle',label:'Muscle Group',cls:'col-muscle'},
       {key:'exercise',label:'Exercise',cls:'col-exercise'},
-      {key:'aiVotes',label:'AI Votes'},
+      {key:'aiVotes',label:'AI Support'},
       {key:'myVote',label:'My Vote'},
       {key:'verdict',label:'Verdict',cls:'col-verdict'}
     ],
     blank:{muscle:'', exercise:'', aiVotes:'', myVote:'⭐⭐⭐', verdict:''},
     filterable:true
   },
-  winners:{
-    icon:'🏆', title:'Final "Best 3" Winners', sub:'Top pick per muscle group',
+  aBest:{
+    icon:'🏆', title:'BEST Workout A', sub:'Final 3 winners per muscle group for maximum muscle growth',
     columns:[
       {key:'muscle',label:'Muscle Group',cls:'col-muscle'},
       {key:'best',label:'🥇 Best'},
@@ -7231,14 +7269,31 @@ const ANALYZER_TABLES = {
     ],
     blank:{muscle:'', best:'', second:'', third:''}
   },
-  ranking:{
-    icon:'🤖', title:'Overall AI Ranking', sub:'How the 4 compared AI answers stacked up',
-    columns:[{key:'rank',label:'Rank'},{key:'ai',label:'AI',cls:'col-exercise'},{key:'note',label:'Note',cls:'col-note'}],
-    blank:{rank:'', ai:'', note:''}
+  bVotes:{
+    icon:'🔄', title:'Workout B — All Exercises + Voting', sub:'Complementary variations: different angle, machine or unilateral pattern vs. Workout A',
+    columns:[
+      {key:'muscle',label:'Muscle Group',cls:'col-muscle'},
+      {key:'exercise',label:'Exercise',cls:'col-exercise'},
+      {key:'aiVotes',label:'AI Support'},
+      {key:'myVote',label:'My Vote'},
+      {key:'verdict',label:'Verdict',cls:'col-verdict'}
+    ],
+    blank:{muscle:'', exercise:'', aiVotes:'', myVote:'⭐⭐⭐', verdict:''},
+    filterable:true
+  },
+  bBest:{
+    icon:'🥇', title:'BEST Workout B', sub:'Best complementary choices to Workout A — different angle or resistance profile',
+    columns:[
+      {key:'muscle',label:'Muscle Group',cls:'col-muscle'},
+      {key:'best',label:'🥇 Best'},
+      {key:'second',label:'🥈 Second'},
+      {key:'third',label:'🥉 Third'}
+    ],
+    blank:{muscle:'', best:'', second:'', third:''}
   }
 };
 
-let analyzerVotesFilter = {q:'', muscle:''};
+let analyzerFilters = {aVotes:{q:'', muscle:''}, bVotes:{q:'', muscle:''}};
 
 function buildEditTableRows(tableKey, columns, rows){
   return rows.map(row=>{
@@ -7255,8 +7310,9 @@ function renderAnalyzerTable(tableKey){
   let rows = App.data.analyzer[tableKey] || [];
 
   if(cfg.filterable){
-    const q = analyzerVotesFilter.q.trim().toLowerCase();
-    const m = analyzerVotesFilter.muscle;
+    const f = analyzerFilters[tableKey] || {q:'', muscle:''};
+    const q = f.q.trim().toLowerCase();
+    const m = f.muscle;
     rows = rows.filter(r=>{
       const okM = !m || (r.muscle||'').toLowerCase() === m.toLowerCase();
       const okQ = !q || (r.exercise||'').toLowerCase().includes(q) || (r.verdict||'').toLowerCase().includes(q) || (r.muscle||'').toLowerCase().includes(q);
@@ -7280,7 +7336,11 @@ function addAnalyzerRow(tableKey){
   App.data.analyzer[tableKey] = App.data.analyzer[tableKey] || [];
   App.data.analyzer[tableKey].push(newRow);
   persist();
-  if(tableKey==='votes'){ analyzerVotesFilter = {q:'', muscle:''}; const s=document.getElementById('analyzerSearch'); if(s) s.value=''; const ms=document.getElementById('analyzerMuscleFilter'); if(ms) ms.value=''; }
+  if(cfg.filterable){
+    analyzerFilters[tableKey] = {q:'', muscle:''};
+    const s=document.getElementById('analyzerSearch_'+tableKey); if(s) s.value='';
+    const ms=document.getElementById('analyzerMuscleFilter_'+tableKey); if(ms) ms.value='';
+  }
   renderAnalyzerTable(tableKey);
   toast('Row added');
   // focus first editable cell of new row
@@ -7327,13 +7387,14 @@ function analyzerTableCardHTML(tableKey){
   const cfg = ANALYZER_TABLES[tableKey];
   let toolbar = '';
   if(cfg.filterable){
+    const f = analyzerFilters[tableKey] || {q:'', muscle:''};
     const muscles = [...new Set((App.data.analyzer[tableKey]||[]).map(r=>r.muscle).filter(Boolean))];
     toolbar = `
       <div class="analyzer-toolbar">
-        <input type="text" id="analyzerSearch" placeholder="🔎 Search exercise, muscle or verdict…" value="${escapeHtml(analyzerVotesFilter.q)}">
-        <select id="analyzerMuscleFilter">
+        <input type="text" id="analyzerSearch_${tableKey}" data-analyzer-search="${tableKey}" placeholder="🔎 Search exercise, muscle or verdict…" value="${escapeHtml(f.q)}">
+        <select id="analyzerMuscleFilter_${tableKey}" data-analyzer-musclefilter="${tableKey}">
           <option value="">All muscle groups</option>
-          ${muscles.map(m=>`<option value="${escapeHtml(m)}" ${analyzerVotesFilter.muscle===m?'selected':''}>${escapeHtml(m)}</option>`).join('')}
+          ${muscles.map(m=>`<option value="${escapeHtml(m)}" ${f.muscle===m?'selected':''}>${escapeHtml(m)}</option>`).join('')}
         </select>
       </div>`;
   }
@@ -7364,13 +7425,18 @@ function renderAnalyzerPage(){
     <div class="card" style="text-align:center; margin-bottom: 20px; animation: slideInUp 0.3s backwards;">
       <h2 style="color: var(--accent); margin-bottom:8px;">🗳️ Workout Analyzer</h2>
       <p style="color: var(--text-dim); font-size: 14px; line-height: 1.5; margin:0;">
-        A 5th-judge review comparing exercise picks across muscle groups — fully editable so you can adjust ratings, add your own exercises, or reorder verdicts to match your own experience.
+        A 5th-judge review comparing Workout A (foundation compounds) against Workout B (complementary variations) — fully editable so you can adjust ratings, add your own exercises, or tweak verdicts to match your own experience.
       </p>
     </div>
-    ${analyzerTableCardHTML('legend')}
-    ${analyzerTableCardHTML('votes')}
-    ${analyzerTableCardHTML('winners')}
-    ${analyzerTableCardHTML('ranking')}
+    ${analyzerTableCardHTML('aVotes')}
+    ${analyzerTableCardHTML('aBest')}
+    ${analyzerTableCardHTML('bVotes')}
+    ${analyzerTableCardHTML('bBest')}
+    <div class="card" style="animation: slideInUp 0.3s backwards;">
+      <h3 style="margin-bottom:8px;">🥇 Overall Conclusion</h3>
+      <p style="color:var(--text-dim); font-size:13px; line-height:1.6; margin:0 0 8px;">Running A + B as a system beats repeating the same exercises twice a week. <b style="color:var(--text)">Workout A</b> covers heavier foundation movements with high mechanical tension. <b style="color:var(--text)">Workout B</b> adds different angles, more machines/cables, and more unilateral work with less repetitive joint stress.</p>
+      <p style="color:var(--text-faint); font-size:12px; margin:0;">The strongest combinations from the tables are A + B together, rather than treating either one as universally "better."</p>
+    </div>
   `;
 
   Object.keys(ANALYZER_TABLES).forEach(renderAnalyzerTable);
@@ -7403,15 +7469,19 @@ function renderAnalyzerPage(){
   });
 
   page.addEventListener('input', (e)=>{
-    if(e.target.id==='analyzerSearch'){
-      analyzerVotesFilter.q = e.target.value;
-      renderAnalyzerTable('votes');
+    const key = e.target.dataset && e.target.dataset.analyzerSearch;
+    if(key){
+      analyzerFilters[key] = analyzerFilters[key] || {q:'', muscle:''};
+      analyzerFilters[key].q = e.target.value;
+      renderAnalyzerTable(key);
     }
   });
   page.addEventListener('change', (e)=>{
-    if(e.target.id==='analyzerMuscleFilter'){
-      analyzerVotesFilter.muscle = e.target.value;
-      renderAnalyzerTable('votes');
+    const key = e.target.dataset && e.target.dataset.analyzerMusclefilter;
+    if(key){
+      analyzerFilters[key] = analyzerFilters[key] || {q:'', muscle:''};
+      analyzerFilters[key].muscle = e.target.value;
+      renderAnalyzerTable(key);
     }
   });
 }
