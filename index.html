@@ -734,6 +734,7 @@ table.edit-table td.col-del{width:32px;text-align:center;padding:6px;}
 .custom-day-block .cdb-head{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
 .custom-day-block .cdb-head input{flex:1;}
 .custom-day-block .cdb-muscles{display:flex;flex-wrap:wrap;gap:6px;}
+.muscle-picker-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
 .muscle-toggle{
   background:var(--card);border:1px solid var(--line);color:var(--text-dim);font-size:11px;font-weight:600;
   padding:5px 10px;border-radius:999px;text-transform:capitalize;transition:all .2s;
@@ -966,6 +967,215 @@ const MUSCLES = [
   {key:'cardio',     label:'Cardio / Heart', view:'front'},
 ];
 const MUSCLE_LABEL = Object.fromEntries(MUSCLES.map(m=>[m.key,m.label]));
+
+// Most-effective warmup per muscle group: mobility drills (joint ROM prep), dynamic warmup (pre-training activation) & cooldown (static, post-training) stretches
+const WARMUP_DB = {
+  chest: {
+    mobility: [
+      {name:'Shoulder CARs', detail:'2 slow controlled reps each direction — takes the shoulder joint through its full range'},
+      {name:'Thoracic Rotations', detail:'10 reps per side, on hands and knees — frees up upper-back rotation for pressing'},
+    ],
+    before: [
+      {name:'Arm Circles', detail:'20 sec forward + 20 sec backward — loosens the shoulder joint and warms chest fibers'},
+      {name:'Band Pull-Aparts', detail:'15 light reps — activates rear delts/upper back to balance the press'},
+      {name:'Push-Up to Down Dog', detail:'8 slow reps — dynamic chest and shoulder mobility'},
+    ],
+    after: [
+      {name:'Doorway Chest Stretch', detail:'Hold 30 sec each arm — opens the pec major/minor after pressing'},
+      {name:'Cross-Body Shoulder Stretch', detail:'Hold 30 sec each side'},
+    ],
+  },
+  shoulders: {
+    mobility: [
+      {name:'Shoulder CARs', detail:'2 slow controlled reps each direction — biggest circle you can draw with the elbow'},
+      {name:'Wall Slides with Reach', detail:'10 reps — restores overhead shoulder range before pressing'},
+    ],
+    before: [
+      {name:'Arm Circles', detail:'20 sec each direction'},
+      {name:'Band Dislocates', detail:'10 slow reps with a light band — full range shoulder mobility'},
+      {name:'Scapular Wall Slides', detail:'10 reps — wakes up the rotator cuff and scapula'},
+    ],
+    after: [
+      {name:'Cross-Body Shoulder Stretch', detail:'Hold 30 sec each side'},
+      {name:'Overhead Triceps & Shoulder Stretch', detail:'Hold 30 sec each side'},
+    ],
+  },
+  biceps: {
+    mobility: [
+      {name:'Elbow CARs', detail:'10 slow reps each direction — full flexion/extension and rotation of the elbow'},
+      {name:'Forearm Rotations (Pronation/Supination)', detail:'10 reps each arm, elbow tucked to side'},
+    ],
+    before: [
+      {name:'Arm Swings', detail:'15 reps — loosens the elbow and shoulder before curling'},
+      {name:'Very Light Band Curls', detail:'15 reps with minimal resistance to prime the muscle'},
+    ],
+    after: [
+      {name:'Standing Bicep Wall Stretch', detail:'Hold 30 sec each side — palm on wall, rotate torso away'},
+      {name:'Overhead Reach Stretch', detail:'Hold 30 sec — lengthens the bicep and forearm'},
+    ],
+  },
+  abs: {
+    mobility: [
+      {name:'Thoracic Rotations', detail:'10 reps per side, on hands and knees'},
+      {name:"World's Greatest Stretch", detail:'5 slow reps per side — hip, spine and shoulder mobility in one flow'},
+    ],
+    before: [
+      {name:'Cat-Cow', detail:'10 reps — mobilizes the spine and warms the core'},
+      {name:'Standing Torso Twists', detail:'15 reps — rotational core activation'},
+      {name:'Bird-Dog', detail:'8 reps per side — activates deep core stabilizers'},
+    ],
+    after: [
+      {name:'Cobra Stretch', detail:'Hold 30 sec — lengthens the abdominal wall'},
+      {name:'Standing Side Bend', detail:'Hold 20 sec each side — stretches the obliques'},
+    ],
+  },
+  quads: {
+    mobility: [
+      {name:'Hip CARs', detail:'2 slow controlled reps each direction, per leg — full range hip rotation'},
+      {name:'90/90 Hip Switches', detail:'8 reps per side — internal/external hip rotation control'},
+    ],
+    before: [
+      {name:'Bodyweight Squats', detail:'15 reps — raises blood flow to the legs'},
+      {name:'Walking Lunges', detail:'10 reps per side — dynamic hip and quad mobility'},
+      {name:'Leg Swings (front-to-back)', detail:'10 reps per side'},
+    ],
+    after: [
+      {name:'Standing Quad Stretch', detail:'Hold 30 sec each side — heel to glute'},
+      {name:'Couch Stretch', detail:'Hold 30 sec each side — deep quad/hip flexor stretch'},
+    ],
+  },
+  forearms: {
+    mobility: [
+      {name:'Wrist CARs', detail:'10 slow reps each direction — full circular range of the wrist'},
+    ],
+    before: [
+      {name:'Wrist Circles', detail:'15 reps each direction'},
+      {name:'Fist Clench & Release', detail:'15 reps — warms up the forearm muscles'},
+    ],
+    after: [
+      {name:'Wrist Flexor Stretch', detail:'Hold 30 sec each side — palm up, pull fingers back'},
+      {name:'Wrist Extensor Stretch', detail:'Hold 30 sec each side — palm down, pull fingers down'},
+    ],
+  },
+  calves: {
+    mobility: [
+      {name:'Ankle CARs', detail:'10 slow reps each direction, per foot — full circular range of the ankle'},
+      {name:'Deep Squat Ankle Rocks', detail:'10 reps — rocks weight forward over the toes to open ankle dorsiflexion'},
+    ],
+    before: [
+      {name:'Ankle Circles', detail:'10 reps each direction'},
+      {name:'Bodyweight Calf Raises', detail:'15 reps'},
+      {name:'Light Jump Rope / Skips', detail:'30 sec — raises blood flow to the lower leg'},
+    ],
+    after: [
+      {name:'Standing Calf Wall Stretch', detail:'Hold 30 sec each side — back leg straight, heel down'},
+      {name:'Downward Dog Calf Pump', detail:'Alternate pedaling heels for 30 sec'},
+    ],
+  },
+  traps: {
+    mobility: [
+      {name:'Neck CARs', detail:'2 very slow, gentle reps each direction — never forced'},
+      {name:'Shoulder Blade Circles', detail:'10 reps each direction — mobilizes the scapula'},
+    ],
+    before: [
+      {name:'Shoulder Shrugs', detail:'15 reps'},
+      {name:'Neck Tilts', detail:'10 reps per side — gentle mobility, no forcing'},
+    ],
+    after: [
+      {name:'Upper Trap Stretch', detail:'Hold 30 sec each side — ear to shoulder, light hand pressure'},
+      {name:'Neck Rolls', detail:'20 sec slow and controlled'},
+    ],
+  },
+  back: {
+    mobility: [
+      {name:'Thoracic Rotations', detail:'10 reps per side, on hands and knees'},
+      {name:'Thread the Needle', detail:'8 reps per side — rotational mobility through the upper back'},
+    ],
+    before: [
+      {name:'Cat-Cow', detail:'10 reps — mobilizes the whole spine'},
+      {name:'Light Band Rows', detail:'12 reps — activates the lats and mid-back before pulling'},
+      {name:'Scapular Retractions', detail:'10 reps'},
+    ],
+    after: [
+      {name:"Child's Pose", detail:'Hold 30 sec — decompresses the spine and lats'},
+      {name:'Standing Lat Stretch', detail:'Hold 30 sec each side — reach overhead and lean sideways'},
+    ],
+  },
+  triceps: {
+    mobility: [
+      {name:'Elbow CARs', detail:'10 slow reps each direction — full flexion/extension and rotation of the elbow'},
+    ],
+    before: [
+      {name:'Arm Circles', detail:'20 sec each direction'},
+      {name:'Light Band Pushdowns', detail:'15 reps with minimal resistance'},
+    ],
+    after: [
+      {name:'Overhead Triceps Stretch', detail:'Hold 30 sec each side — elbow bent behind head'},
+      {name:'Cross-Body Triceps Stretch', detail:'Hold 30 sec each side'},
+    ],
+  },
+  glutes: {
+    mobility: [
+      {name:'Hip CARs', detail:'2 slow controlled reps each direction, per leg — full range hip rotation'},
+      {name:'90/90 Hip Switches', detail:'8 reps per side — internal/external hip rotation control'},
+    ],
+    before: [
+      {name:'Glute Bridges', detail:'15 reps — activates the glutes before hip-dominant lifts'},
+      {name:'Fire Hydrants', detail:'10 reps per side'},
+      {name:'Lateral Band Walks', detail:'10 steps per side'},
+    ],
+    after: [
+      {name:'Figure-4 Glute Stretch', detail:'Hold 30 sec each side'},
+      {name:'Pigeon Pose', detail:'Hold 30 sec each side'},
+    ],
+  },
+  hamstrings: {
+    mobility: [
+      {name:'Standing Hip Hinge', detail:'10 slow reps — teaches the hip to flex under control before loading'},
+      {name:'Leg Swings (side-to-side)', detail:'10 reps per side — lateral hip/hamstring range'},
+    ],
+    before: [
+      {name:'Leg Swings (front-to-back)', detail:'10 reps per side'},
+      {name:'Walking High Kicks', detail:'10 reps per side'},
+      {name:'Inchworms', detail:'8 reps — dynamic hamstring and lower back stretch'},
+    ],
+    after: [
+      {name:'Standing Forward Fold', detail:'Hold 30 sec — let the hamstrings lengthen, soft knees'},
+      {name:'Seated Hamstring Stretch', detail:'Hold 30 sec each side'},
+    ],
+  },
+  lowerback: {
+    mobility: [
+      {name:'Thoracic Rotations', detail:'10 reps per side, on hands and knees'},
+      {name:'Pelvic Circles', detail:'10 reps each direction, standing — mobilizes the lumbar spine and hips together'},
+    ],
+    before: [
+      {name:'Cat-Cow', detail:'10 reps'},
+      {name:'Pelvic Tilts', detail:'12 reps — warms up the lumbar spine'},
+      {name:'Bird-Dog', detail:'8 reps per side'},
+    ],
+    after: [
+      {name:"Child's Pose", detail:'Hold 30 sec'},
+      {name:'Knee-to-Chest Stretch', detail:'Hold 30 sec each side'},
+    ],
+  },
+  cardio: {
+    mobility: [
+      {name:"World's Greatest Stretch", detail:'5 slow reps per side — full-body mobility flow'},
+      {name:'Full-Body Mobility Flow', detail:'1 min — arm swings, hip circles and ankle rolls combined'},
+    ],
+    before: [
+      {name:'Brisk Walk or Easy Jog', detail:'3–5 min — gradually raises heart rate before harder effort'},
+      {name:'Jumping Jacks', detail:'30 sec'},
+      {name:'High Knees', detail:'30 sec'},
+    ],
+    after: [
+      {name:'Standing Forward Fold', detail:'Hold 30 sec — lets heart rate ease down while stretching hamstrings'},
+      {name:'Standing Quad Stretch', detail:'Hold 30 sec each side'},
+      {name:'Slow Walk + Deep Breathing', detail:'1 min — brings heart rate down gradually'},
+    ],
+  },
+};
 
 const EXERCISE_LIBRARY = [
   {id:'bench-press', name:'Barbell Bench Press', cat:'Chest', variation:'Middle', equip:'Barbell', primary:'chest', secondary:['triceps','shoulders']},
@@ -2815,6 +3025,7 @@ const NAV_ITEMS = [
   {id:'dashboard', label:'Dashboard', ic:'⌂'},
   {id:'workout',   label:'Workout',   ic:'🏋'},
   {id:'analyzer',  label:'Analyzer',  ic:'🗳️'},
+  {id:'anatomy',   label:'Anatomy',   ic:'🧬'},
   {id:'diet',      label:'Diet',      ic:'🍴'},
   {id:'scheduler', label:'Scheduler', ic:'📆'},
   {id:'progress',  label:'Progress',  ic:'📈'},
@@ -2822,7 +3033,6 @@ const NAV_ITEMS = [
   {id:'missed',    label:'Track Missed', ic:'📅'},
   {id:'goals',     label:'Goals',     ic:'🎯'},
   {id:'library',   label:'Library',   ic:'📚'},
-  {id:'anatomy',   label:'Anatomy',   ic:'🧬'},
   {id:'guide',     label:'Guide',     ic:'📖'},
   {id:'settings',  label:'Settings',  ic:'⚙'},
 ];
@@ -3081,6 +3291,7 @@ const PAGE_TITLES = {
   dashboard:['Dashboard','Your training snapshot'],
   workout:['Workout','Log sets, reps & rest'],
   analyzer:['Workout Analyzer','5th-judge exercise ratings & AI comparison'],
+  anatomy:['Muscle Anatomy','Head-by-head breakdown of every muscle'],
   diet:['Diet','Track meals & macros'],
   scheduler:['Scheduler','Weekly split templates & last logged sets'],
   progress:['Progress','Trends over time'],
@@ -3088,7 +3299,6 @@ const PAGE_TITLES = {
   missed:['Track Missed','Log past workouts & data'],
   goals:['Goals','Targets & achievements'],
   library:['Exercise Library','Browse & learn movements'],
-  anatomy:['Muscle Anatomy','Head-by-head breakdown of every muscle'],
   guide:['App Guide','How to use Parakarom'],
   settings:['Settings','Profiles, theme & data'],
 };
@@ -3493,6 +3703,144 @@ function bodyMapLegend(){
   return `<div class="bodymap-legend">${items.map(([l,v])=>`<span class="lg"><span class="sw" style="background:var(${v})"></span>${l}</span>`).join('')}</div>`;
 }
 
+/* =========================================================================
+   "MAP THEM" — map a day's logged exercises to their targeted muscles,
+   shown on the body diagram plus anatomy photos for each muscle hit.
+   ========================================================================= */
+function getMuscleMapForDate(dateStr){
+  const dayWorkouts = App.data.workouts.filter(w=>w.date===dateStr);
+  const map = {}; // muscleKey -> {primary:[{name,sets,id}], secondary:[{name,sets,id}]}
+  const ensure = (k)=>{ if(!map[k]) map[k] = {primary:[], secondary:[]}; return map[k]; };
+  dayWorkouts.forEach(w=>{
+    w.exercises.forEach(e=>{
+      const ex = EXERCISE_LIBRARY.find(x=>x.id===e.exerciseId);
+      if(!ex) return;
+      const sets = e.sets.length;
+      ensure(ex.primary).primary.push({name:ex.name, sets, id:ex.id});
+      (ex.secondary||[]).forEach(sm=>{ ensure(sm).secondary.push({name:ex.name, sets, id:ex.id}); });
+    });
+  });
+  return map;
+}
+
+let mapThemView = 'front';
+function openMapThemModal(dateStr){
+  mapThemView = 'front';
+  const root = document.getElementById('modalRoot');
+  const muscleMap = getMuscleMapForDate(dateStr);
+  const trainedKeys = MUSCLES.map(m=>m.key).filter(k=>muscleMap[k]);
+
+  if(trainedKeys.length===0){
+    root.innerHTML = `
+      <div class="modal-backdrop" id="mb">
+        <div class="modal">
+          <div class="modal-head"><h2>🗺️ Map Them</h2><button class="modal-close" id="mc">&times;</button></div>
+          <div class="empty-state"><span class="ic">🗺️</span><p>No exercises logged for ${fmtDateFull(dateStr)}.</p></div>
+        </div>
+      </div>`;
+    document.getElementById('mc').onclick = closeModal;
+    document.getElementById('mb').onclick = (e)=>{ if(e.target.id==='mb') closeModal(); };
+    return;
+  }
+
+  root.innerHTML = `
+    <div class="modal-backdrop" id="mb">
+      <div class="modal">
+        <div class="modal-head"><h2>🗺️ Map Them — ${fmtDateFull(dateStr)}</h2><button class="modal-close" id="mc">&times;</button></div>
+        <div class="card-title-row">
+          <span class="muted" style="font-size:12px;">${trainedKeys.length} muscle group${trainedKeys.length>1?'s':''} hit</span>
+          <div class="body-toggle">
+            <button id="mtFront" class="active">Front</button>
+            <button id="mtBack">Back</button>
+          </div>
+        </div>
+        <div class="bodymap-wrap">
+          <div id="mapThemSvgWrap"></div>
+          <div class="bodymap-legend">
+            <span class="lg"><span class="sw" style="background:var(--accent)"></span>Primary target</span>
+            <span class="lg"><span class="sw" style="background:var(--accent2)"></span>Assisted</span>
+          </div>
+        </div>
+        <p class="help">Tap a highlighted muscle on the diagram to jump to it below.</p>
+        <div class="list mt" id="mapThemList" style="gap:14px;"></div>
+      </div>
+    </div>`;
+  document.getElementById('mc').onclick = closeModal;
+  document.getElementById('mb').onclick = (e)=>{ if(e.target.id==='mb') closeModal(); };
+  document.getElementById('mtFront').onclick = ()=>{ mapThemView='front'; renderMapThemBody(muscleMap); };
+  document.getElementById('mtBack').onclick = ()=>{ mapThemView='back'; renderMapThemBody(muscleMap); };
+  renderMapThemBody(muscleMap);
+
+  const listEl = document.getElementById('mapThemList');
+  listEl.innerHTML = trainedKeys.map(mk=>renderMapThemMuscleCard(mk, muscleMap[mk])).join('');
+  wireAnatomyImageFallback(listEl);
+  listEl.querySelectorAll('[data-view-anatomy]').forEach(b=>{
+    b.onclick = ()=>{ anatomySelectedMuscle = b.dataset.viewAnatomy; closeModal(); navigate('anatomy'); };
+  });
+}
+
+function renderMapThemBody(muscleMap){
+  const frontBtn = document.getElementById('mtFront');
+  const backBtn = document.getElementById('mtBack');
+  if(frontBtn) frontBtn.classList.toggle('active', mapThemView==='front');
+  if(backBtn) backBtn.classList.toggle('active', mapThemView==='back');
+  const wrap = document.getElementById('mapThemSvgWrap');
+  if(!wrap) return;
+  const inner = mapThemView==='front' ? bodyFrontSVG() : bodyBackSVG();
+  wrap.innerHTML = `<svg viewBox="0 0 200 350" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
+  wrap.querySelectorAll('[data-muscle]').forEach(el=>{
+    const m = el.dataset.muscle;
+    const rec = muscleMap[m];
+    el.classList.add('muscle-path');
+    let fill = 'var(--r-never)', opacity = '0.35';
+    if(rec && rec.primary.length>0){ fill='var(--accent)'; opacity='0.95'; }
+    else if(rec && rec.secondary.length>0){ fill='var(--accent2)'; opacity='0.8'; }
+    el.setAttribute('fill', fill);
+    el.style.opacity = opacity;
+    if(rec){
+      el.style.cursor = 'pointer';
+      el.addEventListener('click', ()=>{
+        const card = document.getElementById('mapmuscle-'+m);
+        if(card) card.scrollIntoView({behavior:'smooth', block:'center'});
+      });
+    }
+  });
+}
+
+function renderMapThemMuscleCard(muscleKey, rec){
+  const muscle = MUSCLES.find(m=>m.key===muscleKey);
+  const label = muscle ? muscle.label : muscleKey;
+  const anatomy = MUSCLE_ANATOMY[muscleKey];
+  const shape = anatomy ? anatomy.shape : 'panel';
+  const imgCandidates = anatomyImgCandidates(muscleKey);
+  const headsJson = escapeHtml(JSON.stringify([{key:'general', label:label}]));
+  const candJson = escapeHtml(JSON.stringify(imgCandidates));
+
+  const primaryRows = rec.primary.map(e=>`
+    <div class="item-row" style="padding:6px 0;">
+      <div class="ii-main"><div class="ii-title" style="font-size:13px;">${escapeHtml(e.name)}</div><div class="ii-sub">${e.sets} set${e.sets>1?'s':''}</div></div>
+    </div>`).join('');
+  const secondaryNames = [...new Set(rec.secondary.map(e=>e.name))];
+  const secondaryChips = secondaryNames.length ? `
+    <div class="mt" style="font-size:11px;">
+      <span class="muted">Also assisted by:</span>
+      <div class="chiprow mt">${secondaryNames.map(n=>`<span class="chip">${escapeHtml(n)}</span>`).join('')}</div>
+    </div>` : '';
+
+  return `<div class="card" id="mapmuscle-${muscleKey}" style="background:var(--card2);">
+    <div class="card-title-row">
+      <h3 style="margin:0;">${escapeHtml(label)}</h3>
+      <button class="btn sm" data-view-anatomy="${muscleKey}">View Anatomy</button>
+    </div>
+    <div class="anatomy-img-wrap" data-shape="${shape}" data-active="general" data-heads='${headsJson}' data-candidates='${candJson}' data-head-count="0" data-cand-idx="0">
+      <img class="anatomy-img" src="${imgCandidates[0]}" alt="${escapeHtml(label)} anatomy illustration" loading="lazy">
+    </div>
+    ${rec.primary.length ? `<div class="list" style="gap:2px;margin-top:8px;">${primaryRows}</div>` :
+      `<p class="muted" style="font-size:12px;margin-top:8px;">Not directly targeted — only assisted by another exercise.</p>`}
+    ${secondaryChips}
+  </div>`;
+}
+
 function openMuscleHistoryModal(muscleKey){
   const label = MUSCLE_LABEL[muscleKey];
   const workouts = App.data.workouts.filter(w => w.exercises.some(e => {
@@ -3627,56 +3975,40 @@ const MUSCLE_ANATOMY = {
   ]},
 };
 
-// Real anatomical illustrations (public-domain Gray's Anatomy plates / Wikimedia Commons),
-// used instead of the old abstract capsule diagram. If a specific link ever fails to load,
-// we fall back to the generated capsule diagram automatically (see wireAnatomyImageFallback).
-const MUSCLE_ANATOMY_IMAGES = {
-  chest:      { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray410.png', credit:"Gray's Anatomy · Public Domain" },
-  shoulders:  { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray409.png', credit:"Gray's Anatomy · Public Domain" },
-  back:       { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray409.png', credit:"Gray's Anatomy · Public Domain" },
-  traps:      { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Trapezius_Gray409.PNG', credit:"Gray's Anatomy · Public Domain" },
-  abs:        { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray396.png', credit:"Gray's Anatomy · Public Domain" },
-  forearms:   { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray421.png', credit:"Gray's Anatomy · Public Domain" },
-  biceps:     { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray416.png', credit:"Gray's Anatomy · Public Domain" },
-  triceps:    { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray417.png', credit:"Gray's Anatomy · Public Domain" },
-  quads:      { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray432_color.png', credit:"Gray's Anatomy · Public Domain" },
-  hamstrings: { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray437.png', credit:"Gray's Anatomy · Public Domain" },
-  glutes:     { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gluteus_maximus.png', credit:'Wikimedia Commons' },
-  calves:     { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gastrocnemius.png', credit:'Wikimedia Commons' },
-  lowerback:  { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray389.png', credit:"Gray's Anatomy · Public Domain" },
-  cardio:     { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Diagram_of_the_human_heart.svg', credit:'Wikimedia Commons' },
-};
+// ==========================================================================
+//  LOCAL ANATOMY IMAGES
+// ==========================================================================
+// Drop your own images into the folder:   images/anatomy/   (next to index.html)
+//
+// Naming convention (use the muscle/head KEYS, not the display labels):
+//   <musclekey>.<ext>            -> overview photo for the whole muscle.
+//                                    Used for the "Overall X" card, AND as the
+//                                    backdrop (with a highlighted region drawn
+//                                    on top) for any head below that doesn't
+//                                    have its own dedicated photo.
+//   <musclekey>-<headkey>.<ext>  -> dedicated photo for one specific head/section
+//                                    e.g. biceps-long.jpg, biceps-short.png,
+//                                    biceps-brachialis.svg
+//
+// <ext> can be ANY of: jpg, jpeg, png, svg, webp, gif — save the file with
+// whichever extension you have; the app tries them all automatically, so no
+// code changes are needed. If a file is missing entirely, it falls back to
+// the muscle overview photo (with a highlight box), and if that's missing
+// too, it falls back to a simple generated diagram — nothing ever breaks.
+//
+// Full filename checklist (every musclekey + headkey combo) is provided
+// separately as a reference list.
+// ==========================================================================
+const ANATOMY_IMG_DIR = 'images/anatomy/';
+const ANATOMY_IMG_EXTS = ['jpg','jpeg','png','svg','webp','gif'];
+function anatomyImgCandidates(baseName){
+  return ANATOMY_IMG_EXTS.map(ext=>`${ANATOMY_IMG_DIR}${baseName}.${ext}`);
+}
 
-// Per-head images for cases where the sub-section is a genuinely SEPARATE muscle
-// (not just a fiber region of the same muscle) — so each card shows a different photo.
-const MUSCLE_HEAD_IMAGES = {
-  forearms: {
-    flexors:   { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray421.png', credit:"Gray's Anatomy · Public Domain" },
-    extensors: { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gray418.png', credit:"Gray's Anatomy · Public Domain" },
-  },
-  quads: {
-    rectus:  { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Rectus_femoris.png', credit:'Wikimedia Commons' },
-    vastus:  { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Vastus_lateralis.png', credit:'Wikimedia Commons' },
-  },
-  hamstrings: {
-    bicepsfem: { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Biceps_femoris_muscle.png', credit:'Wikimedia Commons' },
-    semi:      { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Semitendinosus_muscle.png', credit:'Wikimedia Commons' },
-  },
-  glutes: {
-    maximus: { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gluteus_maximus.png', credit:'Wikimedia Commons' },
-    medius:  { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gluteus_medius_muscle.jpg', credit:'Wikimedia Commons' },
-  },
-  calves: {
-    gastroc:  { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Gastrocnemius.png', credit:'Wikimedia Commons' },
-    soleus:   { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Soleus_muscle_-_anterior_view.png', credit:'Wikimedia Commons' },
-    tibialis: { url:'https://commons.wikimedia.org/wiki/Special:FilePath/Tibialis_anterior_muscle_-_posteriror_view.png', credit:'Wikimedia Commons' },
-  },
-};
-
-// For sections that are just fiber regions of the SAME muscle (e.g. upper/mid/lower chest
-// are all pectoralis major — there's no separate "upper chest" photo in nature), we reuse
-// the muscle-level photo but draw a highlighted band/wedge over the relevant part of it,
-// so the cards still look distinct from one another instead of showing an identical image.
+// For sections that are just fiber regions of the SAME muscle (e.g. upper/mid/lower
+// chest are all pectoralis major), if no dedicated head photo exists we reuse the
+// muscle-level overview photo and draw a highlighted band/wedge over the relevant
+// part of it, so the cards still look distinct from one another.
 function anatomyHighlightBox(shape, heads, headKey){
   if(headKey==='general') return null;
   const named = heads.filter(h=>h.key!=='general');
@@ -3720,45 +4052,65 @@ function anatomyPerformedMap(muscleKey){
 }
 
 function anatomyRealImageHTML(muscleKey, shape, heads, activeKey, head){
-  const specific = MUSCLE_HEAD_IMAGES[muscleKey] && MUSCLE_HEAD_IMAGES[muscleKey][activeKey];
-  const fallbackMuscleImg = MUSCLE_ANATOMY_IMAGES[muscleKey];
-  const img = specific || fallbackMuscleImg;
   const badge = escapeHtml(head.label);
-  if(!img){
-    // no real photo mapped for this group — use the capsule diagram directly
-    return capsuleDiagramSVG(shape, heads, activeKey);
-  }
+  // "general" has no dedicated head photo of its own — it IS the muscle overview photo.
+  const headCandidates = activeKey==='general' ? [] : anatomyImgCandidates(`${muscleKey}-${activeKey}`);
+  const muscleCandidates = anatomyImgCandidates(muscleKey);
+  const allCandidates = [...headCandidates, ...muscleCandidates];
   const headsJson = escapeHtml(JSON.stringify(heads));
-  // Only draw a highlight box when we're reusing the shared muscle-level photo
-  // (i.e. no dedicated per-head photo exists) so the card still looks distinct.
-  const box = !specific ? anatomyHighlightBox(shape, heads, activeKey) : null;
-  const highlightHtml = box ? `<div class="anatomy-highlight" style="${box}"></div>` : '';
+  const candJson = escapeHtml(JSON.stringify(allCandidates));
   return `
-    <div class="anatomy-img-wrap" data-shape="${shape}" data-active="${escapeHtml(activeKey)}" data-heads='${headsJson}'>
-      <img class="anatomy-img" src="${img.url}" alt="${badge} anatomy illustration" loading="lazy" referrerpolicy="no-referrer">
-      ${highlightHtml}
+    <div class="anatomy-img-wrap" data-shape="${shape}" data-active="${escapeHtml(activeKey)}" data-heads='${headsJson}' data-candidates='${candJson}' data-head-count="${headCandidates.length}" data-cand-idx="0">
+      <img class="anatomy-img" src="${allCandidates[0]}" alt="${badge} anatomy illustration" loading="lazy">
       <span class="anatomy-badge">${badge}</span>
     </div>
-    <div class="anatomy-credit">${escapeHtml(img.credit)}${box?' · highlighted region approximate':''}</div>
   `;
 }
 
 function wireAnatomyImageFallback(root){
   root.querySelectorAll('.anatomy-img').forEach(imgEl=>{
-    imgEl.addEventListener('error', ()=>{
+    imgEl.addEventListener('error', function tryNext(){
       const wrap = imgEl.closest('.anatomy-img-wrap');
       if(!wrap) return;
+      let candidates, idx, headCount;
+      try{
+        candidates = JSON.parse(wrap.dataset.candidates);
+        idx = parseInt(wrap.dataset.candIdx, 10) + 1;
+        headCount = parseInt(wrap.dataset.headCount, 10);
+      }catch(e){ return; }
+      if(idx < candidates.length){
+        wrap.dataset.candIdx = String(idx);
+        // The moment we move past the head-specific candidates into the muscle-level
+        // overview candidates, draw a highlight box over the relevant region.
+        if(idx===headCount && headCount < candidates.length && !wrap.querySelector('.anatomy-highlight')){
+          const shape = wrap.dataset.shape;
+          const activeKey = wrap.dataset.active;
+          let heads = [];
+          try{ heads = JSON.parse(wrap.dataset.heads); }catch(e){}
+          const box = anatomyHighlightBox(shape, heads, activeKey);
+          if(box){
+            const hl = document.createElement('div');
+            hl.className = 'anatomy-highlight';
+            hl.style.cssText = box;
+            const badgeEl = wrap.querySelector('.anatomy-badge');
+            wrap.insertBefore(hl, badgeEl);
+          }
+        }
+        imgEl.src = candidates[idx];
+        return;
+      }
+      // Every candidate (dedicated photo + overview photo, every extension) failed —
+      // fall back to a simple generated diagram so the UI never shows a broken image.
       try{
         const shape = wrap.dataset.shape;
         const activeKey = wrap.dataset.active;
         const heads = JSON.parse(wrap.dataset.heads);
-        const creditEl = wrap.nextElementSibling;
-        if(creditEl && creditEl.classList.contains('anatomy-credit')) creditEl.remove();
         wrap.outerHTML = capsuleDiagramSVG(shape, heads, activeKey);
       }catch(e){ /* leave broken-image icon as last resort */ }
-    }, {once:true});
+    });
   });
 }
+
 
 function capsuleDiagramSVG(shape, heads, activeKey){
   const n = heads.length;
@@ -4312,6 +4664,7 @@ function baseChartOpts(opts={}){
 }
 
 let workoutTab = 'log';
+let warmupSelectedMuscles = new Set();
 App.workoutDraft = App.workoutDraft || { date: todayStr(), exercises: [] };
 
 function estOneRM(weight, reps){ return weight * (1 + reps/30); }
@@ -4345,6 +4698,7 @@ function renderWorkoutPage(){
   page.innerHTML = getAnimeQuote('workout') + `
     <div class="tabs">
       <button data-t="log" class="${workoutTab==='log'?'active':''}">Log Workout</button>
+      <button data-t="warmup" class="${workoutTab==='warmup'?'active':''}">🔥 Warmup</button>
       <button data-t="plan" class="${workoutTab==='plan'?'active':''}">🪄 Plan${hasPlan?' <span class="tab-dot"></span>':''}</button>
       <button data-t="routines" class="${workoutTab==='routines'?'active':''}">Routines</button>
       <button data-t="history" class="${workoutTab==='history'?'active':''}">History</button>
@@ -4353,9 +4707,80 @@ function renderWorkoutPage(){
   page.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{ workoutTab=b.dataset.t; renderWorkoutPage(); });
   const body = document.getElementById('workoutTabBody');
   if(workoutTab==='log') renderWorkoutLog(body);
+  else if(workoutTab==='warmup') renderWorkoutWarmup(body);
   else if(workoutTab==='plan') renderWorkoutPlanTab(body);
   else if(workoutTab==='routines') renderRoutines(body);
   else renderWorkoutHistory(body);
+}
+
+function renderWorkoutWarmup(body){
+  const selected = MUSCLES.filter(m=>warmupSelectedMuscles.has(m.key));
+
+  const buildList = (phase)=>{
+    // Aggregate stretches for selected muscles, de-duplicating by name and noting which muscles they cover
+    const byName = new Map();
+    selected.forEach(m=>{
+      const entry = WARMUP_DB[m.key];
+      if(!entry) return;
+      entry[phase].forEach(s=>{
+        if(!byName.has(s.name)){
+          byName.set(s.name, {name:s.name, detail:s.detail, muscles:[m.key]});
+        } else {
+          byName.get(s.name).muscles.push(m.key);
+        }
+      });
+    });
+    return [...byName.values()];
+  };
+
+  const mobilityList = buildList('mobility');
+  const beforeList = buildList('before');
+  const afterList = buildList('after');
+
+  const renderItems = (items)=> items.map(it=>`
+    <div class="item-row">
+      <div class="ii-main">
+        <div class="ii-title">${escapeHtml(it.name)}</div>
+        <div class="ii-sub">${escapeHtml(it.detail)}</div>
+        <div class="micro-row">${it.muscles.map(mk=>`<span class="chip">${MUSCLE_LABEL[mk]}</span>`).join('')}</div>
+      </div>
+    </div>`).join('');
+
+  body.innerHTML = `
+    <div class="card">
+      <div class="card-title-row"><span>Which muscle group(s) are you training?</span></div>
+      <p class="help">Pick one or more — you'll get the most effective dynamic warmup moves to do before, and static stretches to do after.</p>
+      <div class="muscle-picker-wrap">${MUSCLES.map(m=>`<button type="button" class="muscle-toggle ${warmupSelectedMuscles.has(m.key)?'on':''}" data-warmup-muscle="${m.key}">${m.label}</button>`).join('')}</div>
+      ${selected.length>0 ? `<button class="btn sm mt" id="clearWarmupBtn">Clear selection</button>` : ''}
+    </div>
+
+    ${selected.length===0 ? `
+      <div class="empty-state"><span class="ic">🧘</span><p>Select a muscle group above</p><p>We'll build a warmup + cooldown stretch routine for it.</p></div>
+    ` : `
+      <div class="section-head"><h2>🌀 Mobility Drills</h2><span class="tag muted">${mobilityList.length}</span></div>
+      <p class="help">Do these first — slow, controlled range-of-motion work to prep the joint itself before you load it.</p>
+      <div class="list">${renderItems(mobilityList)}</div>
+
+      <div class="section-head"><h2>🔥 Before Training — Dynamic Warmup</h2><span class="tag muted">${beforeList.length}</span></div>
+      <p class="help">Do 5 min of light general cardio first (brisk walk, bike, rower) to raise your body temperature, then run through these:</p>
+      <div class="list">${renderItems(beforeList)}</div>
+
+      <div class="section-head"><h2>🧊 After Training — Cooldown Stretches</h2><span class="tag muted">${afterList.length}</span></div>
+      <p class="help">Hold each stretch gently to the point of light tension, never pain, and keep breathing.</p>
+      <div class="list">${renderItems(afterList)}</div>
+    `}
+  `;
+
+  body.querySelectorAll('[data-warmup-muscle]').forEach(b=>{
+    b.onclick = ()=>{
+      const key = b.dataset.warmupMuscle;
+      if(warmupSelectedMuscles.has(key)) warmupSelectedMuscles.delete(key);
+      else warmupSelectedMuscles.add(key);
+      renderWorkoutWarmup(body);
+    };
+  });
+  const clearBtn = document.getElementById('clearWarmupBtn');
+  if(clearBtn) clearBtn.onclick = ()=>{ warmupSelectedMuscles.clear(); renderWorkoutWarmup(body); };
 }
 
 function renderWorkoutPlanTab(body){
@@ -4382,7 +4807,7 @@ function renderWorkoutLog(body){
       ${d.exercises.length>0 ? `<button class="btn accent2 block mt" id="saveWorkoutBtn">✔ Finish & Save Workout</button>` : ''}
     </div>
     ${loggedForDate.length>0 ? `
-    <div class="section-head"><h2>Logged Exercises</h2><span class="tag muted">${loggedForDate.reduce((a,w)=>a+w.exercises.length,0)}</span></div>
+    <div class="section-head"><h2>Logged Exercises</h2><div style="display:flex;align-items:center;gap:8px;"><button class="btn sm" id="mapThemBtn">🗺️ Map Them</button><span class="tag muted">${loggedForDate.reduce((a,w)=>a+w.exercises.length,0)}</span></div></div>
     <div class="list">${loggedForDate.map(w=>w.exercises.map((e,ei)=>{
       const ex = EXERCISE_LIBRARY.find(x=>x.id===e.exerciseId);
       const isCardio = ex && ex.cat === 'Cardio';
@@ -4405,6 +4830,8 @@ function renderWorkoutLog(body){
     }).join('')).join('')}</div>` : ''}`;
   document.getElementById('workoutDate').onchange = (e)=>{ App.workoutDraft.date = e.target.value; renderWorkoutLog(body); };
   document.getElementById('addExerciseBtn').onclick = ()=>openExercisePicker();
+  const mapThemBtn = document.getElementById('mapThemBtn');
+  if(mapThemBtn) mapThemBtn.onclick = ()=>openMapThemModal(d.date);
   
   const loadBtn = document.getElementById('loadTemplateBtn');
   if(loadBtn) loadBtn.onclick = ()=>{ workoutTab = 'routines'; renderWorkoutPage(); };
@@ -4647,6 +5074,7 @@ function renderWorkoutHistory(body){
     return `<div class="item-row">
       <div class="ii-main"><div class="ii-title">${fmtDateFull(w.date)} ${avgRpe?`<span class="chip" style="font-size:9.5px;padding:2px 6px;">RPE ${avgRpe}</span>`:''}</div><div class="ii-sub">${w.exercises.length} exercises · ${totalSets} sets — ${names}</div></div>
       <div class="ii-actions">
+        <button class="iconbtn" data-mapthemw="${w.date}" title="Map Them">🗺️</button>
         <button class="iconbtn" data-editw="${w.id}">✏️</button>
         <button class="iconbtn danger" data-delw="${w.id}">🗑</button>
       </div>
@@ -4660,6 +5088,8 @@ function renderWorkoutHistory(body){
     renderWorkoutPage();
     toast('Workout loaded for editing');
   });
+
+  body.querySelectorAll('[data-mapthemw]').forEach(b=>b.onclick=()=>openMapThemModal(b.dataset.mapthemw));
 
   body.querySelectorAll('[data-delw]').forEach(b=>b.onclick=()=>{
     confirmDialog('Delete this workout log permanently?', ()=>{
