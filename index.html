@@ -211,6 +211,11 @@ a{color:inherit;}
   box-shadow: 0 12px 30px rgba(0,0,0,0.4);
   border-color: var(--text-dim);
 }
+.flash-highlight{ animation: flashHighlight 1.8s ease; }
+@keyframes flashHighlight{
+  0%{ box-shadow: 0 0 0 3px var(--accent); border-color: var(--accent); }
+  100%{ box-shadow: var(--shadow); border-color: var(--line); }
+}
 .card h3{font-size:13px;color:var(--text-dim);display:flex;align-items:center;justify-content:space-between;}
 .card h3 .tag{font-family:var(--font-body);text-transform:none;font-weight:500;font-size:11px;color:var(--text-faint);}
 .card-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
@@ -4189,6 +4194,7 @@ function capsuleDiagramSVG(shape, heads, activeKey){
 }
 
 let anatomySelectedMuscle = 'biceps';
+let anatomyScrollToHead = null;
 function renderAnatomyPage(){
   const page = document.getElementById('page-anatomy');
   const anatomyMuscles = MUSCLES; // all muscle groups, traps to calves (and cardio)
@@ -4233,6 +4239,19 @@ function renderAnatomyPage(){
       btn.textContent = isHidden ? 'Show fewer' : btn.dataset.moreLabel;
     };
   });
+
+  if(anatomyScrollToHead && anatomyScrollToHead.muscle===muscle.key){
+    const headKey = anatomyScrollToHead.head;
+    anatomyScrollToHead = null;
+    setTimeout(()=>{
+      const card = document.getElementById(`anatomyhead-${muscle.key}-${headKey}`);
+      if(card){
+        card.scrollIntoView({behavior:'smooth', block:'center'});
+        card.classList.add('flash-highlight');
+        setTimeout(()=>card.classList.remove('flash-highlight'), 1800);
+      }
+    }, 60);
+  }
 }
 
 function renderAnatomyHeadCard(muscle, anatomy, head, performedMap){
@@ -4275,7 +4294,7 @@ function renderAnatomyHeadCard(muscle, anatomy, head, performedMap){
   const noteHtml = head.note ? `<p class="help" style="margin-top:6px;">No exercise in your library isolates this head specifically — it's trained together with the rest of ${MUSCLE_LABEL[muscle.key]} in the exercises above/below.</p>` : '';
 
   return `
-  <div class="card">
+  <div class="card" id="anatomyhead-${muscle.key}-${head.key}">
     <div class="card-title-row" style="align-items:flex-start;">
       <div style="min-width:0;">
         <h3 style="font-size:16px;color:var(--text);margin-bottom:2px;">${escapeHtml(head.label)}</h3>
@@ -4317,6 +4336,106 @@ function todayFoodTotals(){
 function todayWater(){
   const t = todayStr();
   return (App.data.waterLogs||[]).filter(w=>w.date===t).reduce((a,w)=>a+w.ml,0);
+}
+
+// ==========================================================================
+//  WEEKLY MISSED-MUSCLE CHECK (Mon+Tue+Wed) — shown on Dashboard from
+//  Wednesday 7pm onward for the rest of that week.
+// ==========================================================================
+function getMonTueWedDatesForCurrentWeek(){
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun..6=Sat
+  const diffToMonday = day===0 ? -6 : 1-day;
+  const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate()+diffToMonday);
+  const tuesday = new Date(monday); tuesday.setDate(monday.getDate()+1);
+  const wednesday = new Date(monday); wednesday.setDate(monday.getDate()+2);
+  return [dateStr(monday), dateStr(tuesday), dateStr(wednesday)];
+}
+
+function shouldShowWeeklyMuscleCheck(){
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun,1=Mon,2=Tue,3=Wed,4=Thu,5=Fri,6=Sat
+  if(day===1 || day===2) return false; // Mon/Tue - too early
+  if(day===3) return now.getHours() >= 19; // Wed - only from 7pm onward
+  return true; // Thu, Fri, Sat, Sun - stays visible the rest of the week
+}
+
+function getWeeklyMuscleHeadStatus(){
+  const dates = getMonTueWedDatesForCurrentWeek();
+  const dayWorkouts = App.data.workouts.filter(w=>dates.includes(w.date));
+
+  // muscleKey|headKey -> 'primary' | 'secondary'
+  const status = {};
+  const mark = (muscleKey, headKey, level)=>{
+    const k = `${muscleKey}|${headKey}`;
+    if(status[k]==='primary') return; // primary already wins
+    if(level==='primary' || !status[k]) status[k] = level;
+  };
+  dayWorkouts.forEach(w=>{
+    w.exercises.forEach(e=>{
+      const ex = EXERCISE_LIBRARY.find(x=>x.id===e.exerciseId);
+      if(!ex) return;
+      const pAnatomy = MUSCLE_ANATOMY[ex.primary];
+      if(pAnatomy) mark(ex.primary, classifyExerciseHead(ex, pAnatomy), 'primary');
+      (ex.secondary||[]).forEach(sm=>{
+        const sAnatomy = MUSCLE_ANATOMY[sm];
+        if(sAnatomy) mark(sm, classifyExerciseHead(ex, sAnatomy), 'secondary');
+      });
+    });
+  });
+
+  const neverTrained = [];   // {muscleKey, muscleLabel, headKey, headLabel, headSub}
+  const secondaryOnly = [];
+  Object.keys(MUSCLE_ANATOMY).forEach(muscleKey=>{
+    if(muscleKey==='cardio') return; // not a "muscle group" to train per se
+    const muscleLabel = MUSCLE_LABEL[muscleKey] || muscleKey;
+    MUSCLE_ANATOMY[muscleKey].heads.forEach(h=>{
+      const level = status[`${muscleKey}|${h.key}`];
+      const entry = {muscleKey, muscleLabel, headKey:h.key, headLabel:h.label, headSub:h.sub};
+      if(!level) neverTrained.push(entry);
+      else if(level==='secondary') secondaryOnly.push(entry);
+    });
+  });
+  return {dates, neverTrained, secondaryOnly};
+}
+
+function renderWeeklyMuscleCheckCard(){
+  if(!shouldShowWeeklyMuscleCheck()) return '';
+  const {dates, neverTrained, secondaryOnly} = getWeeklyMuscleHeadStatus();
+  if(neverTrained.length===0 && secondaryOnly.length===0){
+    return `<div class="card mt" style="border-left:4px solid var(--r-fresh);margin-bottom:14px;">
+      <div class="card-title-row"><h3 style="margin:0;">🧩 This Week's Muscle Coverage</h3></div>
+      <p class="help" style="margin:6px 0 0;">Nice work — every muscle head was hit as a primary target Mon–Wed this week.</p>
+    </div>`;
+  }
+  const chip = (e, dim)=>`<span class="chip ${dim?'':'on'}" style="cursor:pointer;font-size:11.5px;" data-goto-muscle="${e.muscleKey}" data-goto-head="${e.headKey}" title="${escapeHtml(e.headSub||'')}">${escapeHtml(e.muscleLabel)} — ${escapeHtml(e.headLabel)}</span>`;
+  return `<div class="card mt" style="border-left:4px solid var(--r-old);margin-bottom:14px;">
+    <div class="card-title-row">
+      <h3 style="margin:0;">🧩 This Week's Muscle Coverage</h3>
+      <span class="muted" style="font-size:11px;">Mon–Wed check</span>
+    </div>
+    ${neverTrained.length ? `
+      <div class="mt">
+        <span class="muted" style="font-size:12px;">Not trained at all (${neverTrained.length})</span>
+        <div class="chiprow mt">${neverTrained.map(e=>chip(e,false)).join('')}</div>
+      </div>` : ''}
+    ${secondaryOnly.length ? `
+      <div class="mt" style="${neverTrained.length?'border-top:1px dashed var(--line);padding-top:10px;':''}">
+        <span class="muted" style="font-size:12px;">Only hit as secondary / compound (${secondaryOnly.length})</span>
+        <div class="chiprow mt">${secondaryOnly.map(e=>chip(e,true)).join('')}</div>
+      </div>` : ''}
+    <p class="help" style="margin-top:10px;">Tap a muscle to jump straight to it in Anatomy.</p>
+  </div>`;
+}
+
+function wireWeeklyMuscleCheckCard(container){
+  container.querySelectorAll('[data-goto-muscle]').forEach(chipEl=>{
+    chipEl.onclick = ()=>{
+      anatomySelectedMuscle = chipEl.dataset.gotoMuscle;
+      anatomyScrollToHead = {muscle: chipEl.dataset.gotoMuscle, head: chipEl.dataset.gotoHead};
+      navigate('anatomy');
+    };
+  });
 }
 
 function renderDashboard(){
@@ -4444,6 +4563,8 @@ function renderDashboard(){
         <div class="nudge-arrow">→</div>
     </div>
     
+    ${renderWeeklyMuscleCheckCard()}
+
     ${schedHtml}
     
     <div class="stat-strip cols-4">
@@ -4522,6 +4643,8 @@ function renderDashboard(){
   renderBodyMap();
   document.getElementById('bmFront').onclick = ()=>{ bodyMapView='front'; renderDashboard(); };
   document.getElementById('bmBack').onclick = ()=>{ bodyMapView='back'; renderDashboard(); };
+
+  wireWeeklyMuscleCheckCard(page);
 
   renderVolumeChart();
   renderWeightChartDash();
