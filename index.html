@@ -3713,15 +3713,29 @@ function bodyMapLegend(){
    ========================================================================= */
 function getMuscleMapForDate(dateStr){
   const dayWorkouts = App.data.workouts.filter(w=>w.date===dateStr);
-  const map = {}; // muscleKey -> {primary:[{name,sets,id}], secondary:[{name,sets,id}]}
-  const ensure = (k)=>{ if(!map[k]) map[k] = {primary:[], secondary:[]}; return map[k]; };
+  const map = {}; // muscleKey -> {primaryHeads:{headKey:{label,sub,exercises:[]}}, secondaryHeads:{...}}
+  const ensureMuscle = (k)=>{ if(!map[k]) map[k] = {primaryHeads:{}, secondaryHeads:{}}; return map[k]; };
+  const ensureHead = (bucket, headKey, headDef)=>{
+    if(!bucket[headKey]) bucket[headKey] = {label: headDef ? headDef.label : 'Overall', sub: headDef ? headDef.sub : '', exercises:[]};
+    return bucket[headKey];
+  };
   dayWorkouts.forEach(w=>{
     w.exercises.forEach(e=>{
       const ex = EXERCISE_LIBRARY.find(x=>x.id===e.exerciseId);
       if(!ex) return;
       const sets = e.sets.length;
-      ensure(ex.primary).primary.push({name:ex.name, sets, id:ex.id});
-      (ex.secondary||[]).forEach(sm=>{ ensure(sm).secondary.push({name:ex.name, sets, id:ex.id}); });
+
+      const pAnatomy = MUSCLE_ANATOMY[ex.primary];
+      const pHeadKey = pAnatomy ? classifyExerciseHead(ex, pAnatomy) : 'general';
+      const pHeadDef = pAnatomy ? pAnatomy.heads.find(h=>h.key===pHeadKey) : null;
+      ensureHead(ensureMuscle(ex.primary).primaryHeads, pHeadKey, pHeadDef).exercises.push({name:ex.name, sets, id:ex.id});
+
+      (ex.secondary||[]).forEach(sm=>{
+        const sAnatomy = MUSCLE_ANATOMY[sm];
+        const sHeadKey = sAnatomy ? classifyExerciseHead(ex, sAnatomy) : 'general';
+        const sHeadDef = sAnatomy ? sAnatomy.heads.find(h=>h.key===sHeadKey) : null;
+        ensureHead(ensureMuscle(sm).secondaryHeads, sHeadKey, sHeadDef).exercises.push({name:ex.name, sets, id:ex.id});
+      });
     });
   });
   return map;
@@ -3797,8 +3811,8 @@ function renderMapThemBody(muscleMap){
     const rec = muscleMap[m];
     el.classList.add('muscle-path');
     let fill = 'var(--r-never)', opacity = '0.35';
-    if(rec && rec.primary.length>0){ fill='var(--accent)'; opacity='0.95'; }
-    else if(rec && rec.secondary.length>0){ fill='var(--accent2)'; opacity='0.8'; }
+    if(rec && Object.keys(rec.primaryHeads).length>0){ fill='var(--accent)'; opacity='0.95'; }
+    else if(rec && Object.keys(rec.secondaryHeads).length>0){ fill='var(--accent2)'; opacity='0.8'; }
     el.setAttribute('fill', fill);
     el.style.opacity = opacity;
     if(rec){
@@ -3820,15 +3834,29 @@ function renderMapThemMuscleCard(muscleKey, rec){
   const headsJson = escapeHtml(JSON.stringify([{key:'general', label:label}]));
   const candJson = escapeHtml(JSON.stringify(imgCandidates));
 
-  const primaryRows = rec.primary.map(e=>`
-    <div class="item-row" style="padding:6px 0;">
-      <div class="ii-main"><div class="ii-title" style="font-size:13px;">${escapeHtml(e.name)}</div><div class="ii-sub">${e.sets} set${e.sets>1?'s':''}</div></div>
-    </div>`).join('');
-  const secondaryNames = [...new Set(rec.secondary.map(e=>e.name))];
-  const secondaryChips = secondaryNames.length ? `
-    <div class="mt" style="font-size:11px;">
-      <span class="muted">Also assisted by:</span>
-      <div class="chiprow mt">${secondaryNames.map(n=>`<span class="chip">${escapeHtml(n)}</span>`).join('')}</div>
+  const renderHeadGroup = (head, dim)=>{
+    const rows = head.exercises.map(e=>`
+      <div class="item-row" style="padding:4px 0;">
+        <div class="ii-main"><div class="ii-title" style="font-size:12.5px;">${escapeHtml(e.name)}</div><div class="ii-sub">${e.sets} set${e.sets>1?'s':''}</div></div>
+      </div>`).join('');
+    return `<div style="margin-top:10px;${dim?'opacity:.8;':''}">
+      <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;">
+        <span class="chip ${dim?'':'on'}" style="font-size:10.5px;">${escapeHtml(head.label)}</span>
+        ${head.sub ? `<span class="muted" style="font-size:10.5px;">${escapeHtml(head.sub)}</span>` : ''}
+      </div>
+      <div class="list" style="gap:0;">${rows}</div>
+    </div>`;
+  };
+
+  const primaryKeys = Object.keys(rec.primaryHeads);
+  const secondaryKeys = Object.keys(rec.secondaryHeads);
+  const primarySection = primaryKeys.length
+    ? primaryKeys.map(hk=>renderHeadGroup(rec.primaryHeads[hk], false)).join('')
+    : `<p class="muted" style="font-size:12px;margin-top:8px;">Not directly targeted — only assisted by another exercise.</p>`;
+  const secondarySection = secondaryKeys.length ? `
+    <div class="mt" style="border-top:1px dashed var(--line);padding-top:8px;margin-top:12px;">
+      <span class="muted" style="font-size:11px;">Also assisted (secondary muscle):</span>
+      ${secondaryKeys.map(hk=>renderHeadGroup(rec.secondaryHeads[hk], true)).join('')}
     </div>` : '';
 
   return `<div class="card" id="mapmuscle-${muscleKey}" style="background:var(--card2);">
@@ -3839,9 +3867,8 @@ function renderMapThemMuscleCard(muscleKey, rec){
     <div class="anatomy-img-wrap" data-shape="${shape}" data-active="general" data-heads='${headsJson}' data-candidates='${candJson}' data-head-count="0" data-cand-idx="0">
       <img class="anatomy-img" src="${imgCandidates[0]}" alt="${escapeHtml(label)} anatomy illustration" loading="lazy">
     </div>
-    ${rec.primary.length ? `<div class="list" style="gap:2px;margin-top:8px;">${primaryRows}</div>` :
-      `<p class="muted" style="font-size:12px;margin-top:8px;">Not directly targeted — only assisted by another exercise.</p>`}
-    ${secondaryChips}
+    ${primarySection}
+    ${secondarySection}
   </div>`;
 }
 
