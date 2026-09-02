@@ -2731,6 +2731,7 @@ const LS_PROFILES = 'pk_profiles';
 const LS_ACTIVE = 'pk_active_profile';
 const LS_DATA_PREFIX = 'pk_data_';
 const LS_THEME = 'pk_theme';
+const LS_WEEKLY_MUSCLE_COLLAPSED = 'pk_weekly_muscle_card_collapsed';
 
 function loadProfiles(){ try{return JSON.parse(localStorage.getItem(LS_PROFILES))||[];}catch(e){return [];} }
 function saveProfiles(list){ localStorage.setItem(LS_PROFILES, JSON.stringify(list)); }
@@ -4376,10 +4377,20 @@ function getWeeklyMuscleHeadStatus(){
       const ex = EXERCISE_LIBRARY.find(x=>x.id===e.exerciseId);
       if(!ex) return;
       const pAnatomy = MUSCLE_ANATOMY[ex.primary];
-      if(pAnatomy) mark(ex.primary, classifyExerciseHead(ex, pAnatomy), 'primary');
+      if(pAnatomy){
+        mark(ex.primary, classifyExerciseHead(ex, pAnatomy), 'primary');
+        // Heads flagged `note:true` have no keywords of their own — no exercise in the
+        // library can ever match them directly, since they're never trained in isolation.
+        // They ARE trained whenever anything else on that muscle is hit as primary, so
+        // without this they'd permanently show up as "not trained" even after a full session.
+        pAnatomy.heads.forEach(h=>{ if(h.note) mark(ex.primary, h.key, 'primary'); });
+      }
       (ex.secondary||[]).forEach(sm=>{
         const sAnatomy = MUSCLE_ANATOMY[sm];
-        if(sAnatomy) mark(sm, classifyExerciseHead(ex, sAnatomy), 'secondary');
+        if(sAnatomy){
+          mark(sm, classifyExerciseHead(ex, sAnatomy), 'secondary');
+          sAnatomy.heads.forEach(h=>{ if(h.note) mark(sm, h.key, 'secondary'); });
+        }
       });
     });
   });
@@ -4399,32 +4410,49 @@ function getWeeklyMuscleHeadStatus(){
   return {dates, neverTrained, secondaryOnly};
 }
 
+function isWeeklyMuscleCardCollapsed(){ return localStorage.getItem(LS_WEEKLY_MUSCLE_COLLAPSED)==='1'; }
+function setWeeklyMuscleCardCollapsed(v){ localStorage.setItem(LS_WEEKLY_MUSCLE_COLLAPSED, v?'1':'0'); }
+
 function renderWeeklyMuscleCheckCard(){
   if(!shouldShowWeeklyMuscleCheck()) return '';
   const {dates, neverTrained, secondaryOnly} = getWeeklyMuscleHeadStatus();
+  const collapsed = isWeeklyMuscleCardCollapsed();
+  const caretStyle = `transition:transform .2s ease;transform:rotate(${collapsed?'-90deg':'0deg'});display:inline-block;`;
+  const toggleBtn = `<button type="button" class="btn sm" id="weeklyMuscleCollapseBtn" aria-expanded="${!collapsed}" style="padding:2px 8px;" title="${collapsed?'Expand':'Collapse'}"><span style="${caretStyle}">▾</span></button>`;
+
   if(neverTrained.length===0 && secondaryOnly.length===0){
     return `<div class="card mt" style="border-left:4px solid var(--r-fresh);margin-bottom:14px;">
-      <div class="card-title-row"><h3 style="margin:0;">🧩 This Week's Muscle Coverage</h3></div>
-      <p class="help" style="margin:6px 0 0;">Nice work — every muscle head was hit as a primary target Mon–Wed this week.</p>
+      <div class="card-title-row">
+        <h3 style="margin:0;">🧩 This Week's Muscle Coverage</h3>
+        ${toggleBtn}
+      </div>
+      <div id="weeklyMuscleCardBody" style="${collapsed?'display:none;':''}">
+        <p class="help" style="margin:6px 0 0;">Nice work — every muscle head was hit as a primary target Mon–Wed this week.</p>
+      </div>
     </div>`;
   }
   const chip = (e, dim)=>`<span class="chip ${dim?'':'on'}" style="cursor:pointer;font-size:11.5px;" data-goto-muscle="${e.muscleKey}" data-goto-head="${e.headKey}" title="${escapeHtml(e.headSub||'')}">${escapeHtml(e.muscleLabel)} — ${escapeHtml(e.headLabel)}</span>`;
   return `<div class="card mt" style="border-left:4px solid var(--r-old);margin-bottom:14px;">
     <div class="card-title-row">
       <h3 style="margin:0;">🧩 This Week's Muscle Coverage</h3>
-      <span class="muted" style="font-size:11px;">Mon–Wed check</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="muted" style="font-size:11px;">Mon–Wed check</span>
+        ${toggleBtn}
+      </div>
     </div>
-    ${neverTrained.length ? `
-      <div class="mt">
-        <span class="muted" style="font-size:12px;">Not trained at all (${neverTrained.length})</span>
-        <div class="chiprow mt">${neverTrained.map(e=>chip(e,false)).join('')}</div>
-      </div>` : ''}
-    ${secondaryOnly.length ? `
-      <div class="mt" style="${neverTrained.length?'border-top:1px dashed var(--line);padding-top:10px;':''}">
-        <span class="muted" style="font-size:12px;">Only hit as secondary / compound (${secondaryOnly.length})</span>
-        <div class="chiprow mt">${secondaryOnly.map(e=>chip(e,true)).join('')}</div>
-      </div>` : ''}
-    <p class="help" style="margin-top:10px;">Tap a muscle to jump straight to it in Anatomy.</p>
+    <div id="weeklyMuscleCardBody" style="${collapsed?'display:none;':''}">
+      ${neverTrained.length ? `
+        <div class="mt">
+          <span class="muted" style="font-size:12px;">Not trained at all (${neverTrained.length})</span>
+          <div class="chiprow mt">${neverTrained.map(e=>chip(e,false)).join('')}</div>
+        </div>` : ''}
+      ${secondaryOnly.length ? `
+        <div class="mt" style="${neverTrained.length?'border-top:1px dashed var(--line);padding-top:10px;':''}">
+          <span class="muted" style="font-size:12px;">Only hit as secondary / compound (${secondaryOnly.length})</span>
+          <div class="chiprow mt">${secondaryOnly.map(e=>chip(e,true)).join('')}</div>
+        </div>` : ''}
+      <p class="help" style="margin-top:10px;">Tap a muscle to jump straight to it in Anatomy.</p>
+    </div>
   </div>`;
 }
 
@@ -4436,6 +4464,19 @@ function wireWeeklyMuscleCheckCard(container){
       navigate('anatomy');
     };
   });
+  const toggleBtn = container.querySelector('#weeklyMuscleCollapseBtn');
+  const body = container.querySelector('#weeklyMuscleCardBody');
+  if(toggleBtn && body){
+    toggleBtn.onclick = ()=>{
+      const collapsedNow = body.style.display !== 'none';
+      body.style.display = collapsedNow ? 'none' : '';
+      const caret = toggleBtn.querySelector('span');
+      if(caret) caret.style.transform = collapsedNow ? 'rotate(-90deg)' : 'rotate(0deg)';
+      toggleBtn.setAttribute('aria-expanded', String(!collapsedNow));
+      toggleBtn.title = collapsedNow ? 'Expand' : 'Collapse';
+      setWeeklyMuscleCardCollapsed(collapsedNow);
+    };
+  }
 }
 
 function renderDashboard(){
