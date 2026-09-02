@@ -2732,6 +2732,7 @@ const LS_ACTIVE = 'pk_active_profile';
 const LS_DATA_PREFIX = 'pk_data_';
 const LS_THEME = 'pk_theme';
 const LS_WEEKLY_MUSCLE_COLLAPSED = 'pk_weekly_muscle_card_collapsed';
+const LS_WEEKLY_MUSCLE_GROUP_COLLAPSED = 'pk_weekly_muscle_group_collapsed';
 
 function loadProfiles(){ try{return JSON.parse(localStorage.getItem(LS_PROFILES))||[];}catch(e){return [];} }
 function saveProfiles(list){ localStorage.setItem(LS_PROFILES, JSON.stringify(list)); }
@@ -4413,6 +4414,36 @@ function getWeeklyMuscleHeadStatus(){
 function isWeeklyMuscleCardCollapsed(){ return localStorage.getItem(LS_WEEKLY_MUSCLE_COLLAPSED)==='1'; }
 function setWeeklyMuscleCardCollapsed(v){ localStorage.setItem(LS_WEEKLY_MUSCLE_COLLAPSED, v?'1':'0'); }
 
+// Per-muscle-group collapse state within the Weekly Muscle Coverage card.
+// Stored as a JSON array of muscleKeys that are currently collapsed.
+function getCollapsedMuscleGroups(){
+  try{ return new Set(JSON.parse(localStorage.getItem(LS_WEEKLY_MUSCLE_GROUP_COLLAPSED) || '[]')); }
+  catch(e){ return new Set(); }
+}
+function setMuscleGroupCollapsed(muscleKey, collapsed){
+  const set = getCollapsedMuscleGroups();
+  if(collapsed) set.add(muscleKey); else set.delete(muscleKey);
+  localStorage.setItem(LS_WEEKLY_MUSCLE_GROUP_COLLAPSED, JSON.stringify([...set]));
+}
+
+// Group the flat neverTrained/secondaryOnly entry lists by muscle, preserving
+// MUSCLE_ANATOMY's natural head order (upper/mid/lower/general etc.) within
+// each muscle so related sections like "Upper/Middle/Lower Chest" stay together.
+function groupMuscleEntriesByMuscle(neverTrained, secondaryOnly){
+  const groups = {}; // muscleKey -> {muscleKey, muscleLabel, neverTrained:[], secondaryOnly:[]}
+  const order = [];
+  const addTo = (listName, e)=>{
+    if(!groups[e.muscleKey]){
+      groups[e.muscleKey] = {muscleKey:e.muscleKey, muscleLabel:e.muscleLabel, neverTrained:[], secondaryOnly:[]};
+      order.push(e.muscleKey);
+    }
+    groups[e.muscleKey][listName].push(e);
+  };
+  neverTrained.forEach(e=>addTo('neverTrained', e));
+  secondaryOnly.forEach(e=>addTo('secondaryOnly', e));
+  return order.map(k=>groups[k]);
+}
+
 function renderWeeklyMuscleCheckCard(){
   if(!shouldShowWeeklyMuscleCheck()) return '';
   const {dates, neverTrained, secondaryOnly} = getWeeklyMuscleHeadStatus();
@@ -4431,7 +4462,37 @@ function renderWeeklyMuscleCheckCard(){
       </div>
     </div>`;
   }
-  const chip = (e, dim)=>`<span class="chip ${dim?'':'on'}" style="cursor:pointer;font-size:11.5px;" data-goto-muscle="${e.muscleKey}" data-goto-head="${e.headKey}" title="${escapeHtml(e.headSub||'')}">${escapeHtml(e.muscleLabel)} — ${escapeHtml(e.headLabel)}</span>`;
+  const chip = (e, dim)=>`<span class="chip ${dim?'':'on'}" style="cursor:pointer;font-size:11.5px;" data-goto-muscle="${e.muscleKey}" data-goto-head="${e.headKey}" title="${escapeHtml(e.headSub||'')}">${escapeHtml(e.headLabel)}</span>`;
+  const groups = groupMuscleEntriesByMuscle(neverTrained, secondaryOnly);
+  const collapsedGroups = getCollapsedMuscleGroups();
+
+  const groupHtml = groups.map(g=>{
+    const total = g.neverTrained.length + g.secondaryOnly.length;
+    const groupCollapsed = collapsedGroups.has(g.muscleKey);
+    const groupCaretStyle = `transition:transform .2s ease;transform:rotate(${groupCollapsed?'-90deg':'0deg'});display:inline-block;font-size:11px;`;
+    return `<div class="muscle-group" data-muscle-group="${g.muscleKey}" style="border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;">
+      <button type="button" class="muscle-group-toggle" data-group-toggle="${g.muscleKey}" style="display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;padding:0;text-align:left;">
+        <span style="font-weight:600;font-size:13px;">${escapeHtml(g.muscleLabel)}</span>
+        <span style="display:flex;align-items:center;gap:8px;">
+          <span class="muted" style="font-size:11px;">${total} head${total>1?'s':''}</span>
+          <span class="group-caret" style="${groupCaretStyle}">▾</span>
+        </span>
+      </button>
+      <div class="muscle-group-body" data-group-body="${g.muscleKey}" style="${groupCollapsed?'display:none;':''}margin-top:8px;">
+        ${g.neverTrained.length ? `
+          <div>
+            <span class="muted" style="font-size:11px;">Not trained at all (${g.neverTrained.length})</span>
+            <div class="chiprow mt" style="margin-top:6px;">${g.neverTrained.map(e=>chip(e,false)).join('')}</div>
+          </div>` : ''}
+        ${g.secondaryOnly.length ? `
+          <div style="${g.neverTrained.length?'margin-top:10px;border-top:1px dashed var(--line);padding-top:8px;':''}">
+            <span class="muted" style="font-size:11px;">Only hit as secondary / compound (${g.secondaryOnly.length})</span>
+            <div class="chiprow mt" style="margin-top:6px;">${g.secondaryOnly.map(e=>chip(e,true)).join('')}</div>
+          </div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
   return `<div class="card mt" style="border-left:4px solid var(--r-old);margin-bottom:14px;">
     <div class="card-title-row">
       <h3 style="margin:0;">🧩 This Week's Muscle Coverage</h3>
@@ -4441,17 +4502,8 @@ function renderWeeklyMuscleCheckCard(){
       </div>
     </div>
     <div id="weeklyMuscleCardBody" style="${collapsed?'display:none;':''}">
-      ${neverTrained.length ? `
-        <div class="mt">
-          <span class="muted" style="font-size:12px;">Not trained at all (${neverTrained.length})</span>
-          <div class="chiprow mt">${neverTrained.map(e=>chip(e,false)).join('')}</div>
-        </div>` : ''}
-      ${secondaryOnly.length ? `
-        <div class="mt" style="${neverTrained.length?'border-top:1px dashed var(--line);padding-top:10px;':''}">
-          <span class="muted" style="font-size:12px;">Only hit as secondary / compound (${secondaryOnly.length})</span>
-          <div class="chiprow mt">${secondaryOnly.map(e=>chip(e,true)).join('')}</div>
-        </div>` : ''}
-      <p class="help" style="margin-top:10px;">Tap a muscle to jump straight to it in Anatomy.</p>
+      <div class="list" style="gap:8px;">${groupHtml}</div>
+      <p class="help" style="margin-top:10px;">Tap a head to jump straight to it in Anatomy.</p>
     </div>
   </div>`;
 }
@@ -4462,6 +4514,18 @@ function wireWeeklyMuscleCheckCard(container){
       anatomySelectedMuscle = chipEl.dataset.gotoMuscle;
       anatomyScrollToHead = {muscle: chipEl.dataset.gotoMuscle, head: chipEl.dataset.gotoHead};
       navigate('anatomy');
+    };
+  });
+  container.querySelectorAll('[data-group-toggle]').forEach(btn=>{
+    btn.onclick = ()=>{
+      const muscleKey = btn.dataset.groupToggle;
+      const body = container.querySelector(`[data-group-body="${muscleKey}"]`);
+      if(!body) return;
+      const collapsedNow = body.style.display !== 'none';
+      body.style.display = collapsedNow ? 'none' : '';
+      const caret = btn.querySelector('.group-caret');
+      if(caret) caret.style.transform = collapsedNow ? 'rotate(-90deg)' : 'rotate(0deg)';
+      setMuscleGroupCollapsed(muscleKey, collapsedNow);
     };
   });
   const toggleBtn = container.querySelector('#weeklyMuscleCollapseBtn');
