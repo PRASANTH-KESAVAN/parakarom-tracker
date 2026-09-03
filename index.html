@@ -3077,6 +3077,9 @@ function loadActiveProfile(id){
   if(App.activeProfile.useCustomCalories === undefined) App.activeProfile.useCustomCalories = false;
   if(App.activeProfile.customCalories === undefined) App.activeProfile.customCalories = 2000;
   if(App.activeProfile.createdAt === undefined) App.activeProfile.createdAt = todayStr();
+  if(App.activeProfile.splitType === undefined) App.activeProfile.splitType = 'default';
+  if(!Array.isArray(App.activeProfile.splitCustomDays) || !App.activeProfile.splitCustomDays.length) App.activeProfile.splitCustomDays = freshCustomDays();
+  if(typeof suggestedWorkoutOverrideIdx !== 'undefined') suggestedWorkoutOverrideIdx = null;
   
   App.data = loadProfileData(id);
   setActiveProfileId(id);
@@ -5053,8 +5056,10 @@ function renderWorkoutLog(body){
     .filter(w=>w.date===d.date && w.id !== d.id)
     .sort((a,b)=> (b.createdAt||'').localeCompare(a.createdAt||''));
 
+  const showSuggestion = !d.id && d.date===todayStr();
   body.innerHTML = `
-    <div class="card">
+    ${showSuggestion ? renderSuggestedWorkoutCard() : ''}
+    <div class="card mt">
       <div class="card-title-row">
         ${d.id ? `<span class="chip on">Editing</span>` : ''}
         <input type="date" id="workoutDate" value="${d.date}" style="width:auto;">
@@ -5087,6 +5092,10 @@ function renderWorkoutLog(body){
         </div>
       </div>`;
     }).join('')).join('')}</div>` : ''}`;
+  if(showSuggestion){
+    const sugCard = document.getElementById('suggestedWorkoutCard');
+    if(sugCard) wireSuggestedWorkoutCard(sugCard);
+  }
   document.getElementById('workoutDate').onchange = (e)=>{ App.workoutDraft.date = e.target.value; renderWorkoutLog(body); };
   document.getElementById('addExerciseBtn').onclick = ()=>openExercisePicker();
   const mapThemBtn = document.getElementById('mapThemBtn');
@@ -8210,9 +8219,31 @@ const SPLIT_PRESETS = {
       {label:'Shoulders + Legs', muscles:['shoulders','quads','hamstrings','glutes','calves'], optional:[]}
     ]
   },
+  default2:{
+    name:'Chest/Tri/Abs · Back/Bi/Forearm · Shoulder/Legs ×2 (6-Day)',
+    days:[
+      {label:'Chest + Triceps + Abs', muscles:['chest','triceps'], optional:['abs']},
+      {label:'Back + Biceps + Forearm', muscles:['back','biceps','forearms'], optional:[]},
+      {label:'Shoulders + Legs', muscles:['shoulders','quads','hamstrings','glutes','calves'], optional:[]},
+      {label:'Chest + Triceps + Abs', muscles:['chest','triceps'], optional:['abs']},
+      {label:'Back + Biceps + Forearm', muscles:['back','biceps','forearms'], optional:[]},
+      {label:'Shoulders + Legs', muscles:['shoulders','quads','hamstrings','glutes','calves'], optional:[]}
+    ]
+  },
   ppl:{
     name:'Push / Pull / Legs',
     days:[
+      {label:'Push (Chest, Shoulders, Triceps)', muscles:['chest','shoulders','triceps'], optional:['abs']},
+      {label:'Pull (Back, Biceps, Forearm)', muscles:['back','biceps','forearms'], optional:[]},
+      {label:'Legs', muscles:['quads','hamstrings','glutes','calves'], optional:[]}
+    ]
+  },
+  ppl2:{
+    name:'Push / Pull / Legs ×2 (6-Day)',
+    days:[
+      {label:'Push (Chest, Shoulders, Triceps)', muscles:['chest','shoulders','triceps'], optional:['abs']},
+      {label:'Pull (Back, Biceps, Forearm)', muscles:['back','biceps','forearms'], optional:[]},
+      {label:'Legs', muscles:['quads','hamstrings','glutes','calves'], optional:[]},
       {label:'Push (Chest, Shoulders, Triceps)', muscles:['chest','shoulders','triceps'], optional:['abs']},
       {label:'Pull (Back, Biceps, Forearm)', muscles:['back','biceps','forearms'], optional:[]},
       {label:'Legs', muscles:['quads','hamstrings','glutes','calves'], optional:[]}
@@ -8230,9 +8261,107 @@ const SPLIT_PRESETS = {
     days:[
       {label:'Full Body', muscles:['chest','back','shoulders','quads','hamstrings','glutes','biceps','triceps'], optional:['abs']}
     ]
+  },
+  bro:{
+    name:'Bro Split (5-Day)',
+    days:[
+      {label:'Chest', muscles:['chest'], optional:['abs']},
+      {label:'Back', muscles:['back'], optional:['forearms']},
+      {label:'Shoulders', muscles:['shoulders'], optional:['abs']},
+      {label:'Legs', muscles:['quads','hamstrings','glutes','calves'], optional:[]},
+      {label:'Arms', muscles:['biceps','triceps'], optional:['forearms']}
+    ]
   }
 };
+const SPLIT_TYPE_OPTIONS = [
+  {key:'default', label:'Default — Chest+Tri / Back+Bi+Forearm / Shoulder+Legs (3-Day)'},
+  {key:'default2', label:'Chest+Tri+Abs / Back+Bi+Forearm / Shoulder+Legs ×2 (6-Day)'},
+  {key:'ppl', label:'Push / Pull / Legs (3-Day)'},
+  {key:'ppl2', label:'Push / Pull / Legs ×2 (6-Day)'},
+  {key:'upperlower', label:'Upper / Lower'},
+  {key:'fullbody', label:'Full Body'},
+  {key:'bro', label:'Bro Split — one muscle group per day (5-Day)'},
+  {key:'custom', label:'Custom Split'}
+];
 const PLAN_MUSCLES = MUSCLES.filter(m=>m.key!=='cardio');
+
+/* ---------- Training Split setting (Settings page) ---------- */
+let splitTypeUiState = null;
+function getSplitTypeUiState(p){
+  if(!splitTypeUiState || splitTypeUiState.profileId !== p.id){
+    splitTypeUiState = {
+      profileId: p.id,
+      splitType: p.splitType || 'default',
+      customDays: (Array.isArray(p.splitCustomDays) && p.splitCustomDays.length) ? JSON.parse(JSON.stringify(p.splitCustomDays)) : freshCustomDays()
+    };
+  }
+  return splitTypeUiState;
+}
+function renderSplitTypeCardBody(p){
+  const s = getSplitTypeUiState(p);
+  const preset = SPLIT_PRESETS[s.splitType];
+  return `
+    <div class="field">
+      <label>Choose your split</label>
+      <select id="splitTypeSelect">
+        ${SPLIT_TYPE_OPTIONS.map(o=>`<option value="${o.key}" ${s.splitType===o.key?'selected':''}>${escapeHtml(o.label)}</option>`).join('')}
+      </select>
+    </div>
+    ${s.splitType==='custom' ? `
+    <div class="mt">
+      <label>Build your split — add each training day and pick its muscle groups</label>
+      <div id="splitCustomDays">${s.customDays.map((d,i)=>`
+        <div class="custom-day-block" data-cdid="${d.id}">
+          <div class="cdb-head">
+            <input type="text" data-scd-label="${d.id}" value="${escapeHtml(d.label)}" placeholder="Day ${i+1} name">
+            ${s.customDays.length>1?`<button class="iconbtn danger" data-scd-del="${d.id}">✕</button>`:''}
+          </div>
+          <div class="cdb-muscles">${PLAN_MUSCLES.map(m=>`<button type="button" class="muscle-toggle ${d.muscles.includes(m.key)?'on':''}" data-scd-muscle="${d.id}:${m.key}">${m.label}</button>`).join('')}</div>
+        </div>`).join('')}</div>
+      <button class="btn sm ghost block mt" id="splitAddCustomDay">+ Add Another Day</button>
+    </div>` : `
+    <p class="help mt">${preset?escapeHtml(preset.days.map(d=>d.label).join(' → ')):''}</p>
+    `}
+    <button class="btn primary block mt" id="saveSplitBtn">💾 Save Split</button>
+    <p class="help" style="margin-top:8px;">This decides which muscles the Workout page suggests each day, prioritizing whatever you've missed.</p>
+  `;
+}
+function refreshSplitTypeCard(p){
+  const container = document.getElementById('splitTypeCard');
+  if(!container) return;
+  container.innerHTML = renderSplitTypeCardBody(p);
+  wireSplitTypeCard(p);
+}
+function wireSplitTypeCard(p){
+  const container = document.getElementById('splitTypeCard');
+  if(!container) return;
+  const s = getSplitTypeUiState(p);
+  const sel = document.getElementById('splitTypeSelect');
+  if(sel) sel.onchange = (e)=>{ s.splitType = e.target.value; refreshSplitTypeCard(p); };
+  const addDayBtn = document.getElementById('splitAddCustomDay');
+  if(addDayBtn) addDayBtn.onclick = ()=>{ s.customDays.push({id:uid(), label:'Day '+(s.customDays.length+1), muscles:[]}); refreshSplitTypeCard(p); };
+  container.querySelectorAll('[data-scd-del]').forEach(b=>b.onclick=()=>{ s.customDays = s.customDays.filter(d=>d.id!==b.dataset.scdDel); refreshSplitTypeCard(p); });
+  container.querySelectorAll('[data-scd-label]').forEach(inp=>inp.oninput=(e)=>{ const d=s.customDays.find(x=>x.id===inp.dataset.scdLabel); if(d) d.label=e.target.value; });
+  container.querySelectorAll('[data-scd-muscle]').forEach(b=>b.onclick=()=>{
+    const [id,muscle] = b.dataset.scdMuscle.split(':');
+    const d = s.customDays.find(x=>x.id===id); if(!d) return;
+    if(d.muscles.includes(muscle)) d.muscles = d.muscles.filter(m=>m!==muscle); else d.muscles.push(muscle);
+    refreshSplitTypeCard(p);
+  });
+  const saveBtn = document.getElementById('saveSplitBtn');
+  if(saveBtn) saveBtn.onclick = ()=>{
+    if(s.splitType==='custom'){
+      s.customDays = s.customDays.map(d=>({...d, label: d.label && d.label.trim() ? d.label.trim() : 'Custom Day'}));
+      if(!s.customDays.some(d=>d.muscles.length)){ toast('Add at least one muscle group to a custom day'); return; }
+    }
+    p.splitType = s.splitType;
+    if(s.splitType==='custom') p.splitCustomDays = JSON.parse(JSON.stringify(s.customDays));
+    saveProfiles(App.profiles);
+    persist();
+    suggestedWorkoutOverrideIdx = null;
+    toast('Training split saved 💪');
+  };
+}
 
 /* ---------- Equipment / Machine Availability ---------- */
 // Gyms vary a lot in which specific machines they stock (pec deck vs shoulder press machine,
@@ -8656,6 +8785,141 @@ function handleGenerateDraft(){
   if(existing){
     confirmDialog('You already have an active plan. Replace it with this new draft? (The old one moves to history.)', doGenerate, {yesLabel:'Replace', danger:false});
   } else doGenerate();
+}
+
+/* ---------- Suggested Workout (today, from profile split + missed muscles) ---------- */
+
+let suggestedWorkoutOverrideIdx = null;
+
+function getProfileSplitDef(p){
+  p = p || App.activeProfile;
+  const splitType = p.splitType || 'default';
+  if(splitType==='custom'){
+    const days = (Array.isArray(p.splitCustomDays) && p.splitCustomDays.length) ? p.splitCustomDays : freshCustomDays();
+    return {key:'custom', name:'Custom Split', days};
+  }
+  return {key:splitType, name:(SPLIT_PRESETS[splitType]||SPLIT_PRESETS.default).name, days:(SPLIT_PRESETS[splitType]||SPLIT_PRESETS.default).days};
+}
+
+// Days since each muscle was last hit as a PRIMARY target (a high number / Infinity means
+// "never trained" or very overdue) — this is what "missed muscle groups" is scored against,
+// independent of any fixed day-of-week rotation.
+function computeMuscleRecency(dateStr){
+  const map = {};
+  PLAN_MUSCLES.forEach(m=>{ map[m.key] = Infinity; });
+  [...App.data.workouts].sort((a,b)=>a.date.localeCompare(b.date)).forEach(w=>{
+    w.exercises.forEach(e=>{
+      const ex = EXERCISE_LIBRARY.find(x=>x.id===e.exerciseId);
+      if(!ex || !ex.primary) return;
+      if(map[ex.primary]===undefined) return;
+      map[ex.primary] = daysBetween(w.date, dateStr);
+    });
+  });
+  return map;
+}
+
+// Scores a split slot by how overdue its muscles are (higher = more missed = higher priority),
+// then picks the most-overdue slot. Ties fall back to whichever slot follows on naturally from
+// the last thing trained, same spirit as detectNextRotationIndex.
+function pickBestSplitSlot(rotation, dateStr, recencyMap){
+  const scored = rotation.map((slot,idx)=>{
+    const gaps = (slot.muscles||[]).map(m=> recencyMap[m]===Infinity ? 30 : recencyMap[m]); // cap "never" at 30d so it still sorts sensibly against itself
+    const score = gaps.length ? gaps.reduce((a,b)=>a+b,0)/gaps.length : -1;
+    return {slot, idx, score};
+  });
+  scored.sort((a,b)=> b.score-a.score || a.idx-b.idx);
+  return scored[0];
+}
+
+function suggestWorkoutForToday(dateStr){
+  dateStr = dateStr || todayStr();
+  const p = App.activeProfile;
+  const splitDef = getProfileSplitDef(p);
+  const rotation = (splitDef.days||[]).filter(d=>d.muscles && d.muscles.length);
+  if(!rotation.length) return null;
+  const recencyMap = computeMuscleRecency(dateStr);
+  const best = (suggestedWorkoutOverrideIdx!=null && rotation[suggestedWorkoutOverrideIdx])
+    ? {slot: rotation[suggestedWorkoutOverrideIdx], idx: suggestedWorkoutOverrideIdx}
+    : pickBestSplitSlot(rotation, dateStr, recencyMap);
+  const effMap = computeExerciseEffectiveness();
+  const usageMap = buildUsageMapFromHistory();
+  const exercises = pickExercisesForDay(best.slot.muscles, best.slot.optional, dateStr, usageMap, effMap);
+  const muscleBreakdown = (best.slot.muscles||[]).map(m=>{
+    const gap = recencyMap[m];
+    return {key:m, label:MUSCLE_LABEL[m]||m, neverTrained: gap===Infinity, daysSince: gap===Infinity?null:gap};
+  }).sort((a,b)=> (b.neverTrained?999:b.daysSince) - (a.neverTrained?999:a.daysSince));
+  return {splitName:splitDef.name, slot:best.slot, slotIndex:best.idx, rotation, muscleBreakdown, exercises, dateStr};
+}
+
+function renderSuggestedWorkoutCard(){
+  const suggestion = suggestWorkoutForToday();
+  if(!suggestion){
+    return `<div class="card mt" id="suggestedWorkoutCard" style="border-left:4px solid var(--r-mid);">
+      <div class="card-title-row"><h3 style="margin:0;">🎯 Suggested Workout</h3></div>
+      <p class="help" style="margin:6px 0 0;">Pick a training split in <b>Settings → Training Split</b> and I'll suggest each day's workout here, prioritizing whatever muscles you've missed.</p>
+    </div>`;
+  }
+  const muscleChips = suggestion.muscleBreakdown.map(m=>`
+    <span class="chip on" style="font-size:11.5px;" title="${m.neverTrained?'Never trained':m.daysSince+'d since last trained'}">
+      ${escapeHtml(m.label)} · ${m.neverTrained?'never trained':m.daysSince+'d ago'}
+    </span>`).join('');
+  const exRows = suggestion.exercises.map((e,i)=>{
+    const ex = EXERCISE_LIBRARY.find(x=>x.id===e.exerciseId);
+    return `<div class="item-row" data-sug-ex-row="${i}">
+      <div class="ii-main">
+        <div class="ii-title">${escapeHtml(ex?ex.name:'Unknown')} ${e.isHighEffective?'<span class="chip on" style="font-size:10px;">⭐ Top-rated</span>':''}</div>
+        <div class="ii-sub">${ex?escapeHtml(ex.cat+' · '+ex.variation):''}</div>
+      </div>
+      <div class="ii-actions"><button class="btn sm" data-sug-add="${i}">+ Add</button></div>
+    </div>`;
+  }).join('');
+  const otherDayOptions = suggestion.rotation.map((d,i)=>`<option value="${i}" ${i===suggestion.slotIndex?'selected':''}>${escapeHtml(d.label||'Day '+(i+1))}</option>`).join('');
+  return `<div class="card mt" id="suggestedWorkoutCard" style="border-left:4px solid var(--accent);">
+    <div class="card-title-row">
+      <h3 style="margin:0;">🎯 Suggested Workout Today</h3>
+      <span class="muted" style="font-size:11px;">${escapeHtml(suggestion.splitName)}</span>
+    </div>
+    <div class="field" style="margin:8px 0;">
+      <label>Split day</label>
+      <select id="sugDaySelect">${otherDayOptions}</select>
+    </div>
+    <p class="help" style="margin:2px 0 8px;">Picked <b>${escapeHtml(suggestion.slot.label||'')}</b> — most overdue muscles right now, based on when each was last trained:</p>
+    <div class="chiprow">${muscleChips}</div>
+    <div class="list mt" id="sugExList">${exRows}</div>
+    <p class="help" style="margin-top:8px;">Exercises are ranked using your Workout Analyzer ratings — top-rated picks are prioritized first.</p>
+    <button class="btn accent2 block mt" id="sugAddAllBtn">+ Add All to Today's Log</button>
+  </div>`;
+}
+
+function wireSuggestedWorkoutCard(container){
+  const daySel = container.querySelector('#sugDaySelect');
+  if(daySel){
+    daySel.onchange = ()=>{
+      suggestedWorkoutOverrideIdx = +daySel.value;
+      renderWorkoutLog(document.getElementById('workoutTabBody'));
+    };
+  }
+  const cur = suggestWorkoutForToday();
+  container.querySelectorAll('[data-sug-add]').forEach(btn=>{
+    btn.onclick = ()=>{
+      const i = +btn.dataset.sugAdd;
+      const e = cur.exercises[i];
+      if(!e) return;
+      App.workoutDraft.exercises.push({exerciseId:e.exerciseId, sets:getDefaultSetsForExercise(e.exerciseId), superset:null});
+      persist();
+      toast('Added to today\'s log');
+      renderWorkoutLog(document.getElementById('workoutTabBody'));
+    };
+  });
+  const addAllBtn = container.querySelector('#sugAddAllBtn');
+  if(addAllBtn) addAllBtn.onclick = ()=>{
+    cur.exercises.forEach(e=>{
+      App.workoutDraft.exercises.push({exerciseId:e.exerciseId, sets:getDefaultSetsForExercise(e.exerciseId), superset:null});
+    });
+    persist();
+    toast('Added '+cur.exercises.length+' exercises to today\'s log');
+    renderWorkoutLog(document.getElementById('workoutTabBody'));
+  };
 }
 
 /* ---------- Plan Display ---------- */
@@ -9143,6 +9407,11 @@ function renderSettingsPage(){
       </div>
     </div>
 
+    <div class="section-head"><h2>🏋️ Training Split</h2></div>
+    <div class="card" id="splitTypeCard">
+      ${renderSplitTypeCardBody(p)}
+    </div>
+
     <div class="section-head"><h2>Profiles</h2><button class="btn sm primary" id="addProfileBtn2">+ Add Profile</button></div>
     <div class="list">
       ${App.profiles.map(pr=>`
@@ -9198,6 +9467,7 @@ function renderSettingsPage(){
     <p class="help center mt">Parakarom stores everything locally in your browser. No accounts, no servers, no tracking.</p>
   `;
 
+  wireSplitTypeCard(p);
   document.getElementById('viewDigestBtn').onclick = openWeeklyDigestModal;
   ['remWater','remMeals','remWorkout'].forEach(id=>{
     document.getElementById(id).onchange = async (e)=>{
