@@ -5096,7 +5096,7 @@ function renderWorkoutLog(body){
     const sugCard = document.getElementById('suggestedWorkoutCard');
     if(sugCard) wireSuggestedWorkoutCard(sugCard);
   }
-  document.getElementById('workoutDate').onchange = (e)=>{ App.workoutDraft.date = e.target.value; renderWorkoutLog(body); };
+  document.getElementById('workoutDate').onchange = (e)=>{ App.workoutDraft.date = e.target.value; suggestedWorkoutOverrideIdx = null; renderWorkoutLog(body); };
   document.getElementById('addExerciseBtn').onclick = ()=>openExercisePicker();
   const mapThemBtn = document.getElementById('mapThemBtn');
   if(mapThemBtn) mapThemBtn.onclick = ()=>openMapThemModal(d.date);
@@ -8323,7 +8323,7 @@ function renderSplitTypeCardBody(p){
     <p class="help mt">${preset?escapeHtml(preset.days.map(d=>d.label).join(' → ')):''}</p>
     `}
     <button class="btn primary block mt" id="saveSplitBtn">💾 Save Split</button>
-    <p class="help" style="margin-top:8px;">This decides which muscles the Workout page suggests each day, prioritizing whatever you've missed.</p>
+    <p class="help" style="margin-top:8px;">This is laid across Monday–Saturday (Sunday is a rest day) — the Workout page suggests each calendar day's slot automatically.</p>
   `;
 }
 function refreshSplitTypeCard(p){
@@ -8787,9 +8787,9 @@ function handleGenerateDraft(){
   } else doGenerate();
 }
 
-/* ---------- Suggested Workout (today, from profile split + missed muscles) ---------- */
+/* ---------- Suggested Workout (today, from profile split + calendar day + missed muscles) ---------- */
 
-let suggestedWorkoutOverrideIdx = null;
+let suggestedWorkoutOverrideIdx = null; // null = follow the calendar; a number = forced slot; 'rest' = forced rest
 
 function getProfileSplitDef(p){
   p = p || App.activeProfile;
@@ -8802,8 +8802,8 @@ function getProfileSplitDef(p){
 }
 
 // Days since each muscle was last hit as a PRIMARY target (a high number / Infinity means
-// "never trained" or very overdue) — this is what "missed muscle groups" is scored against,
-// independent of any fixed day-of-week rotation.
+// "never trained") — used to annotate the calendar-picked day's muscles with how overdue
+// they are, so the card explains *why* today's slot matters.
 function computeMuscleRecency(dateStr){
   const map = {};
   PLAN_MUSCLES.forEach(m=>{ map[m.key] = Infinity; });
@@ -8818,17 +8818,17 @@ function computeMuscleRecency(dateStr){
   return map;
 }
 
-// Scores a split slot by how overdue its muscles are (higher = more missed = higher priority),
-// then picks the most-overdue slot. Ties fall back to whichever slot follows on naturally from
-// the last thing trained, same spirit as detectNextRotationIndex.
-function pickBestSplitSlot(rotation, dateStr, recencyMap){
-  const scored = rotation.map((slot,idx)=>{
-    const gaps = (slot.muscles||[]).map(m=> recencyMap[m]===Infinity ? 30 : recencyMap[m]); // cap "never" at 30d so it still sorts sensibly against itself
-    const score = gaps.length ? gaps.reduce((a,b)=>a+b,0)/gaps.length : -1;
-    return {slot, idx, score};
-  });
-  scored.sort((a,b)=> b.score-a.score || a.idx-b.idx);
-  return scored[0];
+const WEEKDAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+// The split's rotation is laid across Monday–Saturday (Sunday is always a rest day).
+// Monday = slot 0, Tuesday = slot 1, ... cycling back to slot 0 if the rotation is
+// shorter than 6 days (e.g. a 3-day split lands on Mon/Thu, Tue/Fri, Wed/Sat).
+// Returns null for Sunday.
+function getSlotIndexForWeekday(rotation, dateStr){
+  const jsDay = new Date(dateStr+'T00:00:00').getDay(); // 0=Sun,1=Mon,...6=Sat
+  if(jsDay===0) return null;
+  const mondayBasedIdx = jsDay-1; // Mon=0 ... Sat=5
+  return mondayBasedIdx % rotation.length;
 }
 
 function suggestWorkoutForToday(dateStr){
@@ -8837,18 +8837,35 @@ function suggestWorkoutForToday(dateStr){
   const splitDef = getProfileSplitDef(p);
   const rotation = (splitDef.days||[]).filter(d=>d.muscles && d.muscles.length);
   if(!rotation.length) return null;
+
+  const weekdayIdx = new Date(dateStr+'T00:00:00').getDay();
+  const weekdayLabel = WEEKDAY_NAMES[weekdayIdx];
+  const calendarSlotIdx = getSlotIndexForWeekday(rotation, dateStr); // null on Sunday
   const recencyMap = computeMuscleRecency(dateStr);
-  const best = (suggestedWorkoutOverrideIdx!=null && rotation[suggestedWorkoutOverrideIdx])
-    ? {slot: rotation[suggestedWorkoutOverrideIdx], idx: suggestedWorkoutOverrideIdx}
-    : pickBestSplitSlot(rotation, dateStr, recencyMap);
+
+  let slotIdx, isRestDay;
+  if(suggestedWorkoutOverrideIdx==='rest'){ isRestDay = true; slotIdx = null; }
+  else if(typeof suggestedWorkoutOverrideIdx==='number' && rotation[suggestedWorkoutOverrideIdx]){ isRestDay=false; slotIdx = suggestedWorkoutOverrideIdx; }
+  else if(calendarSlotIdx===null){ isRestDay = true; slotIdx = null; }
+  else { isRestDay = false; slotIdx = calendarSlotIdx; }
+
+  if(isRestDay){
+    return {rest:true, splitName:splitDef.name, rotation, dateStr, weekdayLabel, isOverridden: suggestedWorkoutOverrideIdx==='rest'};
+  }
+
+  const slot = rotation[slotIdx];
   const effMap = computeExerciseEffectiveness();
   const usageMap = buildUsageMapFromHistory();
-  const exercises = pickExercisesForDay(best.slot.muscles, best.slot.optional, dateStr, usageMap, effMap);
-  const muscleBreakdown = (best.slot.muscles||[]).map(m=>{
+  const exercises = pickExercisesForDay(slot.muscles, slot.optional, dateStr, usageMap, effMap);
+  const muscleBreakdown = (slot.muscles||[]).map(m=>{
     const gap = recencyMap[m];
     return {key:m, label:MUSCLE_LABEL[m]||m, neverTrained: gap===Infinity, daysSince: gap===Infinity?null:gap};
   }).sort((a,b)=> (b.neverTrained?999:b.daysSince) - (a.neverTrained?999:a.daysSince));
-  return {splitName:splitDef.name, slot:best.slot, slotIndex:best.idx, rotation, muscleBreakdown, exercises, dateStr};
+
+  return {
+    rest:false, splitName:splitDef.name, slot, slotIndex:slotIdx, rotation, muscleBreakdown, exercises,
+    dateStr, weekdayLabel, isOverridden: slotIdx!==calendarSlotIdx
+  };
 }
 
 function renderSuggestedWorkoutCard(){
@@ -8856,9 +8873,26 @@ function renderSuggestedWorkoutCard(){
   if(!suggestion){
     return `<div class="card mt" id="suggestedWorkoutCard" style="border-left:4px solid var(--r-mid);">
       <div class="card-title-row"><h3 style="margin:0;">🎯 Suggested Workout</h3></div>
-      <p class="help" style="margin:6px 0 0;">Pick a training split in <b>Settings → Training Split</b> and I'll suggest each day's workout here, prioritizing whatever muscles you've missed.</p>
+      <p class="help" style="margin:6px 0 0;">Pick a training split in <b>Settings → Training Split</b> and I'll suggest each day's workout here, following your Mon–Sat split schedule.</p>
     </div>`;
   }
+  const dayOptions = `<option value="rest" ${suggestion.rest?'selected':''}>😴 Rest Day</option>` +
+    suggestion.rotation.map((d,i)=>`<option value="${i}" ${(!suggestion.rest && i===suggestion.slotIndex)?'selected':''}>${escapeHtml(d.label||'Day '+(i+1))}</option>`).join('');
+
+  if(suggestion.rest){
+    return `<div class="card mt" id="suggestedWorkoutCard" style="border-left:4px solid var(--r-mid);">
+      <div class="card-title-row">
+        <h3 style="margin:0;">😴 Rest Day</h3>
+        <span class="muted" style="font-size:11px;">${escapeHtml(suggestion.weekdayLabel)} · ${escapeHtml(suggestion.splitName)}</span>
+      </div>
+      <div class="field" style="margin:8px 0;">
+        <label>Split day</label>
+        <select id="sugDaySelect">${dayOptions}</select>
+      </div>
+      <p class="help" style="margin:2px 0 0;">${suggestion.isOverridden ? 'Marked as a rest day.' : 'Sundays are a rest day in your Mon–Sat split.'} Pick a day above if you'd like to train anyway.</p>
+    </div>`;
+  }
+
   const muscleChips = suggestion.muscleBreakdown.map(m=>`
     <span class="chip on" style="font-size:11.5px;" title="${m.neverTrained?'Never trained':m.daysSince+'d since last trained'}">
       ${escapeHtml(m.label)} · ${m.neverTrained?'never trained':m.daysSince+'d ago'}
@@ -8873,17 +8907,16 @@ function renderSuggestedWorkoutCard(){
       <div class="ii-actions"><button class="btn sm" data-sug-add="${i}">+ Add</button></div>
     </div>`;
   }).join('');
-  const otherDayOptions = suggestion.rotation.map((d,i)=>`<option value="${i}" ${i===suggestion.slotIndex?'selected':''}>${escapeHtml(d.label||'Day '+(i+1))}</option>`).join('');
   return `<div class="card mt" id="suggestedWorkoutCard" style="border-left:4px solid var(--accent);">
     <div class="card-title-row">
-      <h3 style="margin:0;">🎯 Suggested Workout Today</h3>
+      <h3 style="margin:0;">🎯 Suggested Workout — ${escapeHtml(suggestion.weekdayLabel)}</h3>
       <span class="muted" style="font-size:11px;">${escapeHtml(suggestion.splitName)}</span>
     </div>
     <div class="field" style="margin:8px 0;">
       <label>Split day</label>
-      <select id="sugDaySelect">${otherDayOptions}</select>
+      <select id="sugDaySelect">${dayOptions}</select>
     </div>
-    <p class="help" style="margin:2px 0 8px;">Picked <b>${escapeHtml(suggestion.slot.label||'')}</b> — most overdue muscles right now, based on when each was last trained:</p>
+    <p class="help" style="margin:2px 0 8px;">${suggestion.isOverridden ? `Overridden to <b>${escapeHtml(suggestion.slot.label||'')}</b>.` : `<b>${escapeHtml(suggestion.slot.label||'')}</b> is scheduled for ${escapeHtml(suggestion.weekdayLabel)}.`} Here's how overdue each muscle is:</p>
     <div class="chiprow">${muscleChips}</div>
     <div class="list mt" id="sugExList">${exRows}</div>
     <p class="help" style="margin-top:8px;">Exercises are ranked using your Workout Analyzer ratings — top-rated picks are prioritized first.</p>
@@ -8895,11 +8928,12 @@ function wireSuggestedWorkoutCard(container){
   const daySel = container.querySelector('#sugDaySelect');
   if(daySel){
     daySel.onchange = ()=>{
-      suggestedWorkoutOverrideIdx = +daySel.value;
+      suggestedWorkoutOverrideIdx = daySel.value==='rest' ? 'rest' : +daySel.value;
       renderWorkoutLog(document.getElementById('workoutTabBody'));
     };
   }
   const cur = suggestWorkoutForToday();
+  if(cur && cur.rest) return; // nothing to add on a rest day
   container.querySelectorAll('[data-sug-add]').forEach(btn=>{
     btn.onclick = ()=>{
       const i = +btn.dataset.sugAdd;
