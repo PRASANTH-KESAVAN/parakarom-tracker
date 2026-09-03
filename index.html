@@ -450,6 +450,48 @@ label{font-size:12px;color:var(--text-dim);font-weight:600;display:block;margin-
 .bodymap-legend .sw{width:9px;height:9px;border-radius:3px;}
 .muscle-path{cursor:pointer;transition:opacity .25s ease, filter 0.25s ease;stroke:var(--bg-elev);stroke-width:1.5;}
 .muscle-path:hover{opacity:.85; filter: brightness(1.3) drop-shadow(0 0 8px currentColor);}
+
+/* ===================== SPLIT MANAGER ===================== */
+.split-select-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.split-select-row select{flex:1;min-width:160px;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:9px 10px;font-size:13.5px;font-weight:700;}
+.split-day-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;transition:border-color .2s ease;}
+.split-day-card:hover{border-color:var(--accent-dim);}
+.split-day-head{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;user-select:none;}
+.split-day-head .sdh-caret{transition:transform .22s ease;flex-shrink:0;color:var(--text-faint);font-size:12px;}
+.split-day-head .sdh-main{flex:1;min-width:0;}
+.split-day-head .sdh-title{font-family:var(--font-display);font-size:16px;letter-spacing:.02em;text-transform:uppercase;color:var(--text);}
+.split-day-head .sdh-sub{font-size:11px;color:var(--text-faint);margin-top:2px;}
+.split-day-head .sdh-actions{display:flex;gap:6px;flex-shrink:0;}
+.split-day-body{border-top:1px solid var(--line);padding:14px 16px;}
+.split-daymap-row{display:grid;grid-template-columns:150px 1fr;gap:16px;align-items:flex-start;margin-bottom:14px;}
+@media (max-width:520px){.split-daymap-row{grid-template-columns:1fr;}}
+.split-daymap-row .bodymap-wrap svg{max-width:150px;}
+.split-freqchips{display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start;}
+.split-freqchip{display:flex;align-items:center;gap:5px;background:var(--card2);border:1px solid var(--line);border-radius:999px;padding:4px 9px 4px 7px;font-size:10.5px;font-weight:700;color:var(--text-dim);}
+.split-freqchip .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.split-freqchip .cnt{color:var(--text-faint);font-weight:600;}
+.split-ex-card{background:var(--card2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:11px 12px;margin-bottom:10px;}
+.split-ex-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.split-ex-name{font-weight:700;font-size:13.5px;line-height:1.3;}
+.split-ex-equip{font-size:10.5px;color:var(--text-faint);margin-top:1px;}
+.split-ex-actions{display:flex;gap:5px;flex-shrink:0;}
+.split-ex-setsreps{margin-top:8px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+.split-ex-setsreps .big{font-family:var(--font-display);font-size:15px;color:var(--accent2);letter-spacing:.02em;}
+.split-ex-setsreps .lastlog{font-size:10.5px;color:var(--text-faint);}
+.split-ex-tagrow{margin-top:9px;display:flex;flex-wrap:wrap;gap:5px;}
+.split-ex-tag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--text-dim);background:var(--card);}
+.split-ex-tag.type-c{color:var(--accent);border-color:var(--accent-dim);background:var(--accent-dim);}
+.split-ex-tag.type-i{color:var(--accent2);border-color:var(--accent2-dim);background:var(--accent2-dim);}
+.split-ex-tag.primary{font-weight:800;}
+.split-ex-tag.secondary{opacity:.85;}
+.split-ex-seeanatomy{margin-top:9px;}
+.split-ex-seeanatomy button{font-size:11px;padding:5px 10px;}
+.split-adddaybtn{width:100%;padding:14px;border:2px dashed var(--line);border-radius:var(--radius);background:transparent;color:var(--text-faint);font-weight:700;font-size:13px;transition:all .2s ease;}
+.split-adddaybtn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim);}
+.split-summary-card table{width:100%;border-collapse:collapse;font-size:11.5px;}
+.split-summary-card th{text-align:left;color:var(--text-faint);font-size:10px;text-transform:uppercase;letter-spacing:.03em;padding:4px 6px;border-bottom:1px solid var(--line);}
+.split-summary-card td{padding:5px 6px;border-bottom:1px solid var(--line);}
+.split-summary-card tr:last-child td{border-bottom:none;}
 #muscleTooltip{
   position:fixed;background:rgba(23,26,31,0.95);border:1px solid var(--accent2);
   padding:7px 10px;border-radius:8px;font-size:12px;pointer-events:none;z-index:200;
@@ -938,6 +980,7 @@ table.edit-table td.col-del{width:32px;text-align:center;padding:6px;}
         <section id="page-goals" class="page"></section>
         <section id="page-library" class="page"></section>
         <section id="page-anatomy" class="page"></section>
+        <section id="page-splits" class="page"></section>
         <section id="page-guide" class="page"></section>
         <section id="page-settings" class="page"></section>
       </main>
@@ -3037,6 +3080,7 @@ const NAV_ITEMS = [
   {id:'workout',   label:'Workout',   ic:'🏋'},
   {id:'analyzer',  label:'Analyzer',  ic:'🗳️'},
   {id:'anatomy',   label:'Anatomy',   ic:'🧬'},
+  {id:'splits',    label:'Splits',    ic:'🗂️'},
   {id:'diet',      label:'Diet',      ic:'🍴'},
   {id:'scheduler', label:'Scheduler', ic:'📆'},
   {id:'progress',  label:'Progress',  ic:'📈'},
@@ -3306,6 +3350,7 @@ const PAGE_TITLES = {
   workout:['Workout','Log sets, reps & rest'],
   analyzer:['Workout Analyzer','5th-judge exercise ratings & AI comparison'],
   anatomy:['Muscle Anatomy','Head-by-head breakdown of every muscle'],
+  splits:['Split Manager','Design each split day with full muscle breakdown'],
   diet:['Diet','Track meals & macros'],
   scheduler:['Scheduler','Weekly split templates & last logged sets'],
   progress:['Progress','Trends over time'],
@@ -3409,6 +3454,7 @@ function renderPage(page){
   else if(page==='goals') renderGoalsPage();
   else if(page==='library') renderLibraryPage();
   else if(page==='anatomy') renderAnatomyPage();
+  else if(page==='splits') renderSplitManagerPage();
   else if(page==='guide') renderGuidePage();
   else if(page==='settings') renderSettingsPage();
 }
@@ -6624,6 +6670,674 @@ function openNewSchedTemplateModal(){
     renderSchedulerPage();
     toast('Scheduling has moved to weekly templates — create or edit them here.');
 }
+/* =========================================================================
+   SPLIT MANAGER — design each split day, assign exercises, and see a full
+   muscle breakdown (body map + primary/secondary + micro-muscle heads +
+   compound/isolation + weekly frequency) for every day in the split.
+   Sets/Reps shown for each exercise default to the most recently LOGGED
+   sets for that exercise (via getLastLoggedForExercise); until you've
+   logged it at least once, a starting target (editable) is shown instead.
+   ========================================================================= */
+function sx(exerciseId, targetSets, targetReps){ return {exerciseId, targetSets, targetReps}; }
+
+const DEFAULT_SPLITS = [
+  { name:'6-Day PPL x2 — Beginner Recomposition', days:[
+    { name:'Push A — Chest Focus', exercises:[
+      sx('push-up',3,'AMRAP'), sx('bench-press',3,'8-10'), sx('incline-db-press',3,'10-12'),
+      sx('chest-fly',3,'12-15'), sx('db-shoulder-press',3,'10-12'), sx('cable-lateral-raise',3,'12-15'),
+      sx('tricep-pushdown',3,'12-15'), sx('barbell-overhead-triceps-extension',2,'12-15'), sx('crunch',3,'15'),
+    ]},
+    { name:'Pull A — Back Width', exercises:[
+      sx('pull-up',4,'to failure'), sx('lat-pulldown',3,'10-12'), sx('seated-row',3,'10-12'),
+      sx('t-bar-row',3,'8-10'), sx('face-pull',3,'15'), sx('ez-bar-curl',3,'10-12'),
+      sx('preacher-curl',3,'12-15'), sx('wrist-curl',3,'15'), sx('plank',3,'30-45s'),
+    ]},
+    { name:'Legs A — Quad Focus', exercises:[
+      sx('barbell-back-squat',4,'8-10'), sx('leg-press',3,'10-12'), sx('leg-extension',3,'12-15'),
+      sx('dumbbell-walking-lunge',2,'10/leg'), sx('calf-raise',4,'15-20'), sx('hanging-raise',3,'15'),
+    ]},
+    { name:'Push B — Shoulder Focus', exercises:[
+      sx('push-up',3,'AMRAP'), sx('ohp',3,'8-10'), sx('incline-db-press',3,'10-12'),
+      sx('dips',3,'8-10'), sx('cable-lateral-raise',3,'12-15'), sx('chest-fly',2,'12-15'),
+      sx('skull-crusher',3,'10-12'), sx('cable-rope-pushdown',2,'15'), sx('crunch',3,'12/side'),
+    ]},
+    { name:'Pull B — Back Thickness + Biceps', exercises:[
+      sx('pull-up',4,'to failure'), sx('wide-grip-lat-pulldown',3,'10-12'), sx('barbell-row',3,'8-10'),
+      sx('close-grip-cable-row',3,'12'), sx('rear-delt-fly',3,'15'), sx('hammer-curl',3,'10-12'),
+      sx('standing-cable-curl',2,'12-15'), sx('barbell-reverse-curl',3,'15'), sx('crunch',3,'20/side'),
+    ]},
+    { name:'Legs B — Hamstring/Glute Focus', exercises:[
+      sx('hack-squat-machine',3,'10-12'), sx('barbell-romanian-deadlift',3,'10-12'), sx('lying-leg-curl',3,'12-15'),
+      sx('leg-extension',2,'15'), sx('calf-raise',4,'15-20'), sx('crunch',3,'20'),
+    ]},
+  ]},
+
+  { name:'5-Day PPL + Upper/Lower', days:[
+    { name:'Push — Heavy', exercises:[
+      sx('bench-press',4,'6-8'), sx('ohp',3,'8-10'), sx('incline-db-press',3,'8-10'),
+      sx('push-up',2,'AMRAP'), sx('tricep-pushdown',3,'12-15'), sx('cable-lateral-raise',2,'12-15'),
+    ]},
+    { name:'Pull — Heavy', exercises:[
+      sx('pull-up',4,'to failure'), sx('lat-pulldown',4,'8-10'), sx('barbell-row',3,'8-10'),
+      sx('seated-row',3,'10-12'), sx('face-pull',2,'15'), sx('ez-bar-curl',3,'10-12'), sx('wrist-curl',2,'15'),
+    ]},
+    { name:'Legs — Heavy', exercises:[
+      sx('barbell-back-squat',4,'6-8'), sx('barbell-romanian-deadlift',3,'8-10'), sx('leg-press',3,'10-12'),
+      sx('lying-leg-curl',3,'12-15'), sx('calf-raise',4,'15-20'), sx('hanging-raise',3,'15'),
+    ]},
+    { name:'Upper — Pump/Hypertrophy', exercises:[
+      sx('incline-db-press',3,'10-12'), sx('close-grip-lat-pulldown',3,'10-12'), sx('chest-fly',2,'12-15'),
+      sx('seated-row',3,'10-12'), sx('db-shoulder-press',2,'10-12'), sx('rear-delt-fly',2,'15'),
+      sx('hammer-curl',2,'10-12'), sx('skull-crusher',2,'10-12'), sx('preacher-curl',2,'12-15'), sx('cable-rope-pushdown',2,'15'),
+    ]},
+    { name:'Lower — Pump/Hypertrophy', exercises:[
+      sx('hack-squat-machine',3,'10-12'), sx('leg-extension',3,'12-15'), sx('dumbbell-walking-lunge',2,'10/leg'),
+      sx('lying-leg-curl',2,'12-15'), sx('calf-raise',4,'15-20'), sx('crunch',3,'15'), sx('hanging-raise',2,'20/side'),
+    ]},
+  ]},
+
+  { name:'6-Day Body Part Split (Chest/Back/Shoulder+Legs x2)', days:[
+    { name:'Chest + Triceps + Abs', exercises:[
+      sx('bench-press',4,'8-10'), sx('incline-db-press',3,'10-12'), sx('push-up',3,'AMRAP'),
+      sx('chest-fly',3,'12-15'), sx('dips',2,'8-10'), sx('tricep-pushdown',3,'12-15'),
+      sx('barbell-overhead-triceps-extension',2,'12-15'), sx('crunch',3,'15'), sx('hanging-raise',2,'15'),
+    ]},
+    { name:'Back + Biceps + Forearm', exercises:[
+      sx('pull-up',4,'to failure'), sx('lat-pulldown',3,'10-12'), sx('t-bar-row',3,'8-10'),
+      sx('seated-row',3,'10-12'), sx('face-pull',2,'15'), sx('ez-bar-curl',3,'10-12'),
+      sx('preacher-curl',3,'12-15'), sx('hammer-curl',2,'10-12'), sx('wrist-curl',3,'15'), sx('barbell-reverse-curl',2,'15'),
+    ]},
+    { name:'Shoulders + Legs', exercises:[
+      sx('barbell-back-squat',4,'8-10'), sx('leg-press',3,'10-12'), sx('lying-leg-curl',3,'12-15'),
+      sx('calf-raise',4,'15-20'), sx('ohp',3,'8-10'), sx('cable-lateral-raise',3,'12-15'), sx('rear-delt-fly',2,'15'),
+    ]},
+    { name:'Chest + Triceps + Abs (2)', exercises:[
+      sx('bench-press',4,'8-10'), sx('incline-db-press',3,'10-12'), sx('push-up',3,'AMRAP'),
+      sx('chest-fly',3,'12-15'), sx('dips',2,'8-10'), sx('tricep-pushdown',3,'12-15'),
+      sx('barbell-overhead-triceps-extension',2,'12-15'), sx('crunch',3,'15'), sx('hanging-raise',2,'15'),
+    ]},
+    { name:'Back + Biceps + Forearm (2)', exercises:[
+      sx('pull-up',4,'to failure'), sx('lat-pulldown',3,'10-12'), sx('t-bar-row',3,'8-10'),
+      sx('seated-row',3,'10-12'), sx('face-pull',2,'15'), sx('ez-bar-curl',3,'10-12'),
+      sx('preacher-curl',3,'12-15'), sx('hammer-curl',2,'10-12'), sx('wrist-curl',3,'15'), sx('barbell-reverse-curl',2,'15'),
+    ]},
+    { name:'Shoulders + Legs (2)', exercises:[
+      sx('barbell-back-squat',4,'8-10'), sx('leg-press',3,'10-12'), sx('lying-leg-curl',3,'12-15'),
+      sx('calf-raise',4,'15-20'), sx('ohp',3,'8-10'), sx('cable-lateral-raise',3,'12-15'), sx('rear-delt-fly',2,'15'),
+    ]},
+  ]},
+];
+
+function cloneDefaultSplits(){
+  return DEFAULT_SPLITS.map(s=>({
+    id: uid(),
+    name: s.name,
+    days: s.days.map(d=>({
+      id: uid(),
+      name: d.name,
+      exercises: d.exercises.map(e=>({...e})),
+    })),
+  }));
+}
+
+function ensureSplitsData(){
+  if(!App.data.mySplits) App.data.mySplits = [];
+  if(!App.data._defaultSplitsSeeded){
+    App.data.mySplits = App.data.mySplits.concat(cloneDefaultSplits());
+    App.data._defaultSplitsSeeded = true;
+    if(!App.data.activeSplitManagerId && App.data.mySplits[0]) App.data.activeSplitManagerId = App.data.mySplits[0].id;
+    persist();
+  }
+  if(!App.data.activeSplitManagerId && App.data.mySplits[0]){
+    App.data.activeSplitManagerId = App.data.mySplits[0].id;
+  }
+}
+
+// Rough compound-vs-isolation classifier based on movement pattern keywords in the exercise name.
+// Isolation checked first since some isolation names ("leg press"-like) can contain compound-sounding
+// words; the keyword lists below are ordered so the more specific/reliable signal wins.
+function classifyMechanics(ex){
+  const n = (ex.name||'').toLowerCase();
+  const isoKw = ['curl','extension','raise','fly','pushdown','kickback','crunch','shrug','pullover',
+    'face pull','skull crusher','adduction','abduction','rotation','wrist','plank','sit-up','twist'];
+  const compKw = ['press','squat','deadlift','row','pull-up','pulldown','dip','lunge','thrust','clean',
+    'snatch','push-up','good morning','step-up','step up'];
+  for(const k of isoKw){ if(n.includes(k)) return 'I'; }
+  for(const k of compKw){ if(n.includes(k)) return 'C'; }
+  return (ex.secondary && ex.secondary.length>0) ? 'C' : 'I';
+}
+
+// Build a muscle/head map for one split day the same shape as getMuscleMapForDate(),
+// but sourced from the day's assigned exercises instead of a logged date.
+function computeDayMuscleMap(day){
+  const map = {};
+  const ensureMuscle = (k)=>{ if(!map[k]) map[k] = {primaryHeads:{}, secondaryHeads:{}}; return map[k]; };
+  const ensureHead = (bucket, headKey, headDef)=>{
+    if(!bucket[headKey]) bucket[headKey] = {label: headDef?headDef.label:'Overall', sub: headDef?headDef.sub:'', exercises:[]};
+    return bucket[headKey];
+  };
+  (day.exercises||[]).forEach(de=>{
+    const ex = EXERCISE_LIBRARY.find(x=>x.id===de.exerciseId);
+    if(!ex) return;
+    const pAnatomy = MUSCLE_ANATOMY[ex.primary];
+    const pHeadKey = pAnatomy ? classifyExerciseHead(ex, pAnatomy) : 'general';
+    const pHeadDef = pAnatomy ? pAnatomy.heads.find(h=>h.key===pHeadKey) : null;
+    ensureHead(ensureMuscle(ex.primary).primaryHeads, pHeadKey, pHeadDef).exercises.push({name:ex.name, id:ex.id});
+    (ex.secondary||[]).forEach(sm=>{
+      const sAnatomy = MUSCLE_ANATOMY[sm];
+      const sHeadKey = sAnatomy ? classifyExerciseHead(ex, sAnatomy) : 'general';
+      const sHeadDef = sAnatomy ? sAnatomy.heads.find(h=>h.key===sHeadKey) : null;
+      ensureHead(ensureMuscle(sm).secondaryHeads, sHeadKey, sHeadDef).exercises.push({name:ex.name, id:ex.id});
+    });
+  });
+  return map;
+}
+
+// Across the WHOLE split, how many days hit a given muscle+head directly (primary) vs
+// indirectly (secondary/assisted). Used for per-exercise frequency badges & the summary table.
+function computeSplitHeadFrequency(split){
+  const freq = {}; // muscleKey -> headKey -> {direct:Set(dayIds), indirect:Set(dayIds)}
+  const bump = (muscleKey, headKey, dayId, kind)=>{
+    freq[muscleKey] = freq[muscleKey] || {};
+    freq[muscleKey][headKey] = freq[muscleKey][headKey] || {direct:new Set(), indirect:new Set()};
+    freq[muscleKey][headKey][kind].add(dayId);
+  };
+  (split.days||[]).forEach(day=>{
+    (day.exercises||[]).forEach(de=>{
+      const ex = EXERCISE_LIBRARY.find(x=>x.id===de.exerciseId);
+      if(!ex) return;
+      const pAnatomy = MUSCLE_ANATOMY[ex.primary];
+      const pHeadKey = pAnatomy ? classifyExerciseHead(ex, pAnatomy) : 'general';
+      bump(ex.primary, pHeadKey, day.id, 'direct');
+      (ex.secondary||[]).forEach(sm=>{
+        const sAnatomy = MUSCLE_ANATOMY[sm];
+        const sHeadKey = sAnatomy ? classifyExerciseHead(ex, sAnatomy) : 'general';
+        bump(sm, sHeadKey, day.id, 'indirect');
+      });
+    });
+  });
+  return freq;
+}
+
+let splitManagerOpenDays = new Set();   // dayIds currently expanded
+let splitManagerDayView = {};           // dayId -> 'front'|'back'
+
+function renderSplitManagerPage(){
+  ensureSplitsData();
+  const page = document.getElementById('page-splits');
+  const splits = App.data.mySplits;
+  const split = splits.find(s=>s.id===App.data.activeSplitManagerId) || splits[0];
+  if(split && !App.data.activeSplitManagerId) App.data.activeSplitManagerId = split.id;
+
+  page.innerHTML = `
+    <div class="card">
+      <div class="card-title-row"><h3 style="margin:0;">My Splits</h3><button class="btn sm primary" id="smNewSplitBtn">+ New Split</button></div>
+      <p class="help mb">Pick a split below to design each training day — assign exercises, and see the full muscle breakdown (body map, primary/secondary muscles, micro-muscle heads, compound vs. isolation, and weekly frequency) for every day. Sets &amp; reps shown default to your most recently logged numbers for that exercise.</p>
+      <div class="split-select-row">
+        <select id="smSplitSelect">
+          ${splits.map(s=>`<option value="${s.id}" ${split&&s.id===split.id?'selected':''}>${escapeHtml(s.name)}</option>`).join('')}
+        </select>
+        <button class="iconbtn" id="smRenameBtn" title="Rename split">✏️</button>
+        <button class="iconbtn" id="smDupBtn" title="Duplicate split">📄</button>
+        <button class="iconbtn danger" id="smDelBtn" title="Delete split">🗑</button>
+      </div>
+    </div>
+    <div id="smBody" class="mt"></div>
+  `;
+
+  document.getElementById('smNewSplitBtn').onclick = openNewSplitModal;
+  document.getElementById('smSplitSelect').onchange = (e)=>{
+    App.data.activeSplitManagerId = e.target.value;
+    persist();
+    renderSplitManagerPage();
+  };
+  document.getElementById('smRenameBtn').onclick = ()=> split && openRenameSplitModal(split.id);
+  document.getElementById('smDupBtn').onclick = ()=> split && duplicateSplit(split.id);
+  document.getElementById('smDelBtn').onclick = ()=> split && openDeleteSplitConfirm(split.id);
+
+  const body = document.getElementById('smBody');
+  if(!split){
+    body.innerHTML = `<div class="card"><div class="empty-state"><span class="ic">🗂️</span><p>No splits yet.</p></div></div>`;
+    return;
+  }
+  renderSplitDaysList(body, split);
+}
+
+function renderSplitDaysList(body, split){
+  const freq = computeSplitHeadFrequency(split);
+
+  body.innerHTML = `
+    <div id="smDaysWrap"></div>
+    <button class="split-adddaybtn" id="smAddDayBtn">+ Add Split Day</button>
+    <div class="card split-summary-card mt" id="smSummaryCard"></div>
+  `;
+  const daysWrap = document.getElementById('smDaysWrap');
+  daysWrap.innerHTML = (split.days||[]).map(day=>renderSplitDayCard(split, day, freq)).join('') ||
+    `<div class="card"><div class="empty-state"><span class="ic">📅</span><p>No days yet — add your first split day.</p></div></div>`;
+  wireSplitDayCards(daysWrap, split, freq);
+
+  document.getElementById('smAddDayBtn').onclick = ()=> openAddDayModal(split.id);
+  document.getElementById('smSummaryCard').innerHTML = renderSplitSummaryTable(split, freq);
+}
+
+function renderSplitDayCard(split, day, freq){
+  const isOpen = splitManagerOpenDays.has(day.id);
+  const dayMuscleMap = computeDayMuscleMap(day);
+  const primaryMuscleKeys = MUSCLES.map(m=>m.key).filter(k=>dayMuscleMap[k] && Object.keys(dayMuscleMap[k].primaryHeads).length>0);
+  const exCount = (day.exercises||[]).length;
+
+  return `
+  <div class="split-day-card" data-daycard="${day.id}">
+    <div class="split-day-head" data-daytoggle="${day.id}">
+      <span class="sdh-caret" style="transform:rotate(${isOpen?'0deg':'-90deg'});">▾</span>
+      <div class="sdh-main">
+        <div class="sdh-title">${escapeHtml(day.name||'Untitled Day')}</div>
+        <div class="sdh-sub">${exCount} exercise${exCount!==1?'s':''} · ${primaryMuscleKeys.length ? primaryMuscleKeys.map(k=>MUSCLE_LABEL[k]).join(', ') : 'No primary muscles yet'}</div>
+      </div>
+      <div class="sdh-actions">
+        <button class="iconbtn" data-renameday="${day.id}" title="Rename day">✏️</button>
+        <button class="iconbtn danger" data-delday="${day.id}" title="Delete day">🗑</button>
+      </div>
+    </div>
+    <div class="split-day-body" id="daybody-${day.id}" style="${isOpen?'':'display:none;'}">
+      <div class="split-daymap-row">
+        <div class="bodymap-wrap">
+          <div class="body-toggle" style="margin-bottom:2px;">
+            <button data-mapview="front" data-forday="${day.id}" class="${(splitManagerDayView[day.id]||'front')==='front'?'active':''}">Front</button>
+            <button data-mapview="back" data-forday="${day.id}" class="${(splitManagerDayView[day.id]||'front')==='back'?'active':''}">Back</button>
+          </div>
+          <div id="daymapsvg-${day.id}"></div>
+        </div>
+        <div>
+          <div class="help" style="margin:0 0 6px;">Muscles this day trains — solid highlight = primary target, softer highlight = assisted (secondary).</div>
+          <div class="split-freqchips">
+            ${MUSCLES.filter(m=>dayMuscleMap[m.key]).map(m=>{
+              const rec = dayMuscleMap[m.key];
+              const isPrimary = Object.keys(rec.primaryHeads).length>0;
+              return `<span class="split-freqchip"><span class="dot" style="background:${isPrimary?'var(--accent)':'var(--accent2)'};"></span>${escapeHtml(m.label)}</span>`;
+            }).join('') || '<span class="muted" style="font-size:11.5px;">Add an exercise to see the muscle map.</span>'}
+          </div>
+        </div>
+      </div>
+      <div id="dayexlist-${day.id}"></div>
+      <button class="btn sm ghost" data-addex="${day.id}" style="color:var(--accent2);">+ Add Exercise</button>
+    </div>
+  </div>`;
+}
+
+function renderSplitDayBodyMapSvg(dayId, dayMuscleMap){
+  const wrap = document.getElementById(`daymapsvg-${dayId}`);
+  if(!wrap) return;
+  const view = splitManagerDayView[dayId] || 'front';
+  const inner = view==='front' ? bodyFrontSVG() : bodyBackSVG();
+  wrap.innerHTML = `<svg viewBox="0 0 200 350" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
+  wrap.querySelectorAll('[data-muscle]').forEach(el=>{
+    const m = el.dataset.muscle;
+    const rec = dayMuscleMap[m];
+    el.classList.add('muscle-path');
+    let fill='var(--r-never)', opacity='0.32';
+    if(rec && Object.keys(rec.primaryHeads).length>0){ fill='var(--accent)'; opacity='0.95'; }
+    else if(rec && Object.keys(rec.secondaryHeads).length>0){ fill='var(--accent2)'; opacity='0.8'; }
+    el.setAttribute('fill', fill);
+    el.style.opacity = opacity;
+    if(rec){
+      el.style.cursor='pointer';
+      el.addEventListener('click', ()=>{
+        const card = document.getElementById(`dayex-musclejump-${dayId}-${m}`);
+        if(card) card.scrollIntoView({behavior:'smooth', block:'center'});
+      });
+    }
+  });
+}
+
+function renderSplitExerciseCard(split, day, de, idx, freq){
+  const ex = EXERCISE_LIBRARY.find(x=>x.id===de.exerciseId);
+  if(!ex){
+    return `<div class="split-ex-card"><div class="split-ex-top"><div class="ii-main"><div class="split-ex-name">Unknown exercise</div></div>
+      <div class="split-ex-actions"><button class="iconbtn danger" data-rmex="${day.id}:${idx}">✕</button></div></div></div>`;
+  }
+  const mech = classifyMechanics(ex);
+  const last = getLastLoggedForExercise(ex.id);
+  const isCardio = ex.cat === 'Cardio';
+
+  let setsRepsHtml;
+  if(last){
+    const setsTxt = last.sets.map(s=> isCardio ? `${s.reps||0}min${s.weight?` (Lvl ${s.weight})`:''}` : `${s.weight||0}kg×${s.reps||0}`).join('  ·  ');
+    setsRepsHtml = `<span class="big">${last.sets.length} sets</span><span class="lastlog">${setsTxt} <br>— from your last log (${fmtDate(last.date)})</span>`;
+  } else {
+    setsRepsHtml = `<span class="big">${de.targetSets||3} × ${escapeHtml(String(de.targetReps||'8-12'))}</span><span class="lastlog">starting target — log this exercise to auto-update</span>`;
+  }
+
+  const pAnatomy = MUSCLE_ANATOMY[ex.primary];
+  const pHeadKey = pAnatomy ? classifyExerciseHead(ex, pAnatomy) : 'general';
+  const pHeadDef = pAnatomy ? pAnatomy.heads.find(h=>h.key===pHeadKey) : null;
+  const pFreq = (freq[ex.primary]||{})[pHeadKey] || {direct:new Set(), indirect:new Set()};
+  const pTagLabel = pHeadDef && pHeadDef.key!=='general' ? `${MUSCLE_LABEL[ex.primary]} — ${pHeadDef.label}` : MUSCLE_LABEL[ex.primary];
+
+  const secondaryTagsHtml = (ex.secondary||[]).map(sm=>{
+    const sAnatomy = MUSCLE_ANATOMY[sm];
+    const sHeadKey = sAnatomy ? classifyExerciseHead(ex, sAnatomy) : 'general';
+    const sHeadDef = sAnatomy ? sAnatomy.heads.find(h=>h.key===sHeadKey) : null;
+    const sFreq = (freq[sm]||{})[sHeadKey] || {direct:new Set(), indirect:new Set()};
+    const label = sHeadDef && sHeadDef.key!=='general' ? `${MUSCLE_LABEL[sm]} — ${sHeadDef.label}` : MUSCLE_LABEL[sm];
+    const total = sFreq.direct.size + sFreq.indirect.size;
+    return `<span class="split-ex-tag secondary" data-gotomuscle="${sm}" data-gotohead="${sHeadKey}" style="cursor:pointer;" title="Secondary muscle — click to view anatomy">${escapeHtml(label)} · ${total}x/split</span>`;
+  }).join('');
+
+  const pTotal = pFreq.direct.size + pFreq.indirect.size;
+
+  return `<div class="split-ex-card" id="dayex-musclejump-${day.id}-${ex.primary}">
+    <div class="split-ex-top">
+      <div class="ii-main">
+        <div class="split-ex-name">${escapeHtml(ex.name)}</div>
+        <div class="split-ex-equip">${escapeHtml(ex.cat)} · ${escapeHtml(ex.equip)}${ex.variation?` · ${escapeHtml(ex.variation)}`:''}</div>
+      </div>
+      <div class="split-ex-actions">
+        <button class="iconbtn" data-moveex="${day.id}:${idx}:-1" title="Move up">↑</button>
+        <button class="iconbtn" data-moveex="${day.id}:${idx}:1" title="Move down">↓</button>
+        <button class="iconbtn" data-editex="${day.id}:${idx}" title="Edit starting target">🎯</button>
+        <button class="iconbtn danger" data-rmex="${day.id}:${idx}" title="Remove exercise">✕</button>
+      </div>
+    </div>
+    <div class="split-ex-setsreps">${setsRepsHtml}</div>
+    <div class="split-ex-tagrow">
+      <span class="split-ex-tag ${mech==='C'?'type-c':'type-i'}">${mech==='C'?'Compound':'Isolation'}</span>
+      <span class="split-ex-tag primary" data-gotomuscle="${ex.primary}" data-gotohead="${pHeadKey}" style="cursor:pointer;" title="Primary muscle — click to view anatomy">${escapeHtml(pTagLabel)} · ${pTotal}x/split</span>
+      ${secondaryTagsHtml}
+    </div>
+    <div class="split-ex-seeanatomy">
+      <button class="btn sm ghost" data-viewanatomy="${ex.primary}:${pHeadKey}">🧬 See Anatomy</button>
+    </div>
+  </div>`;
+}
+
+function renderSplitSummaryTable(split, freq){
+  const rows = MUSCLES.filter(m=>freq[m.key]).map(m=>{
+    const heads = freq[m.key];
+    let direct = new Set(), indirect = new Set();
+    Object.values(heads).forEach(h=>{ h.direct.forEach(d=>direct.add(d)); h.indirect.forEach(d=>indirect.add(d)); });
+    // indirect-only days (not already counted as direct)
+    const indirectOnly = new Set([...indirect].filter(d=>!direct.has(d)));
+    return `<tr>
+      <td>${escapeHtml(m.label)}</td>
+      <td>${direct.size ? direct.size+'x direct' : '—'}</td>
+      <td>${indirectOnly.size ? indirectOnly.size+'x indirect' : '—'}</td>
+    </tr>`;
+  }).join('');
+  return `
+    <div class="card-title-row"><h3 style="margin:0;">Weekly Muscle Frequency — ${escapeHtml(split.name)}</h3></div>
+    <p class="help mb">How often each muscle is trained across every day in this split.</p>
+    ${rows ? `<table><thead><tr><th>Muscle</th><th>Direct (primary)</th><th>Indirect (secondary)</th></tr></thead><tbody>${rows}</tbody></table>` :
+      `<p class="muted" style="font-size:12px;">Add exercises to your split days to see the frequency breakdown.</p>`}
+  `;
+}
+
+function wireSplitDayCards(daysWrap, split, freq){
+  // render each day's body map + exercise list, and wire all interactions
+  (split.days||[]).forEach(day=>{
+    const exListEl = document.getElementById(`dayexlist-${day.id}`);
+    if(exListEl){
+      exListEl.innerHTML = (day.exercises||[]).map((de,idx)=>renderSplitExerciseCard(split, day, de, idx, freq)).join('') ||
+        `<div class="empty-state" style="padding:14px;"><p style="font-size:12px;">No exercises yet — add one below.</p></div>`;
+    }
+    if(splitManagerOpenDays.has(day.id)){
+      renderSplitDayBodyMapSvg(day.id, computeDayMuscleMap(day));
+    }
+  });
+
+  daysWrap.querySelectorAll('[data-daytoggle]').forEach(head=>{
+    head.onclick = ()=>{
+      const dayId = head.dataset.daytoggle;
+      const bodyEl = document.getElementById(`daybody-${dayId}`);
+      const caret = head.querySelector('.sdh-caret');
+      const nowOpen = bodyEl.style.display === 'none';
+      bodyEl.style.display = nowOpen ? '' : 'none';
+      caret.style.transform = nowOpen ? 'rotate(0deg)' : 'rotate(-90deg)';
+      if(nowOpen){
+        splitManagerOpenDays.add(dayId);
+        const day = split.days.find(d=>d.id===dayId);
+        renderSplitDayBodyMapSvg(dayId, computeDayMuscleMap(day));
+      } else {
+        splitManagerOpenDays.delete(dayId);
+      }
+    };
+  });
+
+  daysWrap.querySelectorAll('[data-mapview]').forEach(btn=>{
+    btn.onclick = (e)=>{
+      e.stopPropagation();
+      const dayId = btn.dataset.forday;
+      splitManagerDayView[dayId] = btn.dataset.mapview;
+      const day = split.days.find(d=>d.id===dayId);
+      btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b===btn));
+      renderSplitDayBodyMapSvg(dayId, computeDayMuscleMap(day));
+    };
+  });
+
+  daysWrap.querySelectorAll('[data-renameday]').forEach(btn=>{
+    btn.onclick = (e)=>{ e.stopPropagation(); openRenameDayModal(split.id, btn.dataset.renameday); };
+  });
+  daysWrap.querySelectorAll('[data-delday]').forEach(btn=>{
+    btn.onclick = (e)=>{ e.stopPropagation(); openDeleteDayConfirm(split.id, btn.dataset.delday); };
+  });
+  daysWrap.querySelectorAll('[data-addex]').forEach(btn=>{
+    btn.onclick = ()=>{
+      const dayId = btn.dataset.addex;
+      openExercisePicker((exerciseId)=>{
+        const day = split.days.find(d=>d.id===dayId);
+        const exDef = EXERCISE_LIBRARY.find(x=>x.id===exerciseId);
+        day.exercises.push(sx(exerciseId, 3, exDef && exDef.cat==='Cardio' ? '15 min' : '8-12'));
+        splitManagerOpenDays.add(dayId);
+        persist();
+        renderSplitDaysList(document.getElementById('smBody'), split);
+      });
+    };
+  });
+  daysWrap.querySelectorAll('[data-rmex]').forEach(btn=>{
+    btn.onclick = ()=>{
+      const [dayId, idx] = btn.dataset.rmex.split(':');
+      const day = split.days.find(d=>d.id===dayId);
+      day.exercises.splice(+idx,1);
+      persist();
+      renderSplitDaysList(document.getElementById('smBody'), split);
+    };
+  });
+  daysWrap.querySelectorAll('[data-moveex]').forEach(btn=>{
+    btn.onclick = ()=>{
+      const [dayId, idxStr, dirStr] = btn.dataset.moveex.split(':');
+      const idx = +idxStr, dir = +dirStr;
+      const day = split.days.find(d=>d.id===dayId);
+      const newIdx = idx+dir;
+      if(newIdx<0 || newIdx>=day.exercises.length) return;
+      const tmp = day.exercises[idx]; day.exercises[idx]=day.exercises[newIdx]; day.exercises[newIdx]=tmp;
+      persist();
+      renderSplitDaysList(document.getElementById('smBody'), split);
+    };
+  });
+  daysWrap.querySelectorAll('[data-editex]').forEach(btn=>{
+    btn.onclick = ()=>{
+      const [dayId, idx] = btn.dataset.editex.split(':');
+      openEditTargetModal(split.id, dayId, +idx);
+    };
+  });
+  daysWrap.querySelectorAll('[data-viewanatomy],[data-gotomuscle]').forEach(el=>{
+    el.onclick = ()=>{
+      const muscleKey = el.dataset.gotomuscle || (el.dataset.viewanatomy||'').split(':')[0];
+      const headKey = el.dataset.gotohead || (el.dataset.viewanatomy||'').split(':')[1];
+      anatomySelectedMuscle = muscleKey;
+      anatomyScrollToHead = {muscle: muscleKey, head: headKey};
+      navigate('anatomy');
+    };
+  });
+}
+
+function openNewSplitModal(){
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = `
+    <div class="modal-backdrop" id="mbNewSplit">
+      <div class="modal">
+        <div class="modal-head"><h2>New Split</h2><button class="modal-close" id="mcNewSplit">&times;</button></div>
+        <div class="field"><label>Split Name</label><input type="text" id="newSplitName" placeholder="e.g. Upper/Lower x3"></div>
+        <button class="btn primary block mt" id="saveNewSplitBtn">Create Split</button>
+      </div>
+    </div>`;
+  document.getElementById('mcNewSplit').onclick = closeModal;
+  document.getElementById('mbNewSplit').onclick = (e)=>{ if(e.target.id==='mbNewSplit') closeModal(); };
+  document.getElementById('saveNewSplitBtn').onclick = ()=>{
+    const name = document.getElementById('newSplitName').value.trim();
+    if(!name){ toast('Please enter a split name'); return; }
+    const s = {id:uid(), name, days:[]};
+    App.data.mySplits.push(s);
+    App.data.activeSplitManagerId = s.id;
+    persist();
+    closeModal();
+    renderSplitManagerPage();
+    toast('Split created — now add some days');
+  };
+}
+
+function openRenameSplitModal(splitId){
+  const split = App.data.mySplits.find(s=>s.id===splitId);
+  if(!split) return;
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = `
+    <div class="modal-backdrop" id="mbRenSplit">
+      <div class="modal">
+        <div class="modal-head"><h2>Rename Split</h2><button class="modal-close" id="mcRenSplit">&times;</button></div>
+        <div class="field"><label>Split Name</label><input type="text" id="renSplitName" value="${escapeHtml(split.name)}"></div>
+        <button class="btn primary block mt" id="saveRenSplitBtn">Save</button>
+      </div>
+    </div>`;
+  document.getElementById('mcRenSplit').onclick = closeModal;
+  document.getElementById('mbRenSplit').onclick = (e)=>{ if(e.target.id==='mbRenSplit') closeModal(); };
+  document.getElementById('saveRenSplitBtn').onclick = ()=>{
+    const name = document.getElementById('renSplitName').value.trim();
+    if(!name){ toast('Please enter a split name'); return; }
+    split.name = name;
+    persist();
+    closeModal();
+    renderSplitManagerPage();
+  };
+}
+
+function duplicateSplit(splitId){
+  const split = App.data.mySplits.find(s=>s.id===splitId);
+  if(!split) return;
+  const copy = {
+    id: uid(), name: split.name+' (Copy)',
+    days: split.days.map(d=>({id:uid(), name:d.name, exercises:d.exercises.map(e=>({...e}))})),
+  };
+  App.data.mySplits.push(copy);
+  App.data.activeSplitManagerId = copy.id;
+  persist();
+  renderSplitManagerPage();
+  toast('Split duplicated');
+}
+
+function openDeleteSplitConfirm(splitId){
+  const split = App.data.mySplits.find(s=>s.id===splitId);
+  if(!split) return;
+  confirmDialog(`Delete "${split.name}"? This cannot be undone.`, ()=>{
+    App.data.mySplits = App.data.mySplits.filter(s=>s.id!==splitId);
+    if(App.data.activeSplitManagerId===splitId){
+      App.data.activeSplitManagerId = (App.data.mySplits[0]||{}).id || null;
+    }
+    persist();
+    renderSplitManagerPage();
+  }, {danger:true, yesLabel:'Delete'});
+}
+
+function openAddDayModal(splitId){
+  const split = App.data.mySplits.find(s=>s.id===splitId);
+  if(!split) return;
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = `
+    <div class="modal-backdrop" id="mbAddDay">
+      <div class="modal">
+        <div class="modal-head"><h2>Add Split Day</h2><button class="modal-close" id="mcAddDay">&times;</button></div>
+        <div class="field"><label>Day Name</label><input type="text" id="newDayName" placeholder="e.g. Push A — Chest Focus"></div>
+        <button class="btn primary block mt" id="saveAddDayBtn">Add Day</button>
+      </div>
+    </div>`;
+  document.getElementById('mcAddDay').onclick = closeModal;
+  document.getElementById('mbAddDay').onclick = (e)=>{ if(e.target.id==='mbAddDay') closeModal(); };
+  document.getElementById('saveAddDayBtn').onclick = ()=>{
+    const name = document.getElementById('newDayName').value.trim();
+    if(!name){ toast('Please enter a day name'); return; }
+    const d = {id:uid(), name, exercises:[]};
+    split.days.push(d);
+    splitManagerOpenDays.add(d.id);
+    persist();
+    closeModal();
+    renderSplitManagerPage();
+  };
+}
+
+function openRenameDayModal(splitId, dayId){
+  const split = App.data.mySplits.find(s=>s.id===splitId);
+  const day = split && split.days.find(d=>d.id===dayId);
+  if(!day) return;
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = `
+    <div class="modal-backdrop" id="mbRenDay">
+      <div class="modal">
+        <div class="modal-head"><h2>Rename Day</h2><button class="modal-close" id="mcRenDay">&times;</button></div>
+        <div class="field"><label>Day Name</label><input type="text" id="renDayName" value="${escapeHtml(day.name)}"></div>
+        <button class="btn primary block mt" id="saveRenDayBtn">Save</button>
+      </div>
+    </div>`;
+  document.getElementById('mcRenDay').onclick = closeModal;
+  document.getElementById('mbRenDay').onclick = (e)=>{ if(e.target.id==='mbRenDay') closeModal(); };
+  document.getElementById('saveRenDayBtn').onclick = ()=>{
+    const name = document.getElementById('renDayName').value.trim();
+    if(!name){ toast('Please enter a day name'); return; }
+    day.name = name;
+    persist();
+    closeModal();
+    renderSplitManagerPage();
+  };
+}
+
+function openDeleteDayConfirm(splitId, dayId){
+  const split = App.data.mySplits.find(s=>s.id===splitId);
+  const day = split && split.days.find(d=>d.id===dayId);
+  if(!day) return;
+  confirmDialog(`Delete "${day.name}"? This cannot be undone.`, ()=>{
+    split.days = split.days.filter(d=>d.id!==dayId);
+    splitManagerOpenDays.delete(dayId);
+    persist();
+    renderSplitManagerPage();
+  }, {danger:true, yesLabel:'Delete'});
+}
+
+function openEditTargetModal(splitId, dayId, idx){
+  const split = App.data.mySplits.find(s=>s.id===splitId);
+  const day = split && split.days.find(d=>d.id===dayId);
+  const de = day && day.exercises[idx];
+  if(!de) return;
+  const exDef = EXERCISE_LIBRARY.find(x=>x.id===de.exerciseId);
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = `
+    <div class="modal-backdrop" id="mbEditTarget">
+      <div class="modal">
+        <div class="modal-head"><h2>Starting Target</h2><button class="modal-close" id="mcEditTarget">&times;</button></div>
+        <p class="help mb">${exDef?escapeHtml(exDef.name):'Exercise'} — this is only shown until you log this exercise for the first time; after that, the plan automatically shows your last logged sets &amp; reps instead.</p>
+        <div class="field"><label>Sets</label><input type="number" id="targetSetsInp" min="1" max="10" value="${de.targetSets||3}"></div>
+        <div class="field"><label>Reps (e.g. "8-10", "AMRAP", "30-45s")</label><input type="text" id="targetRepsInp" value="${escapeHtml(String(de.targetReps||''))}"></div>
+        <button class="btn primary block mt" id="saveEditTargetBtn">Save</button>
+      </div>
+    </div>`;
+  document.getElementById('mcEditTarget').onclick = closeModal;
+  document.getElementById('mbEditTarget').onclick = (e)=>{ if(e.target.id==='mbEditTarget') closeModal(); };
+  document.getElementById('saveEditTargetBtn').onclick = ()=>{
+    de.targetSets = clamp(+document.getElementById('targetSetsInp').value||3, 1, 10);
+    de.targetReps = document.getElementById('targetRepsInp').value.trim() || '8-12';
+    persist();
+    closeModal();
+    renderSplitManagerPage();
+  };
+}
+
 function renderProgressPage(){
   const page = document.getElementById('page-progress');
   const logs = [...App.data.weightLogs].sort((a,b)=>a.date.localeCompare(b.date));
