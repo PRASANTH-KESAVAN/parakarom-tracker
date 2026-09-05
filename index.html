@@ -488,9 +488,21 @@ label{font-size:12px;color:var(--text-dim);font-weight:600;display:block;margin-
 .split-ex-seeanatomy button{font-size:11px;padding:5px 10px;}
 .split-adddaybtn{width:100%;padding:14px;border:2px dashed var(--line);border-radius:var(--radius);background:transparent;color:var(--text-faint);font-weight:700;font-size:13px;transition:all .2s ease;}
 .split-adddaybtn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim);}
+.split-warmup-block{border:1px solid var(--line);border-radius:var(--radius-sm);margin-bottom:14px;overflow:hidden;background:var(--card2);}
+.split-warmup-head{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;user-select:none;}
+.split-warmup-head .swh-caret{transition:transform .22s ease;flex-shrink:0;color:var(--text-faint);font-size:11px;}
+.split-warmup-head .swh-title{font-weight:800;font-size:12.5px;color:var(--warn, #f0a020);flex:1;}
+.split-warmup-head .swh-count{font-size:10.5px;color:var(--text-faint);}
+.split-warmup-body{padding:0 12px 12px;border-top:1px solid var(--line);}
+.split-warmup-group{margin-top:10px;}
+.split-warmup-group .swg-label{font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-faint);font-weight:800;margin-bottom:5px;}
+.split-warmup-item{display:flex;gap:7px;align-items:flex-start;font-size:12px;color:var(--text-dim);padding:3px 0;}
+.split-warmup-item .swi-bullet{color:var(--accent2);flex-shrink:0;margin-top:1px;}
+.split-warmup-item .swi-name{font-weight:700;color:var(--text);}
+.split-warmup-empty{font-size:11.5px;color:var(--text-faint);padding:10px 0 2px;}
 .split-summary-card table{width:100%;border-collapse:collapse;font-size:11.5px;}
-.split-summary-card th{text-align:left;color:var(--text-faint);font-size:10px;text-transform:uppercase;letter-spacing:.03em;padding:4px 6px;border-bottom:1px solid var(--line);}
-.split-summary-card td{padding:5px 6px;border-bottom:1px solid var(--line);}
+.split-summary-card th{text-align:left;color:var(--text-faint);font-size:10px;text-transform:uppercase;letter-spacing:.03em;padding:4px 6px;border-bottom:1px solid var(--line);white-space:nowrap;}
+.split-summary-card td{padding:5px 6px;border-bottom:1px solid var(--line);white-space:nowrap;}
 .split-summary-card tr:last-child td{border-bottom:none;}
 #muscleTooltip{
   position:fixed;background:rgba(23,26,31,0.95);border:1px solid var(--accent2);
@@ -6686,15 +6698,18 @@ const DEFAULT_SPLITS = [
       sx('push-up',3,'AMRAP'), sx('bench-press',3,'8-10'), sx('incline-db-press',3,'10-12'),
       sx('chest-fly',3,'12-15'), sx('db-shoulder-press',3,'10-12'), sx('cable-lateral-raise',3,'12-15'),
       sx('tricep-pushdown',3,'12-15'), sx('barbell-overhead-triceps-extension',2,'12-15'), sx('crunch',3,'15'),
+      sx('incline-walk',1,'15-20 min'),
     ]},
     { name:'Pull A — Back Width', exercises:[
       sx('pull-up',4,'to failure'), sx('lat-pulldown',3,'10-12'), sx('seated-row',3,'10-12'),
       sx('t-bar-row',3,'8-10'), sx('face-pull',3,'15'), sx('ez-bar-curl',3,'10-12'),
       sx('preacher-curl',3,'12-15'), sx('wrist-curl',3,'15'), sx('plank',3,'30-45s'),
+      sx('incline-walk',1,'15-20 min'),
     ]},
     { name:'Legs A — Quad Focus', exercises:[
       sx('barbell-back-squat',4,'8-10'), sx('leg-press',3,'10-12'), sx('leg-extension',3,'12-15'),
       sx('dumbbell-walking-lunge',2,'10/leg'), sx('calf-raise',4,'15-20'), sx('hanging-raise',3,'15'),
+      sx('lying-leg-curl',3,'12-15'), sx('barbell-hip-thrust',3,'10-12'), sx('deadlift',2,'5'),
     ]},
     { name:'Push B — Shoulder Focus', exercises:[
       sx('push-up',3,'AMRAP'), sx('ohp',3,'8-10'), sx('incline-db-press',3,'10-12'),
@@ -6705,10 +6720,12 @@ const DEFAULT_SPLITS = [
       sx('pull-up',4,'to failure'), sx('wide-grip-lat-pulldown',3,'10-12'), sx('barbell-row',3,'8-10'),
       sx('close-grip-cable-row',3,'12'), sx('rear-delt-fly',3,'15'), sx('hammer-curl',3,'10-12'),
       sx('standing-cable-curl',2,'12-15'), sx('barbell-reverse-curl',3,'15'), sx('crunch',3,'20/side'),
+      sx('barbell-shrug',3,'12-15'),
     ]},
     { name:'Legs B — Hamstring/Glute Focus', exercises:[
       sx('hack-squat-machine',3,'10-12'), sx('barbell-romanian-deadlift',3,'10-12'), sx('lying-leg-curl',3,'12-15'),
       sx('leg-extension',2,'15'), sx('calf-raise',4,'15-20'), sx('crunch',3,'20'),
+      sx('deadlift',2,'5'),
     ]},
   ]},
 
@@ -6716,23 +6733,28 @@ const DEFAULT_SPLITS = [
     { name:'Push — Heavy', exercises:[
       sx('bench-press',4,'6-8'), sx('ohp',3,'8-10'), sx('incline-db-press',3,'8-10'),
       sx('push-up',2,'AMRAP'), sx('tricep-pushdown',3,'12-15'), sx('cable-lateral-raise',2,'12-15'),
+      sx('incline-walk',1,'15-20 min'),
     ]},
     { name:'Pull — Heavy', exercises:[
       sx('pull-up',4,'to failure'), sx('lat-pulldown',4,'8-10'), sx('barbell-row',3,'8-10'),
       sx('seated-row',3,'10-12'), sx('face-pull',2,'15'), sx('ez-bar-curl',3,'10-12'), sx('wrist-curl',2,'15'),
+      sx('incline-walk',1,'15-20 min'),
     ]},
     { name:'Legs — Heavy', exercises:[
       sx('barbell-back-squat',4,'6-8'), sx('barbell-romanian-deadlift',3,'8-10'), sx('leg-press',3,'10-12'),
       sx('lying-leg-curl',3,'12-15'), sx('calf-raise',4,'15-20'), sx('hanging-raise',3,'15'),
+      sx('deadlift',2,'5'),
     ]},
     { name:'Upper — Pump/Hypertrophy', exercises:[
       sx('incline-db-press',3,'10-12'), sx('close-grip-lat-pulldown',3,'10-12'), sx('chest-fly',2,'12-15'),
       sx('seated-row',3,'10-12'), sx('db-shoulder-press',2,'10-12'), sx('rear-delt-fly',2,'15'),
       sx('hammer-curl',2,'10-12'), sx('skull-crusher',2,'10-12'), sx('preacher-curl',2,'12-15'), sx('cable-rope-pushdown',2,'15'),
+      sx('wrist-curl',2,'15'), sx('barbell-shrug',3,'12-15'),
     ]},
     { name:'Lower — Pump/Hypertrophy', exercises:[
       sx('hack-squat-machine',3,'10-12'), sx('leg-extension',3,'12-15'), sx('dumbbell-walking-lunge',2,'10/leg'),
       sx('lying-leg-curl',2,'12-15'), sx('calf-raise',4,'15-20'), sx('crunch',3,'15'), sx('hanging-raise',2,'20/side'),
+      sx('barbell-hip-thrust',3,'10-12'), sx('deadlift',2,'5'),
     ]},
   ]},
 
@@ -6750,6 +6772,7 @@ const DEFAULT_SPLITS = [
     { name:'Shoulders + Legs', exercises:[
       sx('barbell-back-squat',4,'8-10'), sx('leg-press',3,'10-12'), sx('lying-leg-curl',3,'12-15'),
       sx('calf-raise',4,'15-20'), sx('ohp',3,'8-10'), sx('cable-lateral-raise',3,'12-15'), sx('rear-delt-fly',2,'15'),
+      sx('barbell-hip-thrust',3,'10-12'), sx('deadlift',2,'5'), sx('incline-walk',1,'15-20 min'),
     ]},
     { name:'Chest + Triceps + Abs (2)', exercises:[
       sx('bench-press',4,'8-10'), sx('incline-db-press',3,'10-12'), sx('push-up',3,'AMRAP'),
@@ -6764,6 +6787,7 @@ const DEFAULT_SPLITS = [
     { name:'Shoulders + Legs (2)', exercises:[
       sx('barbell-back-squat',4,'8-10'), sx('leg-press',3,'10-12'), sx('lying-leg-curl',3,'12-15'),
       sx('calf-raise',4,'15-20'), sx('ohp',3,'8-10'), sx('cable-lateral-raise',3,'12-15'), sx('rear-delt-fly',2,'15'),
+      sx('barbell-hip-thrust',3,'10-12'), sx('deadlift',2,'5'), sx('incline-walk',1,'15-20 min'),
     ]},
   ]},
 ];
@@ -6859,8 +6883,67 @@ function computeSplitHeadFrequency(split){
   return freq;
 }
 
+// Effective weekly set count for one assigned exercise: uses your most recently LOGGED
+// set count when you've logged it at least once, otherwise falls back to the plan's target.
+function getEffectiveSetCount(de){
+  const last = getLastLoggedForExercise(de.exerciseId);
+  if(last && last.sets && last.sets.length) return last.sets.length;
+  return de.targetSets || 3;
+}
+
+// Total sets/week landing on each muscle across the whole split — direct (as primary target)
+// and indirect (as a secondary/assisting mover) — using each exercise's effective set count.
+function computeSplitSetsPerMuscle(split){
+  const sets = {}; // muscleKey -> {directSets, directDays:Set, indirectSets, indirectDays:Set}
+  const ensure = (k)=>{ sets[k] = sets[k] || {directSets:0, directDays:new Set(), indirectSets:0, indirectDays:new Set()}; return sets[k]; };
+  (split.days||[]).forEach(day=>{
+    (day.exercises||[]).forEach(de=>{
+      const ex = EXERCISE_LIBRARY.find(x=>x.id===de.exerciseId);
+      if(!ex) return;
+      const n = getEffectiveSetCount(de);
+      const p = ensure(ex.primary);
+      p.directSets += n; p.directDays.add(day.id);
+      (ex.secondary||[]).forEach(sm=>{
+        const s = ensure(sm);
+        s.indirectSets += n; s.indirectDays.add(day.id);
+      });
+    });
+  });
+  return sets;
+}
+
 let splitManagerOpenDays = new Set();   // dayIds currently expanded
 let splitManagerDayView = {};           // dayId -> 'front'|'back'
+let splitManagerOpenWarmups = new Set(); // dayIds whose warm-up block is expanded
+
+// Auto-builds a RAMP-method warm-up (Raise -> Activate/Mobilize -> Potentiate) for a split day,
+// based on WARMUP_DB entries for whichever muscles that day trains as a PRIMARY target — so it
+// updates automatically as exercises are added/removed/swapped.
+function computeDayWarmup(day){
+  const dayMuscleMap = computeDayMuscleMap(day);
+  const primaryMuscleKeys = MUSCLES.map(m=>m.key).filter(k=>dayMuscleMap[k] && Object.keys(dayMuscleMap[k].primaryHeads).length>0);
+  const mobility = [], before = [];
+  const seenMob = new Set(), seenBefore = new Set();
+  primaryMuscleKeys.forEach(mk=>{
+    const w = WARMUP_DB[mk];
+    if(!w) return;
+    (w.mobility||[]).forEach(d=>{ if(!seenMob.has(d.name)){ seenMob.add(d.name); mobility.push(d); } });
+    (w.before||[]).forEach(d=>{ if(!seenBefore.has(d.name)){ seenBefore.add(d.name); before.push(d); } });
+  });
+  // Find the day's heaviest/first compound lift to suggest ramp-up (build-up) sets for.
+  let rampEx = null;
+  for(const de of (day.exercises||[])){
+    const ex = EXERCISE_LIBRARY.find(x=>x.id===de.exerciseId);
+    if(ex && classifyMechanics(ex)==='C'){ rampEx = ex; break; }
+  }
+  return {
+    hasContent: primaryMuscleKeys.length>0,
+    raise: {name:'Light Cardio', detail:'5 min — bike, rower, or incline walk. Raises core temperature before loading any joints.'},
+    mobility: mobility.slice(0,4),
+    activate: before.slice(0,5),
+    rampSets: rampEx ? {name:rampEx.name, detail:`Empty bar / light weight x8-10 reps, then 2-3 progressively heavier build-up sets before your working weight — spend real time grooving form on this one.`} : null,
+  };
+}
 
 function renderSplitManagerPage(){
   ensureSplitsData();
@@ -6917,7 +7000,7 @@ function renderSplitDaysList(body, split){
   wireSplitDayCards(daysWrap, split, freq);
 
   document.getElementById('smAddDayBtn').onclick = ()=> openAddDayModal(split.id);
-  document.getElementById('smSummaryCard').innerHTML = renderSplitSummaryTable(split, freq);
+  document.getElementById('smSummaryCard').innerHTML = renderSplitSummaryTable(split, freq, computeSplitSetsPerMuscle(split));
 }
 
 function renderSplitDayCard(split, day, freq){
@@ -6940,6 +7023,7 @@ function renderSplitDayCard(split, day, freq){
       </div>
     </div>
     <div class="split-day-body" id="daybody-${day.id}" style="${isOpen?'':'display:none;'}">
+      <div class="split-warmup-block" id="warmup-${day.id}"></div>
       <div class="split-daymap-row">
         <div class="bodymap-wrap">
           <div class="body-toggle" style="margin-bottom:2px;">
@@ -7051,30 +7135,75 @@ function renderSplitExerciseCard(split, day, de, idx, freq){
   </div>`;
 }
 
-function renderSplitSummaryTable(split, freq){
+function renderSplitSummaryTable(split, freq, setsPerMuscle){
+  let totalDirectSets = 0, totalIndirectSets = 0;
   const rows = MUSCLES.filter(m=>freq[m.key]).map(m=>{
     const heads = freq[m.key];
     let direct = new Set(), indirect = new Set();
     Object.values(heads).forEach(h=>{ h.direct.forEach(d=>direct.add(d)); h.indirect.forEach(d=>indirect.add(d)); });
     // indirect-only days (not already counted as direct)
     const indirectOnly = new Set([...indirect].filter(d=>!direct.has(d)));
+    const s = setsPerMuscle[m.key] || {directSets:0, indirectSets:0};
+    totalDirectSets += s.directSets; totalIndirectSets += s.indirectSets;
     return `<tr>
       <td>${escapeHtml(m.label)}</td>
-      <td>${direct.size ? direct.size+'x direct' : '—'}</td>
-      <td>${indirectOnly.size ? indirectOnly.size+'x indirect' : '—'}</td>
+      <td>${direct.size ? direct.size+'x/wk' : '—'}</td>
+      <td>${s.directSets ? s.directSets+' sets/wk' : '—'}</td>
+      <td>${indirectOnly.size ? indirectOnly.size+'x/wk' : '—'}</td>
+      <td>${s.indirectSets ? s.indirectSets+' sets/wk' : '—'}</td>
     </tr>`;
   }).join('');
   return `
-    <div class="card-title-row"><h3 style="margin:0;">Weekly Muscle Frequency — ${escapeHtml(split.name)}</h3></div>
-    <p class="help mb">How often each muscle is trained across every day in this split.</p>
-    ${rows ? `<table><thead><tr><th>Muscle</th><th>Direct (primary)</th><th>Indirect (secondary)</th></tr></thead><tbody>${rows}</tbody></table>` :
+    <div class="card-title-row"><h3 style="margin:0;">Weekly Muscle Frequency &amp; Volume — ${escapeHtml(split.name)}</h3></div>
+    <p class="help mb">How often each muscle is trained across every day in this split, and the total weekly sets landing on it — direct (as the exercise's primary target) and indirect (as an assisting/secondary mover). Set counts use your most recently logged sets where available, otherwise the plan's starting target.</p>
+    ${rows ? `<div style="overflow-x:auto;"><table><thead><tr><th>Muscle</th><th>Direct Freq.</th><th>Direct Sets</th><th>Indirect Freq.</th><th>Indirect Sets</th></tr></thead><tbody>${rows}
+      <tr style="font-weight:800;"><td>Total (all muscles)</td><td>—</td><td>${totalDirectSets} sets/wk</td><td>—</td><td>${totalIndirectSets} sets/wk</td></tr>
+      </tbody></table></div>` :
       `<p class="muted" style="font-size:12px;">Add exercises to your split days to see the frequency breakdown.</p>`}
   `;
 }
 
+function renderSplitWarmupHTML(day){
+  const isOpen = splitManagerOpenWarmups.has(day.id);
+  const wu = computeDayWarmup(day);
+  if(!wu.hasContent){
+    return `<div class="split-warmup-block"><div class="split-warmup-head" style="cursor:default;"><span class="swh-title">🔥 Warm-up</span></div>
+      <div class="split-warmup-empty" style="padding:0 12px 10px;">Add an exercise to auto-build a warm-up for this day.</div></div>`;
+  }
+  const itemCount = 1 + wu.mobility.length + wu.activate.length + (wu.rampSets?1:0);
+  return `
+  <div class="split-warmup-block">
+    <div class="split-warmup-head" data-warmuptoggle="${day.id}">
+      <span class="swh-caret" style="transform:rotate(${isOpen?'0deg':'-90deg'});">▾</span>
+      <span class="swh-title">🔥 Warm-up (RAMP method) — don't skip it</span>
+      <span class="swh-count">${itemCount} steps</span>
+    </div>
+    <div class="split-warmup-body" style="${isOpen?'':'display:none;'}">
+      <div class="split-warmup-group">
+        <div class="swg-label">Raise</div>
+        <div class="split-warmup-item"><span class="swi-bullet">•</span><span><span class="swi-name">${escapeHtml(wu.raise.name)}</span> — ${escapeHtml(wu.raise.detail)}</span></div>
+      </div>
+      ${wu.mobility.length ? `<div class="split-warmup-group">
+        <div class="swg-label">Mobilize</div>
+        ${wu.mobility.map(d=>`<div class="split-warmup-item"><span class="swi-bullet">•</span><span><span class="swi-name">${escapeHtml(d.name)}</span>${d.detail?` — ${escapeHtml(d.detail)}`:''}</span></div>`).join('')}
+      </div>` : ''}
+      ${wu.activate.length ? `<div class="split-warmup-group">
+        <div class="swg-label">Activate / Potentiate</div>
+        ${wu.activate.map(d=>`<div class="split-warmup-item"><span class="swi-bullet">•</span><span><span class="swi-name">${escapeHtml(d.name)}</span>${d.detail?` — ${escapeHtml(d.detail)}`:''}</span></div>`).join('')}
+      </div>` : ''}
+      ${wu.rampSets ? `<div class="split-warmup-group">
+        <div class="swg-label">Ramp-Up Sets</div>
+        <div class="split-warmup-item"><span class="swi-bullet">•</span><span><span class="swi-name">${escapeHtml(wu.rampSets.name)}</span> — ${escapeHtml(wu.rampSets.detail)}</span></div>
+      </div>` : ''}
+    </div>
+  </div>`;
+}
+
 function wireSplitDayCards(daysWrap, split, freq){
-  // render each day's body map + exercise list, and wire all interactions
+  // render each day's warm-up, body map + exercise list, and wire all interactions
   (split.days||[]).forEach(day=>{
+    const warmupEl = document.getElementById(`warmup-${day.id}`);
+    if(warmupEl) warmupEl.innerHTML = renderSplitWarmupHTML(day);
     const exListEl = document.getElementById(`dayexlist-${day.id}`);
     if(exListEl){
       exListEl.innerHTML = (day.exercises||[]).map((de,idx)=>renderSplitExerciseCard(split, day, de, idx, freq)).join('') ||
@@ -7083,6 +7212,18 @@ function wireSplitDayCards(daysWrap, split, freq){
     if(splitManagerOpenDays.has(day.id)){
       renderSplitDayBodyMapSvg(day.id, computeDayMuscleMap(day));
     }
+  });
+
+  daysWrap.querySelectorAll('[data-warmuptoggle]').forEach(head=>{
+    head.onclick = ()=>{
+      const dayId = head.dataset.warmuptoggle;
+      const bodyEl = head.parentElement.querySelector('.split-warmup-body');
+      const caret = head.querySelector('.swh-caret');
+      const nowOpen = bodyEl.style.display === 'none';
+      bodyEl.style.display = nowOpen ? '' : 'none';
+      caret.style.transform = nowOpen ? 'rotate(0deg)' : 'rotate(-90deg)';
+      if(nowOpen) splitManagerOpenWarmups.add(dayId); else splitManagerOpenWarmups.delete(dayId);
+    };
   });
 
   daysWrap.querySelectorAll('[data-daytoggle]').forEach(head=>{
